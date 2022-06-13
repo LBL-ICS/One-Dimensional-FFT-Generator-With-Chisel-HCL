@@ -5,8 +5,8 @@ import scala.util.Random
 
 object FFT {
   def main(args: Array[String]): Unit = {
-    val n_size = 49
-    val r = 7
+    val n_size = 3
+    val r = 3
 
     val xi = for(i <- 0 until n_size) yield{
       val start = -10
@@ -21,6 +21,20 @@ object FFT {
     soln2.map(println(_))
 
     println("-----------------------------------------------")
+
+    val Nw = 108
+    val ll = for(i <- 0 until Nw) yield{
+      cmplx(i,0)
+    }
+    val soln3 = FFT_mr(Nw,4,27,2,3, ll.toArray)
+    soln3.map(_.print_complex)
+    println("-------------------------------")
+    val soln4 = DFT_compute(DFT_gen(Nw),ll.toArray,Nw).map(_.print_complex)
+
+//    val k = T2_rs(6,3,2)
+//    k.map(_.print_complex)
+//    Wnk(6,1).print_complex
+//    Wnk(6,2).print_complex
   }
 
   def DFT_gen(n: Int):Array[Array[cmplx]] = {
@@ -81,6 +95,28 @@ object FFT {
       Xk = L(Xk,N,r)
     }
     Xk
+  }
+
+  def FFT_mr(N: Int, nr:Int, ns: Int, r: Int, s: Int, xr:Array[cmplx]): Array[cmplx] = {
+    var xk = xr
+    val Twid = T2_rs(N,ns,nr)
+    xk = L(xk,N,nr)
+    for(i <- 0 until nr){
+      var temp = FFT_r(ns,s,xk.slice(i*ns, i*ns+ns))
+      for(j <- 0 until ns){
+        xk(i*ns+j) = temp(j)
+      }
+    }
+    xk = L(xk,N,ns)
+    xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)}
+    for(i <- 0 until ns){
+      var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr))
+      for(j <- 0 until nr){
+        xk(i*nr+j) = temp(j)
+      }
+    }
+    xk = L(xk,N,nr)
+    xk
   }
 
 

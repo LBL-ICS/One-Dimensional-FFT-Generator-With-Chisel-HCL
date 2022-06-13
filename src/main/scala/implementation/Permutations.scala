@@ -69,4 +69,17 @@ object Permutations {
     }
     t_mtrx
   }
+
+  def T2_rs(N: Int, r:Int, s:Int): Array[cmplx] = {
+    val T_mtrx_t = for(j <- 0 until N) yield{
+        cmplx(0,0)
+    }
+    var t_mtrx = T_mtrx_t.toArray
+    for(k <- 0 until r) { // repeat for l times to fill up the twiddle matrix
+      for (i <- 0 until s) { // each group has r elements
+        t_mtrx(k*s + i) = Wnk(N, i *k)
+      }
+    }
+    t_mtrx
+  }
 }
