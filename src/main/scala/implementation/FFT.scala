@@ -4,8 +4,9 @@ import ComplexNumbers._
 import scala.util.Random
 
 object FFT {
-
+  // generate arbitrary size DFT matrix
   def DFT_gen(n: Int):Array[Array[cmplx]] = {
+    // initializing the matrix
     var DFT_mtrx = for (i <- 0 until n) yield {
       val row = for (j <- 0 until n) yield {
         cmplx(0,0)
@@ -13,7 +14,7 @@ object FFT {
       row.toArray
     }
     var DFT_arr = DFT_mtrx.toArray
-
+    // filling in the matrix with the Wnk terms
     for(i <- 0 until n){
       for(j <- 0 until n){
         DFT_arr(i)(j) = Wnk(n,i*j)
@@ -22,11 +23,14 @@ object FFT {
     DFT_arr
   }
 
+  // Perform the computation of the DFT (matrix * vector)
   def DFT_compute(DFT: Array[Array[cmplx]], xi: Array[cmplx], N: Int): Array[cmplx] = {
+    // initializing output array
     var xk_t = for (i <- 0 until N) yield {
       cmplx(0,0)
     }
     var xk = xk_t.toArray
+    // performing the matrix*vector operation
     for(i <- 0 until N){
       for(j <- 0 until N){
         xk(i) = complex_add(xk(i), complex_mult(DFT(i)(j), xi(j)))
@@ -35,56 +39,61 @@ object FFT {
     xk
   }
 
+  // FFT computation for any radix r
   def FFT_r(N: Int, r: Int, xr: Array[cmplx]): Array[cmplx] = {
-    val twiddle_factors = T2(N, r)
-    val l = (Math.log10(N)/Math.log10(r)).toInt
-    val w = N/r
-    val DFT_r = DFT_gen(r)
-    val arr_t = for (i <- 0 until r) yield {
+    val twiddle_factors = T2(N, r) // generate the twiddle factors
+    val l = (Math.log10(N)/Math.log10(r)).toInt //calculate the number of stages
+    val w = N/r // Calculate the number of DFT_r computations per stage
+    val DFT_r = DFT_gen(r) // generate a DFT matrix of size r, the radix
+    // initialize temporary array
+    val temp_t = for (i <- 0 until r) yield {
       cmplx(0, 0)
     }
-    var arr = arr_t.toArray
-    var Xk = R(xr,N, r)
-    for(i <- 0 until l){
-      if(i!=0){
+    var temp = temp_t.toArray
+    var Xk = R(xr,N, r) // Permute the inputs
+    for(i <- 0 until l){ // for each stage
+      if(i!=0){ // if not at the first stage
         for(k <- 0 until N){
-          Xk(k) = complex_mult( Xk(k), twiddle_factors(i-1)(k))
+          Xk(k) = complex_mult( Xk(k), twiddle_factors(i-1)(k)) // apply the twiddle factors
         }
       }
-      for(j <- 0 until w){
-        for(l <- 0 until r){
-          arr(l) = Xk(j*r + l)
+      for(j <- 0 until w){ // for all DFT_r computations required for the given stage
+        for(l <- 0 until r){ // fill in the temporary matrix with r elements from Xk
+          temp(l) = Xk(j*r + l)
         }
-        arr  = DFT_compute(DFT_r, arr, r)
-        for(l <- 0 until r){
-          Xk(j*r + l) = arr(l)
+        temp  = DFT_compute(DFT_r, temp, r) // compute the DFT_r
+        for(l <- 0 until r){ // update the corresponding Xk values with outputs from DFT_r
+          Xk(j*r + l) = temp(l)
         }
       }
-      Xk = L(Xk,N,r)
+      Xk = L(Xk,N,r) // Permute Xk
     }
-    Xk
+    Xk // return the results of the FFT_r computation
   }
 
+  // FFT computation for mixed radix specification (r and s)
   def FFT_mr(N: Int, nr:Int, ns: Int, r: Int, s: Int, xr:Array[cmplx]): Array[cmplx] = {
-    var xk = xr
-    val Twid = T2_rs(N,ns,nr)
-    xk = L(xk,N,nr)
+    var xk = xr // copy of the inputs array
+    val Twid = T2_rs(N,ns,nr) // compute the twiddle factors for the mixed radix case
+    xk = L(xk,N,nr) // permute the inputs
+    // We are splitting DFT_N into nr DFT_ns computations initially
+    // afterward, we apply twiddle factors and compute ns DFT_nr computations
     for(i <- 0 until nr){
-      var temp = FFT_r(ns,s,xk.slice(i*ns, i*ns+ns))
-      for(j <- 0 until ns){
+      var temp = FFT_r(ns,s,xk.slice(i*ns, i*ns+ns)) //compute the FFT_r based on size ns and radix s
+      for(j <- 0 until ns){ // update xk values with new values
         xk(i*ns+j) = temp(j)
       }
     }
-    xk = L(xk,N,ns)
-    xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)}
+    xk = L(xk,N,ns) // permute the xk
+    xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)} // apply the twiddle factors
     for(i <- 0 until ns){
-      var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr))
-      for(j <- 0 until nr){
+      var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr)) // compute the FFT_r based on size nr and radix r
+      for(j <- 0 until nr){ // update xk values with new values
         xk(i*nr+j) = temp(j)
       }
     }
-    xk = L(xk,N,nr)
-    xk
+    xk = L(xk,N,nr) // permute the xk one last time
+    xk // return the xk array, now holding the solution
   }
 
 
