@@ -4,38 +4,6 @@ import ComplexNumbers._
 import scala.util.Random
 
 object FFT {
-  def main(args: Array[String]): Unit = {
-    val n_size = 3
-    val r = 3
-
-    val xi = for(i <- 0 until n_size) yield{
-      val start = -10
-      val end = 10
-      val rnd = new Random()
-      val value = start + rnd.nextInt((end-start) + 1)
-      cmplx(value, 0)
-    }
-    println("-----------------------------------------------")
-
-    val soln2 = FFT_r(n_size, r, xi.toArray).map(complex_mag(_)).toSeq
-    soln2.map(println(_))
-
-    println("-----------------------------------------------")
-
-    val Nw = 108
-    val ll = for(i <- 0 until Nw) yield{
-      cmplx(i,0)
-    }
-    val soln3 = FFT_mr(Nw,4,27,2,3, ll.toArray)
-    soln3.map(_.print_complex)
-    println("-------------------------------")
-    val soln4 = DFT_compute(DFT_gen(Nw),ll.toArray,Nw).map(_.print_complex)
-
-//    val k = T2_rs(6,3,2)
-//    k.map(_.print_complex)
-//    Wnk(6,1).print_complex
-//    Wnk(6,2).print_complex
-  }
 
   def DFT_gen(n: Int):Array[Array[cmplx]] = {
     var DFT_mtrx = for (i <- 0 until n) yield {
