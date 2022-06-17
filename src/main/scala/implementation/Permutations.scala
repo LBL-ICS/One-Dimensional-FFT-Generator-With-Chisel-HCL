@@ -128,14 +128,14 @@ object Permutations {
         temp
       }).toArray
     }).toArray
-    var organize_into_unique_mem_stores = (for(i <- 0 until N/w) yield{(for(j <- 0 until w) yield{((0,0),(0,0))}).toArray}).toArray
+    var organized_into_unique_mem_stores = (for(i <- 0 until N/w) yield{(for(j <- 0 until w) yield{((0,0),(0,0))}).toArray}).toArray
     var index = 0
     for(i <- 0 until N/w){
       for(j <- 0 until N/w){
         for(k <- 0 until w){
           if(i == unorganized_memory_addr(j)(k)._2._1){
             // organize elements into a form that has unique read_ports for each group of w words
-            organize_into_unique_mem_stores(i)(index) = unorganized_memory_addr(j)(k)
+            organized_into_unique_mem_stores(i)(index) = unorganized_memory_addr(j)(k)
             index = (index + 1) % w
           }
         }
@@ -194,7 +194,7 @@ object Permutations {
       val t1 = (for(j <- 0 until rxr_group_size) yield{
         val t2 = (for(k <- 0 until vertical_group_size) yield{
           val t3 = (for(l <- 0 until horizontal_group_size) yield{
-            organize_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l)
+            organized_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l)
           }).toArray
           t3
         }).toArray
@@ -209,16 +209,16 @@ object Permutations {
       for (j <- 0 until rxr_group_size){
         for (k <- 0 until vertical_group_size){
           for(l <- 0 until horizontal_group_size){
-            organize_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l) = arranged_into_4D(i)(j)(k)(l)
+            organized_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l) = arranged_into_4D(i)(j)(k)(l)
           }
         }
       }
     }
     unorganized_memory_addr.map(x => println(x.toList))
     println("pairs of read, store (address, port). Horizontal terms are the w inputs/outputs per cycle")
-    organize_into_unique_mem_stores.map(x => println(x.toList))
+    organized_into_unique_mem_stores.map(x => println(x.toList))
     println()
-    organize_into_unique_mem_stores
+    organized_into_unique_mem_stores
   }
 
   def circular_shift[T:ClassTag](xi: Array[T], amnt: Int): Array[T] = {
