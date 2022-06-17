@@ -190,7 +190,7 @@ object Permutations {
         rxr_group_size = r*r
       }
     }
-    var arrange_into_4D = (for(i <- 0 until rxr_group_size) yield{
+    var arranged_into_4D = (for(i <- 0 until rxr_group_size) yield{
       val t1 = (for(j <- 0 until rxr_group_size) yield{
         val t2 = (for(k <- 0 until vertical_group_size) yield{
           val t3 = (for(l <- 0 until horizontal_group_size) yield{
@@ -203,13 +203,13 @@ object Permutations {
       t1
     }).toArray
     for(i <- 0 until rxr_group_size){
-      arrange_into_4D(i) = circular_shift[Array[Array[((Int, Int),(Int, Int))]]](arrange_into_4D(i),i)
+      arranged_into_4D(i) = circular_shift[Array[Array[((Int, Int),(Int, Int))]]](arranged_into_4D(i),i)
     }
     for(i <- 0 until rxr_group_size){
       for (j <- 0 until rxr_group_size){
         for (k <- 0 until vertical_group_size){
           for(l <- 0 until horizontal_group_size){
-            organize_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l) = arrange_into_4D(i)(j)(k)(l)
+            organize_into_unique_mem_stores(j*vertical_group_size+k)(i*horizontal_group_size+l) = arranged_into_4D(i)(j)(k)(l)
           }
         }
       }
