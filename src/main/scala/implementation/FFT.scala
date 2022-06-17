@@ -42,7 +42,7 @@ object FFT {
   // FFT computation for any radix r
   def FFT_r(N: Int, r: Int, xr: Array[cmplx]): Array[cmplx] = {
     val twiddle_factors = T2(N, r) // generate the twiddle factors
-    val l = (Math.log10(N)/Math.log10(r)).toInt //calculate the number of stages
+    val l = (Math.log10(N)/Math.log10(r)).round.toInt //calculate the number of stages
     val w = N/r // Calculate the number of DFT_r computations per stage
     val DFT_r = DFT_gen(r) // generate a DFT matrix of size r, the radix
     // initialize temporary array
@@ -50,7 +50,7 @@ object FFT {
       cmplx(0, 0)
     }
     var temp = temp_t.toArray
-    var Xk = R(xr,N, r) // Permute the inputs
+    var Xk = R[cmplx](xr,N, r) // Permute the inputs
     for(i <- 0 until l){ // for each stage
       if(i!=0){ // if not at the first stage
         for(k <- 0 until N){
@@ -66,7 +66,7 @@ object FFT {
           Xk(j*r + l) = temp(l)
         }
       }
-      Xk = L(Xk,N,r) // Permute Xk
+      Xk = L[cmplx](Xk,N,r) // Permute Xk
     }
     Xk // return the results of the FFT_r computation
   }
@@ -75,7 +75,7 @@ object FFT {
   def FFT_mr(N: Int, nr:Int, ns: Int, r: Int, s: Int, xr:Array[cmplx]): Array[cmplx] = {
     var xk = xr // copy of the inputs array
     val Twid = T2_rs(N,ns,nr) // compute the twiddle factors for the mixed radix case
-    xk = L(xk,N,nr) // permute the inputs
+    xk = L[cmplx](xk,N,nr) // permute the inputs
     // We are splitting DFT_N into nr DFT_ns computations initially
     // afterward, we apply twiddle factors and compute ns DFT_nr computations
     for(i <- 0 until nr){
@@ -84,7 +84,7 @@ object FFT {
         xk(i*ns+j) = temp(j)
       }
     }
-    xk = L(xk,N,ns) // permute the xk
+    xk = L[cmplx](xk,N,ns) // permute the xk
     xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)} // apply the twiddle factors
     for(i <- 0 until ns){
       var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr)) // compute the FFT_r based on size nr and radix r
@@ -92,7 +92,7 @@ object FFT {
         xk(i*nr+j) = temp(j)
       }
     }
-    xk = L(xk,N,nr) // permute the xk one last time
+    xk = L[cmplx](xk,N,nr) // permute the xk one last time
     xk // return the xk array, now holding the solution
   }
 
