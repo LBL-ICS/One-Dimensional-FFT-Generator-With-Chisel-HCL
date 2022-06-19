@@ -6,6 +6,7 @@ import chisel3.tester.RawTester.test
 import chisel3._
 import chisel3.tester._
 import ChiselFFT.FFTDesigns._
+import java.io.PrintWriter
 
 object Testing {
   def main(args: Array[String]): Unit = {
@@ -118,5 +119,28 @@ object Testing {
       println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
       println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
     }
+    println("--------------------")
+    test(new FFT_sr(4,2,4,32)){c=>
+      c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
+      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
+      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(2).Re.poke(convert_string_to_IEEE_754("2.9", 32).U)
+      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.984", 32).U)
+      c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.clock.step(20)
+      println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+      println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+      println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+      println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+      println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
+      println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
+      println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
+      println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
+    }
+    val pw = new PrintWriter("FFT_sr.v")
+    pw.println(getVerilogString(new FFT_sr(4,2,4,32)))
+    pw.close()
   }
 }

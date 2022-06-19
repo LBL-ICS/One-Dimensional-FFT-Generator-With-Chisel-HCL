@@ -102,4 +102,49 @@ object FFTDesigns {
       io.out(i) := io.in(PermutationModel(i))
     }
   }
+  class FFT_sr(N:Int, r: Int, w: Int, bw: Int) extends Module{
+    val io = IO(new Bundle() {
+      val in = Input(Vec(N, new ComplexNum(bw)))
+      val out = Output(Vec(N, new ComplexNum(bw)))
+    })
+    val DFTs_per_stage = N/r
+    val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+    val DFT_instances = (for(i <- 0 until number_of_stages) yield{
+      val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
+        val DFT_instance = Module(new DFT_r(r, bw)).io
+        DFT_instance
+      }).toVector
+      DFT_instnace_row
+    }).toVector
+    val Input_Permutation = Module(new PermutationsBasic(N,r,1,bw)).io
+    val Stage_Permutations = (for(i <- 0 until number_of_stages)yield{
+      val stage_permutation = Module(new PermutationsBasic(N,r,0,bw)).io
+      stage_permutation
+    }).toVector
+    val TwiddleFactorModules = (for(i <- 0 until number_of_stages - 1) yield {
+      val Twid = Module(new TwiddleFactors(N,r,N,i,bw)).io
+      Twid
+    }).toVector
+    for(i <- 0 until N){
+      Input_Permutation.in(i) := io.in(i)
+    }
+    for(i <- 0 until number_of_stages){
+      for(j <- 0 until DFTs_per_stage){
+        for(k <- 0 until r){
+          if(i == 0){
+            DFT_instances(i)(j).in(k) := Input_Permutation.out(j*r+k)
+          }else{
+            DFT_instances(i)(j).in(k) := TwiddleFactorModules(i-1).out(j*r+k)
+          }
+          Stage_Permutations(i).in(j*r+k) := DFT_instances(i)(j).out(k)
+        }
+      }
+      if(i != 0){
+        TwiddleFactorModules(i-1).in := Stage_Permutations(i-1).out
+      }
+      if(i == number_of_stages - 1){
+        io.out := Stage_Permutations(i).out
+      }
+    }
+  }
 }
