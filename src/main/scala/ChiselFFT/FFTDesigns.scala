@@ -55,14 +55,14 @@ object FFTDesigns {
       val out = Output(Vec(w, new ComplexNum(bw)))
     })
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
-    val TRes = VecInit(for(i <- 0 until TotalStages)yield{
-      val Tre = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
-      Tre
-    })
-    val TIms = VecInit(for(i <- 0 until TotalStages)yield{
-      val TIm = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
-      TIm
-    })
+//    val TRes = VecInit(for(i <- 0 until TotalStages)yield{
+//      val Tre = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
+//      Tre
+//    })
+//    val TIms = VecInit(for(i <- 0 until TotalStages)yield{
+//      val TIm = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
+//      TIm
+//    })
     val TwiddleFactorConstantsRe = VecInit(Permutations.T2(N,r)(stage).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
     val TwiddleFactorConstantsIm = VecInit(Permutations.T2(N,r)(stage).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
     val TotalCycles = N/w
@@ -109,6 +109,13 @@ object FFTDesigns {
     })
     val DFTs_per_stage = N/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+    val CMultLatency = 2
+    val CAddLatency = 1
+    val DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
+    val Twid_latency = (N/w) * CMultLatency
+    val Perm_latency = 0
+    val Total_Latency = (number_of_stages - 1) * Twid_latency + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+    println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
     val DFT_instances = (for(i <- 0 until number_of_stages) yield{
       val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
         val DFT_instance = Module(new DFT_r(r, bw)).io
