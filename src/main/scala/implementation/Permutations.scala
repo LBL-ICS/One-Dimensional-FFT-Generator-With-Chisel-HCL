@@ -107,7 +107,7 @@ object Permutations {
   // r is radix
   // base_r is the radix which r is based on. It could be equal to r if r can not be split anymore
   // t just indicates whether to use the L permutation (0) or R permutation (1)
-  def GenerateStreamingAddr(N: Int, w: Int, r: Int, base_r: Int, t:Int):Array[Array[((Int,Int),(Int,Int))]]  = {
+  def GenerateStreamingMapping(N: Int, w: Int, r: Int, base_r: Int, t:Int):Array[Array[((Int,Int),(Int,Int))]]  = {
     val base_indices = (for(i <- 0 until N)yield{i}).toArray // generate all the indices corresponding to the N elements
     val non_permuted = StreamingGroup[Int](base_indices, N, w) // group indices into streaming groups
     val permuted = StreamingGroup[Int](if(t == 0){L[Int](base_indices,N, r)}else{R[Int](base_indices,N,r)},N,w) // group permuted indices into streaming groups
@@ -231,5 +231,34 @@ object Permutations {
       cpy(xi.length-1) = tmp // place first element at the end
     }
     cpy
+  }
+
+  def Mapping_Sort(xi: Array[Array[((Int,Int),(Int,Int))]], t: Int) : Array[Array[((Int,Int),(Int,Int))]] = {
+    var temp = 0
+    var temp2 = 0
+    var temp3 = ((0,0),(0,0))
+    for(k <- 0 until xi.length) {
+      for (i <- 0 until xi(0).length-1) {
+        if(t == 1){
+          temp = xi(k)(i)._2._2
+        }else{
+          temp = xi(k)(i)._1._2
+        }
+        for (j <- i + 1 until xi(0).length) {
+          if(t == 1){
+            temp2 = xi(k)(j)._2._2
+          }else{
+            temp2 = xi(k)(j)._1._2
+          }
+          if (temp2 < temp) {
+            temp3 = xi(k)(j)
+            xi(k)(j) = xi(k)(i)
+            temp = temp2
+            xi(k)(i) = temp3
+          }
+        }
+      }
+    }
+    xi
   }
 }

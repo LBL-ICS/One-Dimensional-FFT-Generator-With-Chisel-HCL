@@ -623,28 +623,28 @@ module DFT_r(
   output [31:0] io_out_1_Re,
   output [31:0] io_out_1_Im
 );
-  wire  FPComplexMult_clock; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_in_a_Re; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_in_a_Im; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_in_b_Re; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_in_b_Im; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 16:28]
-  wire [31:0] FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 16:28]
-  wire  FPComplexMultiAdder_clock; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_in_0_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_in_0_Im; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_in_1_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_in_1_Im; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_out_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_io_out_Im; // @[FFTDesigns.scala 22:26]
-  wire  FPComplexMultiAdder_1_clock; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_in_0_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_in_0_Im; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_in_1_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_in_1_Im; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_out_Re; // @[FFTDesigns.scala 22:26]
-  wire [31:0] FPComplexMultiAdder_1_io_out_Im; // @[FFTDesigns.scala 22:26]
-  FPComplexMult FPComplexMult ( // @[FFTDesigns.scala 16:28]
+  wire  FPComplexMult_clock; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_in_a_Re; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_in_a_Im; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_in_b_Re; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_in_b_Im; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 17:28]
+  wire [31:0] FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 17:28]
+  wire  FPComplexMultiAdder_clock; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_in_0_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_in_0_Im; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_in_1_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_in_1_Im; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_out_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_io_out_Im; // @[FFTDesigns.scala 23:26]
+  wire  FPComplexMultiAdder_1_clock; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_in_0_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_in_0_Im; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_in_1_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_in_1_Im; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_out_Re; // @[FFTDesigns.scala 23:26]
+  wire [31:0] FPComplexMultiAdder_1_io_out_Im; // @[FFTDesigns.scala 23:26]
+  FPComplexMult FPComplexMult ( // @[FFTDesigns.scala 17:28]
     .clock(FPComplexMult_clock),
     .io_in_a_Re(FPComplexMult_io_in_a_Re),
     .io_in_a_Im(FPComplexMult_io_in_a_Im),
@@ -653,7 +653,7 @@ module DFT_r(
     .io_out_s_Re(FPComplexMult_io_out_s_Re),
     .io_out_s_Im(FPComplexMult_io_out_s_Im)
   );
-  FPComplexMultiAdder FPComplexMultiAdder ( // @[FFTDesigns.scala 22:26]
+  FPComplexMultiAdder FPComplexMultiAdder ( // @[FFTDesigns.scala 23:26]
     .clock(FPComplexMultiAdder_clock),
     .io_in_0_Re(FPComplexMultiAdder_io_in_0_Re),
     .io_in_0_Im(FPComplexMultiAdder_io_in_0_Im),
@@ -662,7 +662,7 @@ module DFT_r(
     .io_out_Re(FPComplexMultiAdder_io_out_Re),
     .io_out_Im(FPComplexMultiAdder_io_out_Im)
   );
-  FPComplexMultiAdder FPComplexMultiAdder_1 ( // @[FFTDesigns.scala 22:26]
+  FPComplexMultiAdder FPComplexMultiAdder_1 ( // @[FFTDesigns.scala 23:26]
     .clock(FPComplexMultiAdder_1_clock),
     .io_in_0_Re(FPComplexMultiAdder_1_io_in_0_Re),
     .io_in_0_Im(FPComplexMultiAdder_1_io_in_0_Im),
@@ -671,25 +671,25 @@ module DFT_r(
     .io_out_Re(FPComplexMultiAdder_1_io_out_Re),
     .io_out_Im(FPComplexMultiAdder_1_io_out_Im)
   );
-  assign io_out_0_Re = FPComplexMultiAdder_io_out_Re; // @[FFTDesigns.scala 49:17]
-  assign io_out_0_Im = FPComplexMultiAdder_io_out_Im; // @[FFTDesigns.scala 49:17]
-  assign io_out_1_Re = FPComplexMultiAdder_1_io_out_Re; // @[FFTDesigns.scala 49:17]
-  assign io_out_1_Im = FPComplexMultiAdder_1_io_out_Im; // @[FFTDesigns.scala 49:17]
+  assign io_out_0_Re = FPComplexMultiAdder_io_out_Re; // @[FFTDesigns.scala 50:17]
+  assign io_out_0_Im = FPComplexMultiAdder_io_out_Im; // @[FFTDesigns.scala 50:17]
+  assign io_out_1_Re = FPComplexMultiAdder_1_io_out_Re; // @[FFTDesigns.scala 50:17]
+  assign io_out_1_Im = FPComplexMultiAdder_1_io_out_Im; // @[FFTDesigns.scala 50:17]
   assign FPComplexMult_clock = clock;
-  assign FPComplexMult_io_in_a_Re = 32'hbf800000; // @[FFTDesigns.scala 27:32]
-  assign FPComplexMult_io_in_a_Im = 32'ha50d3131; // @[FFTDesigns.scala 29:32]
-  assign FPComplexMult_io_in_b_Re = io_in_1_Re; // @[FFTDesigns.scala 28:29]
-  assign FPComplexMult_io_in_b_Im = io_in_1_Im; // @[FFTDesigns.scala 28:29]
+  assign FPComplexMult_io_in_a_Re = 32'hbf800000; // @[FFTDesigns.scala 28:32]
+  assign FPComplexMult_io_in_a_Im = 32'ha50d3131; // @[FFTDesigns.scala 30:32]
+  assign FPComplexMult_io_in_b_Re = io_in_1_Re; // @[FFTDesigns.scala 29:29]
+  assign FPComplexMult_io_in_b_Im = io_in_1_Im; // @[FFTDesigns.scala 29:29]
   assign FPComplexMultiAdder_clock = clock;
-  assign FPComplexMultiAdder_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 32:28 34:26]
-  assign FPComplexMultiAdder_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 32:28 34:26]
-  assign FPComplexMultiAdder_io_in_1_Re = io_in_1_Re; // @[FFTDesigns.scala 32:28 34:26]
-  assign FPComplexMultiAdder_io_in_1_Im = io_in_1_Im; // @[FFTDesigns.scala 32:28 34:26]
+  assign FPComplexMultiAdder_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 33:28 35:26]
+  assign FPComplexMultiAdder_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 33:28 35:26]
+  assign FPComplexMultiAdder_io_in_1_Re = io_in_1_Re; // @[FFTDesigns.scala 33:28 35:26]
+  assign FPComplexMultiAdder_io_in_1_Im = io_in_1_Im; // @[FFTDesigns.scala 33:28 35:26]
   assign FPComplexMultiAdder_1_clock = clock;
-  assign FPComplexMultiAdder_1_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 32:28 36:28]
-  assign FPComplexMultiAdder_1_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 32:28 36:28]
-  assign FPComplexMultiAdder_1_io_in_1_Re = FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 32:28 40:32]
-  assign FPComplexMultiAdder_1_io_in_1_Im = FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 32:28 40:32]
+  assign FPComplexMultiAdder_1_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 33:28 37:28]
+  assign FPComplexMultiAdder_1_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 33:28 37:28]
+  assign FPComplexMultiAdder_1_io_in_1_Re = FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 33:28 41:32]
+  assign FPComplexMultiAdder_1_io_in_1_Im = FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 33:28 41:32]
 endmodule
 module PermutationsBasic(
   input  [31:0] io_in_0_Re,
@@ -700,6 +700,14 @@ module PermutationsBasic(
   input  [31:0] io_in_2_Im,
   input  [31:0] io_in_3_Re,
   input  [31:0] io_in_3_Im,
+  input  [31:0] io_in_4_Re,
+  input  [31:0] io_in_4_Im,
+  input  [31:0] io_in_5_Re,
+  input  [31:0] io_in_5_Im,
+  input  [31:0] io_in_6_Re,
+  input  [31:0] io_in_6_Im,
+  input  [31:0] io_in_7_Re,
+  input  [31:0] io_in_7_Im,
   output [31:0] io_out_0_Re,
   output [31:0] io_out_0_Im,
   output [31:0] io_out_1_Re,
@@ -707,16 +715,83 @@ module PermutationsBasic(
   output [31:0] io_out_2_Re,
   output [31:0] io_out_2_Im,
   output [31:0] io_out_3_Re,
-  output [31:0] io_out_3_Im
+  output [31:0] io_out_3_Im,
+  output [31:0] io_out_4_Re,
+  output [31:0] io_out_4_Im,
+  output [31:0] io_out_5_Re,
+  output [31:0] io_out_5_Im,
+  output [31:0] io_out_6_Re,
+  output [31:0] io_out_6_Im,
+  output [31:0] io_out_7_Re,
+  output [31:0] io_out_7_Im
 );
-  assign io_out_0_Re = io_in_0_Re; // @[FFTDesigns.scala 102:17]
-  assign io_out_0_Im = io_in_0_Im; // @[FFTDesigns.scala 102:17]
-  assign io_out_1_Re = io_in_2_Re; // @[FFTDesigns.scala 102:17]
-  assign io_out_1_Im = io_in_2_Im; // @[FFTDesigns.scala 102:17]
-  assign io_out_2_Re = io_in_1_Re; // @[FFTDesigns.scala 102:17]
-  assign io_out_2_Im = io_in_1_Im; // @[FFTDesigns.scala 102:17]
-  assign io_out_3_Re = io_in_3_Re; // @[FFTDesigns.scala 102:17]
-  assign io_out_3_Im = io_in_3_Im; // @[FFTDesigns.scala 102:17]
+  assign io_out_0_Re = io_in_0_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_0_Im = io_in_0_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_1_Re = io_in_4_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_1_Im = io_in_4_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_2_Re = io_in_2_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_2_Im = io_in_2_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_3_Re = io_in_6_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_3_Im = io_in_6_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_4_Re = io_in_1_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_4_Im = io_in_1_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_5_Re = io_in_5_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_5_Im = io_in_5_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_6_Re = io_in_3_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_6_Im = io_in_3_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_7_Re = io_in_7_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_7_Im = io_in_7_Im; // @[FFTDesigns.scala 103:17]
+endmodule
+module PermutationsBasic_1(
+  input  [31:0] io_in_0_Re,
+  input  [31:0] io_in_0_Im,
+  input  [31:0] io_in_1_Re,
+  input  [31:0] io_in_1_Im,
+  input  [31:0] io_in_2_Re,
+  input  [31:0] io_in_2_Im,
+  input  [31:0] io_in_3_Re,
+  input  [31:0] io_in_3_Im,
+  input  [31:0] io_in_4_Re,
+  input  [31:0] io_in_4_Im,
+  input  [31:0] io_in_5_Re,
+  input  [31:0] io_in_5_Im,
+  input  [31:0] io_in_6_Re,
+  input  [31:0] io_in_6_Im,
+  input  [31:0] io_in_7_Re,
+  input  [31:0] io_in_7_Im,
+  output [31:0] io_out_0_Re,
+  output [31:0] io_out_0_Im,
+  output [31:0] io_out_1_Re,
+  output [31:0] io_out_1_Im,
+  output [31:0] io_out_2_Re,
+  output [31:0] io_out_2_Im,
+  output [31:0] io_out_3_Re,
+  output [31:0] io_out_3_Im,
+  output [31:0] io_out_4_Re,
+  output [31:0] io_out_4_Im,
+  output [31:0] io_out_5_Re,
+  output [31:0] io_out_5_Im,
+  output [31:0] io_out_6_Re,
+  output [31:0] io_out_6_Im,
+  output [31:0] io_out_7_Re,
+  output [31:0] io_out_7_Im
+);
+  assign io_out_0_Re = io_in_0_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_0_Im = io_in_0_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_1_Re = io_in_2_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_1_Im = io_in_2_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_2_Re = io_in_4_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_2_Im = io_in_4_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_3_Re = io_in_6_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_3_Im = io_in_6_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_4_Re = io_in_1_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_4_Im = io_in_1_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_5_Re = io_in_3_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_5_Im = io_in_3_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_6_Re = io_in_5_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_6_Im = io_in_5_Im; // @[FFTDesigns.scala 103:17]
+  assign io_out_7_Re = io_in_7_Re; // @[FFTDesigns.scala 103:17]
+  assign io_out_7_Im = io_in_7_Im; // @[FFTDesigns.scala 103:17]
 endmodule
 module TwiddleFactors(
   input         clock,
@@ -728,6 +803,14 @@ module TwiddleFactors(
   input  [31:0] io_in_2_Im,
   input  [31:0] io_in_3_Re,
   input  [31:0] io_in_3_Im,
+  input  [31:0] io_in_4_Re,
+  input  [31:0] io_in_4_Im,
+  input  [31:0] io_in_5_Re,
+  input  [31:0] io_in_5_Im,
+  input  [31:0] io_in_6_Re,
+  input  [31:0] io_in_6_Im,
+  input  [31:0] io_in_7_Re,
+  input  [31:0] io_in_7_Im,
   output [31:0] io_out_0_Re,
   output [31:0] io_out_0_Im,
   output [31:0] io_out_1_Re,
@@ -735,70 +818,226 @@ module TwiddleFactors(
   output [31:0] io_out_2_Re,
   output [31:0] io_out_2_Im,
   output [31:0] io_out_3_Re,
-  output [31:0] io_out_3_Im
+  output [31:0] io_out_3_Im,
+  output [31:0] io_out_4_Re,
+  output [31:0] io_out_4_Im,
+  output [31:0] io_out_5_Re,
+  output [31:0] io_out_5_Im,
+  output [31:0] io_out_6_Re,
+  output [31:0] io_out_6_Im,
+  output [31:0] io_out_7_Re,
+  output [31:0] io_out_7_Im
 );
 `ifdef RANDOMIZE_REG_INIT
   reg [31:0] _RAND_0;
   reg [31:0] _RAND_1;
 `endif // RANDOMIZE_REG_INIT
-  wire  FPComplexMult_clock; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_in_a_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_in_a_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_in_b_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_in_b_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 72:26]
-  wire  FPComplexMult_1_clock; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_in_a_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_in_a_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_in_b_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_in_b_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 72:26]
-  wire  FPComplexMult_2_clock; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_in_a_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_in_a_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_in_b_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_in_b_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 72:26]
-  wire  FPComplexMult_3_clock; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_in_a_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_in_a_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_in_b_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_in_b_Im; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 72:26]
-  wire [31:0] FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 72:26]
-  reg [31:0] cnt; // @[FFTDesigns.scala 75:18]
-  reg [31:0] cnt2; // @[FFTDesigns.scala 76:19]
-  wire [31:0] _cnt_T_1 = cnt + 32'h1; // @[FFTDesigns.scala 82:20]
-  wire [31:0] _cnt2_T_1 = cnt2 + 32'h1; // @[FFTDesigns.scala 86:20]
-  wire [34:0] _T_2 = cnt * 3'h4; // @[FFTDesigns.scala 89:58]
-  wire [35:0] _T_3 = {{1'd0}, _T_2}; // @[FFTDesigns.scala 89:64]
-  wire [29:0] _GEN_6 = 2'h3 == _T_3[1:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 89:{26,26}]
-  wire [31:0] _GEN_12 = 2'h1 == _T_3[1:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_13 = 2'h2 == _T_3[1:0] ? io_in_2_Im : _GEN_12; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_16 = 2'h1 == _T_3[1:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_17 = 2'h2 == _T_3[1:0] ? io_in_2_Re : _GEN_16; // @[FFTDesigns.scala 91:{23,23}]
-  wire [34:0] _T_16 = _T_2 + 35'h1; // @[FFTDesigns.scala 89:64]
-  wire [29:0] _GEN_22 = 2'h3 == _T_16[1:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 89:{26,26}]
-  wire [31:0] _GEN_28 = 2'h1 == _T_16[1:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_29 = 2'h2 == _T_16[1:0] ? io_in_2_Im : _GEN_28; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_32 = 2'h1 == _T_16[1:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_33 = 2'h2 == _T_16[1:0] ? io_in_2_Re : _GEN_32; // @[FFTDesigns.scala 91:{23,23}]
-  wire [34:0] _T_28 = _T_2 + 35'h2; // @[FFTDesigns.scala 89:64]
-  wire [29:0] _GEN_38 = 2'h3 == _T_28[1:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 89:{26,26}]
-  wire [31:0] _GEN_44 = 2'h1 == _T_28[1:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_45 = 2'h2 == _T_28[1:0] ? io_in_2_Im : _GEN_44; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_48 = 2'h1 == _T_28[1:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_49 = 2'h2 == _T_28[1:0] ? io_in_2_Re : _GEN_48; // @[FFTDesigns.scala 91:{23,23}]
-  wire [34:0] _T_40 = _T_2 + 35'h3; // @[FFTDesigns.scala 89:64]
-  wire [29:0] _GEN_54 = 2'h3 == _T_40[1:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 89:{26,26}]
-  wire [31:0] _GEN_60 = 2'h1 == _T_40[1:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_61 = 2'h2 == _T_40[1:0] ? io_in_2_Im : _GEN_60; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_64 = 2'h1 == _T_40[1:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 91:{23,23}]
-  wire [31:0] _GEN_65 = 2'h2 == _T_40[1:0] ? io_in_2_Re : _GEN_64; // @[FFTDesigns.scala 91:{23,23}]
-  FPComplexMult FPComplexMult ( // @[FFTDesigns.scala 72:26]
+  wire  FPComplexMult_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_1_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_2_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_3_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_4_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_5_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_6_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_7_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  reg [31:0] cnt; // @[FFTDesigns.scala 76:18]
+  reg [31:0] cnt2; // @[FFTDesigns.scala 77:19]
+  wire [31:0] _cnt_T_1 = cnt + 32'h1; // @[FFTDesigns.scala 83:20]
+  wire [31:0] _cnt2_T_1 = cnt2 + 32'h1; // @[FFTDesigns.scala 87:20]
+  wire [35:0] _T_2 = cnt * 4'h8; // @[FFTDesigns.scala 90:58]
+  wire [36:0] _T_3 = {{1'd0}, _T_2}; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_8 = 3'h5 == _T_3[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_9 = 3'h6 == _T_3[2:0] ? 30'h3f800000 : _GEN_8; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_10 = 3'h7 == _T_3[2:0] ? 30'h248d3131 : _GEN_9; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_16 = 3'h5 == _T_3[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_17 = 3'h6 == _T_3[2:0] ? 32'h80800000 : _GEN_16; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_20 = 3'h1 == _T_3[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_21 = 3'h2 == _T_3[2:0] ? io_in_2_Im : _GEN_20; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_22 = 3'h3 == _T_3[2:0] ? io_in_3_Im : _GEN_21; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_23 = 3'h4 == _T_3[2:0] ? io_in_4_Im : _GEN_22; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_24 = 3'h5 == _T_3[2:0] ? io_in_5_Im : _GEN_23; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_25 = 3'h6 == _T_3[2:0] ? io_in_6_Im : _GEN_24; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_28 = 3'h1 == _T_3[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_29 = 3'h2 == _T_3[2:0] ? io_in_2_Re : _GEN_28; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_30 = 3'h3 == _T_3[2:0] ? io_in_3_Re : _GEN_29; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_31 = 3'h4 == _T_3[2:0] ? io_in_4_Re : _GEN_30; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_32 = 3'h5 == _T_3[2:0] ? io_in_5_Re : _GEN_31; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_33 = 3'h6 == _T_3[2:0] ? io_in_6_Re : _GEN_32; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_16 = _T_2 + 36'h1; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_40 = 3'h5 == _T_16[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_41 = 3'h6 == _T_16[2:0] ? 30'h3f800000 : _GEN_40; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_42 = 3'h7 == _T_16[2:0] ? 30'h248d3131 : _GEN_41; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_48 = 3'h5 == _T_16[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_49 = 3'h6 == _T_16[2:0] ? 32'h80800000 : _GEN_48; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_52 = 3'h1 == _T_16[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_53 = 3'h2 == _T_16[2:0] ? io_in_2_Im : _GEN_52; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_54 = 3'h3 == _T_16[2:0] ? io_in_3_Im : _GEN_53; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_55 = 3'h4 == _T_16[2:0] ? io_in_4_Im : _GEN_54; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_56 = 3'h5 == _T_16[2:0] ? io_in_5_Im : _GEN_55; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_57 = 3'h6 == _T_16[2:0] ? io_in_6_Im : _GEN_56; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_60 = 3'h1 == _T_16[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_61 = 3'h2 == _T_16[2:0] ? io_in_2_Re : _GEN_60; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_62 = 3'h3 == _T_16[2:0] ? io_in_3_Re : _GEN_61; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_63 = 3'h4 == _T_16[2:0] ? io_in_4_Re : _GEN_62; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_64 = 3'h5 == _T_16[2:0] ? io_in_5_Re : _GEN_63; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_65 = 3'h6 == _T_16[2:0] ? io_in_6_Re : _GEN_64; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_28 = _T_2 + 36'h2; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_72 = 3'h5 == _T_28[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_73 = 3'h6 == _T_28[2:0] ? 30'h3f800000 : _GEN_72; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_74 = 3'h7 == _T_28[2:0] ? 30'h248d3131 : _GEN_73; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_80 = 3'h5 == _T_28[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_81 = 3'h6 == _T_28[2:0] ? 32'h80800000 : _GEN_80; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_84 = 3'h1 == _T_28[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_85 = 3'h2 == _T_28[2:0] ? io_in_2_Im : _GEN_84; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_86 = 3'h3 == _T_28[2:0] ? io_in_3_Im : _GEN_85; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_87 = 3'h4 == _T_28[2:0] ? io_in_4_Im : _GEN_86; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_88 = 3'h5 == _T_28[2:0] ? io_in_5_Im : _GEN_87; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_89 = 3'h6 == _T_28[2:0] ? io_in_6_Im : _GEN_88; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_92 = 3'h1 == _T_28[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_93 = 3'h2 == _T_28[2:0] ? io_in_2_Re : _GEN_92; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_94 = 3'h3 == _T_28[2:0] ? io_in_3_Re : _GEN_93; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_95 = 3'h4 == _T_28[2:0] ? io_in_4_Re : _GEN_94; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_96 = 3'h5 == _T_28[2:0] ? io_in_5_Re : _GEN_95; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_97 = 3'h6 == _T_28[2:0] ? io_in_6_Re : _GEN_96; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_40 = _T_2 + 36'h3; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_104 = 3'h5 == _T_40[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_105 = 3'h6 == _T_40[2:0] ? 30'h3f800000 : _GEN_104; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_106 = 3'h7 == _T_40[2:0] ? 30'h248d3131 : _GEN_105; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_112 = 3'h5 == _T_40[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_113 = 3'h6 == _T_40[2:0] ? 32'h80800000 : _GEN_112; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_116 = 3'h1 == _T_40[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_117 = 3'h2 == _T_40[2:0] ? io_in_2_Im : _GEN_116; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_118 = 3'h3 == _T_40[2:0] ? io_in_3_Im : _GEN_117; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_119 = 3'h4 == _T_40[2:0] ? io_in_4_Im : _GEN_118; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_120 = 3'h5 == _T_40[2:0] ? io_in_5_Im : _GEN_119; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_121 = 3'h6 == _T_40[2:0] ? io_in_6_Im : _GEN_120; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_124 = 3'h1 == _T_40[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_125 = 3'h2 == _T_40[2:0] ? io_in_2_Re : _GEN_124; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_126 = 3'h3 == _T_40[2:0] ? io_in_3_Re : _GEN_125; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_127 = 3'h4 == _T_40[2:0] ? io_in_4_Re : _GEN_126; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_128 = 3'h5 == _T_40[2:0] ? io_in_5_Re : _GEN_127; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_129 = 3'h6 == _T_40[2:0] ? io_in_6_Re : _GEN_128; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_52 = _T_2 + 36'h4; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_136 = 3'h5 == _T_52[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_137 = 3'h6 == _T_52[2:0] ? 30'h3f800000 : _GEN_136; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_138 = 3'h7 == _T_52[2:0] ? 30'h248d3131 : _GEN_137; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_144 = 3'h5 == _T_52[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_145 = 3'h6 == _T_52[2:0] ? 32'h80800000 : _GEN_144; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_148 = 3'h1 == _T_52[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_149 = 3'h2 == _T_52[2:0] ? io_in_2_Im : _GEN_148; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_150 = 3'h3 == _T_52[2:0] ? io_in_3_Im : _GEN_149; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_151 = 3'h4 == _T_52[2:0] ? io_in_4_Im : _GEN_150; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_152 = 3'h5 == _T_52[2:0] ? io_in_5_Im : _GEN_151; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_153 = 3'h6 == _T_52[2:0] ? io_in_6_Im : _GEN_152; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_156 = 3'h1 == _T_52[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_157 = 3'h2 == _T_52[2:0] ? io_in_2_Re : _GEN_156; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_158 = 3'h3 == _T_52[2:0] ? io_in_3_Re : _GEN_157; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_159 = 3'h4 == _T_52[2:0] ? io_in_4_Re : _GEN_158; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_160 = 3'h5 == _T_52[2:0] ? io_in_5_Re : _GEN_159; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_161 = 3'h6 == _T_52[2:0] ? io_in_6_Re : _GEN_160; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_64 = _T_2 + 36'h5; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_168 = 3'h5 == _T_64[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_169 = 3'h6 == _T_64[2:0] ? 30'h3f800000 : _GEN_168; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_170 = 3'h7 == _T_64[2:0] ? 30'h248d3131 : _GEN_169; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_176 = 3'h5 == _T_64[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_177 = 3'h6 == _T_64[2:0] ? 32'h80800000 : _GEN_176; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_180 = 3'h1 == _T_64[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_181 = 3'h2 == _T_64[2:0] ? io_in_2_Im : _GEN_180; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_182 = 3'h3 == _T_64[2:0] ? io_in_3_Im : _GEN_181; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_183 = 3'h4 == _T_64[2:0] ? io_in_4_Im : _GEN_182; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_184 = 3'h5 == _T_64[2:0] ? io_in_5_Im : _GEN_183; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_185 = 3'h6 == _T_64[2:0] ? io_in_6_Im : _GEN_184; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_188 = 3'h1 == _T_64[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_189 = 3'h2 == _T_64[2:0] ? io_in_2_Re : _GEN_188; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_190 = 3'h3 == _T_64[2:0] ? io_in_3_Re : _GEN_189; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_191 = 3'h4 == _T_64[2:0] ? io_in_4_Re : _GEN_190; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_192 = 3'h5 == _T_64[2:0] ? io_in_5_Re : _GEN_191; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_193 = 3'h6 == _T_64[2:0] ? io_in_6_Re : _GEN_192; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_76 = _T_2 + 36'h6; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_200 = 3'h5 == _T_76[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_201 = 3'h6 == _T_76[2:0] ? 30'h3f800000 : _GEN_200; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_202 = 3'h7 == _T_76[2:0] ? 30'h248d3131 : _GEN_201; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_208 = 3'h5 == _T_76[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_209 = 3'h6 == _T_76[2:0] ? 32'h80800000 : _GEN_208; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_212 = 3'h1 == _T_76[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_213 = 3'h2 == _T_76[2:0] ? io_in_2_Im : _GEN_212; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_214 = 3'h3 == _T_76[2:0] ? io_in_3_Im : _GEN_213; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_215 = 3'h4 == _T_76[2:0] ? io_in_4_Im : _GEN_214; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_216 = 3'h5 == _T_76[2:0] ? io_in_5_Im : _GEN_215; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_217 = 3'h6 == _T_76[2:0] ? io_in_6_Im : _GEN_216; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_220 = 3'h1 == _T_76[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_221 = 3'h2 == _T_76[2:0] ? io_in_2_Re : _GEN_220; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_222 = 3'h3 == _T_76[2:0] ? io_in_3_Re : _GEN_221; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_223 = 3'h4 == _T_76[2:0] ? io_in_4_Re : _GEN_222; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_224 = 3'h5 == _T_76[2:0] ? io_in_5_Re : _GEN_223; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_225 = 3'h6 == _T_76[2:0] ? io_in_6_Re : _GEN_224; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_88 = _T_2 + 36'h7; // @[FFTDesigns.scala 90:64]
+  wire [29:0] _GEN_232 = 3'h5 == _T_88[2:0] ? 30'h248d3131 : 30'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_233 = 3'h6 == _T_88[2:0] ? 30'h3f800000 : _GEN_232; // @[FFTDesigns.scala 90:{26,26}]
+  wire [29:0] _GEN_234 = 3'h7 == _T_88[2:0] ? 30'h248d3131 : _GEN_233; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_240 = 3'h5 == _T_88[2:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_241 = 3'h6 == _T_88[2:0] ? 32'h80800000 : _GEN_240; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_244 = 3'h1 == _T_88[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_245 = 3'h2 == _T_88[2:0] ? io_in_2_Im : _GEN_244; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_246 = 3'h3 == _T_88[2:0] ? io_in_3_Im : _GEN_245; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_247 = 3'h4 == _T_88[2:0] ? io_in_4_Im : _GEN_246; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_248 = 3'h5 == _T_88[2:0] ? io_in_5_Im : _GEN_247; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_249 = 3'h6 == _T_88[2:0] ? io_in_6_Im : _GEN_248; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_252 = 3'h1 == _T_88[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_253 = 3'h2 == _T_88[2:0] ? io_in_2_Re : _GEN_252; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_254 = 3'h3 == _T_88[2:0] ? io_in_3_Re : _GEN_253; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_255 = 3'h4 == _T_88[2:0] ? io_in_4_Re : _GEN_254; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_256 = 3'h5 == _T_88[2:0] ? io_in_5_Re : _GEN_255; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_257 = 3'h6 == _T_88[2:0] ? io_in_6_Re : _GEN_256; // @[FFTDesigns.scala 92:{23,23}]
+  FPComplexMult FPComplexMult ( // @[FFTDesigns.scala 73:26]
     .clock(FPComplexMult_clock),
     .io_in_a_Re(FPComplexMult_io_in_a_Re),
     .io_in_a_Im(FPComplexMult_io_in_a_Im),
@@ -807,7 +1046,7 @@ module TwiddleFactors(
     .io_out_s_Re(FPComplexMult_io_out_s_Re),
     .io_out_s_Im(FPComplexMult_io_out_s_Im)
   );
-  FPComplexMult FPComplexMult_1 ( // @[FFTDesigns.scala 72:26]
+  FPComplexMult FPComplexMult_1 ( // @[FFTDesigns.scala 73:26]
     .clock(FPComplexMult_1_clock),
     .io_in_a_Re(FPComplexMult_1_io_in_a_Re),
     .io_in_a_Im(FPComplexMult_1_io_in_a_Im),
@@ -816,7 +1055,7 @@ module TwiddleFactors(
     .io_out_s_Re(FPComplexMult_1_io_out_s_Re),
     .io_out_s_Im(FPComplexMult_1_io_out_s_Im)
   );
-  FPComplexMult FPComplexMult_2 ( // @[FFTDesigns.scala 72:26]
+  FPComplexMult FPComplexMult_2 ( // @[FFTDesigns.scala 73:26]
     .clock(FPComplexMult_2_clock),
     .io_in_a_Re(FPComplexMult_2_io_in_a_Re),
     .io_in_a_Im(FPComplexMult_2_io_in_a_Im),
@@ -825,7 +1064,7 @@ module TwiddleFactors(
     .io_out_s_Re(FPComplexMult_2_io_out_s_Re),
     .io_out_s_Im(FPComplexMult_2_io_out_s_Im)
   );
-  FPComplexMult FPComplexMult_3 ( // @[FFTDesigns.scala 72:26]
+  FPComplexMult FPComplexMult_3 ( // @[FFTDesigns.scala 73:26]
     .clock(FPComplexMult_3_clock),
     .io_in_a_Re(FPComplexMult_3_io_in_a_Re),
     .io_in_a_Im(FPComplexMult_3_io_in_a_Im),
@@ -834,46 +1073,568 @@ module TwiddleFactors(
     .io_out_s_Re(FPComplexMult_3_io_out_s_Re),
     .io_out_s_Im(FPComplexMult_3_io_out_s_Im)
   );
-  assign io_out_0_Re = FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 92:17]
-  assign io_out_0_Im = FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 92:17]
-  assign io_out_1_Re = FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 92:17]
-  assign io_out_1_Im = FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 92:17]
-  assign io_out_2_Re = FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 92:17]
-  assign io_out_2_Im = FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 92:17]
-  assign io_out_3_Re = FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 92:17]
-  assign io_out_3_Im = FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 92:17]
+  FPComplexMult FPComplexMult_4 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_4_clock),
+    .io_in_a_Re(FPComplexMult_4_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_4_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_4_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_4_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_4_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_4_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_5 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_5_clock),
+    .io_in_a_Re(FPComplexMult_5_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_5_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_5_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_5_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_5_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_5_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_6 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_6_clock),
+    .io_in_a_Re(FPComplexMult_6_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_6_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_6_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_6_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_6_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_6_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_7 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_7_clock),
+    .io_in_a_Re(FPComplexMult_7_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_7_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_7_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_7_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_7_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_7_io_out_s_Im)
+  );
+  assign io_out_0_Re = FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_0_Im = FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_1_Re = FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_1_Im = FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_2_Re = FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_2_Im = FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_3_Re = FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_3_Im = FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_4_Re = FPComplexMult_4_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_4_Im = FPComplexMult_4_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_5_Re = FPComplexMult_5_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_5_Im = FPComplexMult_5_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_6_Re = FPComplexMult_6_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_6_Im = FPComplexMult_6_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_7_Re = FPComplexMult_7_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_7_Im = FPComplexMult_7_io_out_s_Im; // @[FFTDesigns.scala 93:17]
   assign FPComplexMult_clock = clock;
-  assign FPComplexMult_io_in_a_Re = {{2'd0}, _GEN_6}; // @[FFTDesigns.scala 89:26]
-  assign FPComplexMult_io_in_a_Im = 2'h3 == _T_3[1:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 90:{26,26}]
-  assign FPComplexMult_io_in_b_Re = 2'h3 == _T_3[1:0] ? io_in_3_Re : _GEN_17; // @[FFTDesigns.scala 91:{23,23}]
-  assign FPComplexMult_io_in_b_Im = 2'h3 == _T_3[1:0] ? io_in_3_Im : _GEN_13; // @[FFTDesigns.scala 91:{23,23}]
+  assign FPComplexMult_io_in_a_Re = {{2'd0}, _GEN_10}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_io_in_a_Im = 3'h7 == _T_3[2:0] ? 32'hbf800000 : _GEN_17; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_io_in_b_Re = 3'h7 == _T_3[2:0] ? io_in_7_Re : _GEN_33; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_io_in_b_Im = 3'h7 == _T_3[2:0] ? io_in_7_Im : _GEN_25; // @[FFTDesigns.scala 92:{23,23}]
   assign FPComplexMult_1_clock = clock;
-  assign FPComplexMult_1_io_in_a_Re = {{2'd0}, _GEN_22}; // @[FFTDesigns.scala 89:26]
-  assign FPComplexMult_1_io_in_a_Im = 2'h3 == _T_16[1:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 90:{26,26}]
-  assign FPComplexMult_1_io_in_b_Re = 2'h3 == _T_16[1:0] ? io_in_3_Re : _GEN_33; // @[FFTDesigns.scala 91:{23,23}]
-  assign FPComplexMult_1_io_in_b_Im = 2'h3 == _T_16[1:0] ? io_in_3_Im : _GEN_29; // @[FFTDesigns.scala 91:{23,23}]
+  assign FPComplexMult_1_io_in_a_Re = {{2'd0}, _GEN_42}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_1_io_in_a_Im = 3'h7 == _T_16[2:0] ? 32'hbf800000 : _GEN_49; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_1_io_in_b_Re = 3'h7 == _T_16[2:0] ? io_in_7_Re : _GEN_65; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_1_io_in_b_Im = 3'h7 == _T_16[2:0] ? io_in_7_Im : _GEN_57; // @[FFTDesigns.scala 92:{23,23}]
   assign FPComplexMult_2_clock = clock;
-  assign FPComplexMult_2_io_in_a_Re = {{2'd0}, _GEN_38}; // @[FFTDesigns.scala 89:26]
-  assign FPComplexMult_2_io_in_a_Im = 2'h3 == _T_28[1:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 90:{26,26}]
-  assign FPComplexMult_2_io_in_b_Re = 2'h3 == _T_28[1:0] ? io_in_3_Re : _GEN_49; // @[FFTDesigns.scala 91:{23,23}]
-  assign FPComplexMult_2_io_in_b_Im = 2'h3 == _T_28[1:0] ? io_in_3_Im : _GEN_45; // @[FFTDesigns.scala 91:{23,23}]
+  assign FPComplexMult_2_io_in_a_Re = {{2'd0}, _GEN_74}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_2_io_in_a_Im = 3'h7 == _T_28[2:0] ? 32'hbf800000 : _GEN_81; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_2_io_in_b_Re = 3'h7 == _T_28[2:0] ? io_in_7_Re : _GEN_97; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_2_io_in_b_Im = 3'h7 == _T_28[2:0] ? io_in_7_Im : _GEN_89; // @[FFTDesigns.scala 92:{23,23}]
   assign FPComplexMult_3_clock = clock;
-  assign FPComplexMult_3_io_in_a_Re = {{2'd0}, _GEN_54}; // @[FFTDesigns.scala 89:26]
-  assign FPComplexMult_3_io_in_a_Im = 2'h3 == _T_40[1:0] ? 32'hbf800000 : 32'h80800000; // @[FFTDesigns.scala 90:{26,26}]
-  assign FPComplexMult_3_io_in_b_Re = 2'h3 == _T_40[1:0] ? io_in_3_Re : _GEN_65; // @[FFTDesigns.scala 91:{23,23}]
-  assign FPComplexMult_3_io_in_b_Im = 2'h3 == _T_40[1:0] ? io_in_3_Im : _GEN_61; // @[FFTDesigns.scala 91:{23,23}]
+  assign FPComplexMult_3_io_in_a_Re = {{2'd0}, _GEN_106}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_3_io_in_a_Im = 3'h7 == _T_40[2:0] ? 32'hbf800000 : _GEN_113; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_3_io_in_b_Re = 3'h7 == _T_40[2:0] ? io_in_7_Re : _GEN_129; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_3_io_in_b_Im = 3'h7 == _T_40[2:0] ? io_in_7_Im : _GEN_121; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_4_clock = clock;
+  assign FPComplexMult_4_io_in_a_Re = {{2'd0}, _GEN_138}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_4_io_in_a_Im = 3'h7 == _T_52[2:0] ? 32'hbf800000 : _GEN_145; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_4_io_in_b_Re = 3'h7 == _T_52[2:0] ? io_in_7_Re : _GEN_161; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_4_io_in_b_Im = 3'h7 == _T_52[2:0] ? io_in_7_Im : _GEN_153; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_5_clock = clock;
+  assign FPComplexMult_5_io_in_a_Re = {{2'd0}, _GEN_170}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_5_io_in_a_Im = 3'h7 == _T_64[2:0] ? 32'hbf800000 : _GEN_177; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_5_io_in_b_Re = 3'h7 == _T_64[2:0] ? io_in_7_Re : _GEN_193; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_5_io_in_b_Im = 3'h7 == _T_64[2:0] ? io_in_7_Im : _GEN_185; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_6_clock = clock;
+  assign FPComplexMult_6_io_in_a_Re = {{2'd0}, _GEN_202}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_6_io_in_a_Im = 3'h7 == _T_76[2:0] ? 32'hbf800000 : _GEN_209; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_6_io_in_b_Re = 3'h7 == _T_76[2:0] ? io_in_7_Re : _GEN_225; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_6_io_in_b_Im = 3'h7 == _T_76[2:0] ? io_in_7_Im : _GEN_217; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_7_clock = clock;
+  assign FPComplexMult_7_io_in_a_Re = {{2'd0}, _GEN_234}; // @[FFTDesigns.scala 90:26]
+  assign FPComplexMult_7_io_in_a_Im = 3'h7 == _T_88[2:0] ? 32'hbf800000 : _GEN_241; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_7_io_in_b_Re = 3'h7 == _T_88[2:0] ? io_in_7_Re : _GEN_257; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_7_io_in_b_Im = 3'h7 == _T_88[2:0] ? io_in_7_Im : _GEN_249; // @[FFTDesigns.scala 92:{23,23}]
   always @(posedge clock) begin
-    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 77:38]
-      if (cnt == 32'h0) begin // @[FFTDesigns.scala 79:32]
-        cnt <= 32'h0; // @[FFTDesigns.scala 80:13]
+    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 78:38]
+      if (cnt == 32'h0) begin // @[FFTDesigns.scala 80:32]
+        cnt <= 32'h0; // @[FFTDesigns.scala 81:13]
       end else begin
-        cnt <= _cnt_T_1; // @[FFTDesigns.scala 82:13]
+        cnt <= _cnt_T_1; // @[FFTDesigns.scala 83:13]
       end
     end
-    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 77:38]
-      cnt2 <= 32'h0; // @[FFTDesigns.scala 78:12]
+    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 78:38]
+      cnt2 <= 32'h0; // @[FFTDesigns.scala 79:12]
     end else begin
-      cnt2 <= _cnt2_T_1; // @[FFTDesigns.scala 86:12]
+      cnt2 <= _cnt2_T_1; // @[FFTDesigns.scala 87:12]
+    end
+  end
+// Register and memory initialization
+`ifdef RANDOMIZE_GARBAGE_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_INVALID_ASSIGN
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_REG_INIT
+`define RANDOMIZE
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+`define RANDOMIZE
+`endif
+`ifndef RANDOM
+`define RANDOM $random
+`endif
+`ifdef RANDOMIZE_MEM_INIT
+  integer initvar;
+`endif
+`ifndef SYNTHESIS
+`ifdef FIRRTL_BEFORE_INITIAL
+`FIRRTL_BEFORE_INITIAL
+`endif
+initial begin
+  `ifdef RANDOMIZE
+    `ifdef INIT_RANDOM
+      `INIT_RANDOM
+    `endif
+    `ifndef VERILATOR
+      `ifdef RANDOMIZE_DELAY
+        #`RANDOMIZE_DELAY begin end
+      `else
+        #0.002 begin end
+      `endif
+    `endif
+`ifdef RANDOMIZE_REG_INIT
+  _RAND_0 = {1{`RANDOM}};
+  cnt = _RAND_0[31:0];
+  _RAND_1 = {1{`RANDOM}};
+  cnt2 = _RAND_1[31:0];
+`endif // RANDOMIZE_REG_INIT
+  `endif // RANDOMIZE
+end // initial
+`ifdef FIRRTL_AFTER_INITIAL
+`FIRRTL_AFTER_INITIAL
+`endif
+`endif // SYNTHESIS
+endmodule
+module TwiddleFactors_1(
+  input         clock,
+  input  [31:0] io_in_0_Re,
+  input  [31:0] io_in_0_Im,
+  input  [31:0] io_in_1_Re,
+  input  [31:0] io_in_1_Im,
+  input  [31:0] io_in_2_Re,
+  input  [31:0] io_in_2_Im,
+  input  [31:0] io_in_3_Re,
+  input  [31:0] io_in_3_Im,
+  input  [31:0] io_in_4_Re,
+  input  [31:0] io_in_4_Im,
+  input  [31:0] io_in_5_Re,
+  input  [31:0] io_in_5_Im,
+  input  [31:0] io_in_6_Re,
+  input  [31:0] io_in_6_Im,
+  input  [31:0] io_in_7_Re,
+  input  [31:0] io_in_7_Im,
+  output [31:0] io_out_0_Re,
+  output [31:0] io_out_0_Im,
+  output [31:0] io_out_1_Re,
+  output [31:0] io_out_1_Im,
+  output [31:0] io_out_2_Re,
+  output [31:0] io_out_2_Im,
+  output [31:0] io_out_3_Re,
+  output [31:0] io_out_3_Im,
+  output [31:0] io_out_4_Re,
+  output [31:0] io_out_4_Im,
+  output [31:0] io_out_5_Re,
+  output [31:0] io_out_5_Im,
+  output [31:0] io_out_6_Re,
+  output [31:0] io_out_6_Im,
+  output [31:0] io_out_7_Re,
+  output [31:0] io_out_7_Im
+);
+`ifdef RANDOMIZE_REG_INIT
+  reg [31:0] _RAND_0;
+  reg [31:0] _RAND_1;
+`endif // RANDOMIZE_REG_INIT
+  wire  FPComplexMult_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_1_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_2_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_3_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_4_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_4_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_5_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_5_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_6_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_6_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  wire  FPComplexMult_7_clock; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_a_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_a_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_b_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_in_b_Im; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_out_s_Re; // @[FFTDesigns.scala 73:26]
+  wire [31:0] FPComplexMult_7_io_out_s_Im; // @[FFTDesigns.scala 73:26]
+  reg [31:0] cnt; // @[FFTDesigns.scala 76:18]
+  reg [31:0] cnt2; // @[FFTDesigns.scala 77:19]
+  wire [31:0] _cnt_T_1 = cnt + 32'h1; // @[FFTDesigns.scala 83:20]
+  wire [31:0] _cnt2_T_1 = cnt2 + 32'h1; // @[FFTDesigns.scala 87:20]
+  wire [35:0] _T_2 = cnt * 4'h8; // @[FFTDesigns.scala 90:58]
+  wire [36:0] _T_3 = {{1'd0}, _T_2}; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_6 = 3'h3 == _T_3[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_7 = 3'h4 == _T_3[2:0] ? 32'h3f800000 : _GEN_6; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_8 = 3'h5 == _T_3[2:0] ? 32'h248d3131 : _GEN_7; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_9 = 3'h6 == _T_3[2:0] ? 32'h3f800000 : _GEN_8; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_14 = 3'h3 == _T_3[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_15 = 3'h4 == _T_3[2:0] ? 32'h80800000 : _GEN_14; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_16 = 3'h5 == _T_3[2:0] ? 32'hbf800000 : _GEN_15; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_17 = 3'h6 == _T_3[2:0] ? 32'h80800000 : _GEN_16; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_20 = 3'h1 == _T_3[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_21 = 3'h2 == _T_3[2:0] ? io_in_2_Im : _GEN_20; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_22 = 3'h3 == _T_3[2:0] ? io_in_3_Im : _GEN_21; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_23 = 3'h4 == _T_3[2:0] ? io_in_4_Im : _GEN_22; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_24 = 3'h5 == _T_3[2:0] ? io_in_5_Im : _GEN_23; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_25 = 3'h6 == _T_3[2:0] ? io_in_6_Im : _GEN_24; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_28 = 3'h1 == _T_3[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_29 = 3'h2 == _T_3[2:0] ? io_in_2_Re : _GEN_28; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_30 = 3'h3 == _T_3[2:0] ? io_in_3_Re : _GEN_29; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_31 = 3'h4 == _T_3[2:0] ? io_in_4_Re : _GEN_30; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_32 = 3'h5 == _T_3[2:0] ? io_in_5_Re : _GEN_31; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_33 = 3'h6 == _T_3[2:0] ? io_in_6_Re : _GEN_32; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_16 = _T_2 + 36'h1; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_38 = 3'h3 == _T_16[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_39 = 3'h4 == _T_16[2:0] ? 32'h3f800000 : _GEN_38; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_40 = 3'h5 == _T_16[2:0] ? 32'h248d3131 : _GEN_39; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_41 = 3'h6 == _T_16[2:0] ? 32'h3f800000 : _GEN_40; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_46 = 3'h3 == _T_16[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_47 = 3'h4 == _T_16[2:0] ? 32'h80800000 : _GEN_46; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_48 = 3'h5 == _T_16[2:0] ? 32'hbf800000 : _GEN_47; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_49 = 3'h6 == _T_16[2:0] ? 32'h80800000 : _GEN_48; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_52 = 3'h1 == _T_16[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_53 = 3'h2 == _T_16[2:0] ? io_in_2_Im : _GEN_52; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_54 = 3'h3 == _T_16[2:0] ? io_in_3_Im : _GEN_53; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_55 = 3'h4 == _T_16[2:0] ? io_in_4_Im : _GEN_54; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_56 = 3'h5 == _T_16[2:0] ? io_in_5_Im : _GEN_55; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_57 = 3'h6 == _T_16[2:0] ? io_in_6_Im : _GEN_56; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_60 = 3'h1 == _T_16[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_61 = 3'h2 == _T_16[2:0] ? io_in_2_Re : _GEN_60; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_62 = 3'h3 == _T_16[2:0] ? io_in_3_Re : _GEN_61; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_63 = 3'h4 == _T_16[2:0] ? io_in_4_Re : _GEN_62; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_64 = 3'h5 == _T_16[2:0] ? io_in_5_Re : _GEN_63; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_65 = 3'h6 == _T_16[2:0] ? io_in_6_Re : _GEN_64; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_28 = _T_2 + 36'h2; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_70 = 3'h3 == _T_28[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_71 = 3'h4 == _T_28[2:0] ? 32'h3f800000 : _GEN_70; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_72 = 3'h5 == _T_28[2:0] ? 32'h248d3131 : _GEN_71; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_73 = 3'h6 == _T_28[2:0] ? 32'h3f800000 : _GEN_72; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_78 = 3'h3 == _T_28[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_79 = 3'h4 == _T_28[2:0] ? 32'h80800000 : _GEN_78; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_80 = 3'h5 == _T_28[2:0] ? 32'hbf800000 : _GEN_79; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_81 = 3'h6 == _T_28[2:0] ? 32'h80800000 : _GEN_80; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_84 = 3'h1 == _T_28[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_85 = 3'h2 == _T_28[2:0] ? io_in_2_Im : _GEN_84; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_86 = 3'h3 == _T_28[2:0] ? io_in_3_Im : _GEN_85; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_87 = 3'h4 == _T_28[2:0] ? io_in_4_Im : _GEN_86; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_88 = 3'h5 == _T_28[2:0] ? io_in_5_Im : _GEN_87; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_89 = 3'h6 == _T_28[2:0] ? io_in_6_Im : _GEN_88; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_92 = 3'h1 == _T_28[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_93 = 3'h2 == _T_28[2:0] ? io_in_2_Re : _GEN_92; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_94 = 3'h3 == _T_28[2:0] ? io_in_3_Re : _GEN_93; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_95 = 3'h4 == _T_28[2:0] ? io_in_4_Re : _GEN_94; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_96 = 3'h5 == _T_28[2:0] ? io_in_5_Re : _GEN_95; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_97 = 3'h6 == _T_28[2:0] ? io_in_6_Re : _GEN_96; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_40 = _T_2 + 36'h3; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_102 = 3'h3 == _T_40[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_103 = 3'h4 == _T_40[2:0] ? 32'h3f800000 : _GEN_102; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_104 = 3'h5 == _T_40[2:0] ? 32'h248d3131 : _GEN_103; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_105 = 3'h6 == _T_40[2:0] ? 32'h3f800000 : _GEN_104; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_110 = 3'h3 == _T_40[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_111 = 3'h4 == _T_40[2:0] ? 32'h80800000 : _GEN_110; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_112 = 3'h5 == _T_40[2:0] ? 32'hbf800000 : _GEN_111; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_113 = 3'h6 == _T_40[2:0] ? 32'h80800000 : _GEN_112; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_116 = 3'h1 == _T_40[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_117 = 3'h2 == _T_40[2:0] ? io_in_2_Im : _GEN_116; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_118 = 3'h3 == _T_40[2:0] ? io_in_3_Im : _GEN_117; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_119 = 3'h4 == _T_40[2:0] ? io_in_4_Im : _GEN_118; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_120 = 3'h5 == _T_40[2:0] ? io_in_5_Im : _GEN_119; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_121 = 3'h6 == _T_40[2:0] ? io_in_6_Im : _GEN_120; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_124 = 3'h1 == _T_40[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_125 = 3'h2 == _T_40[2:0] ? io_in_2_Re : _GEN_124; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_126 = 3'h3 == _T_40[2:0] ? io_in_3_Re : _GEN_125; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_127 = 3'h4 == _T_40[2:0] ? io_in_4_Re : _GEN_126; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_128 = 3'h5 == _T_40[2:0] ? io_in_5_Re : _GEN_127; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_129 = 3'h6 == _T_40[2:0] ? io_in_6_Re : _GEN_128; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_52 = _T_2 + 36'h4; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_134 = 3'h3 == _T_52[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_135 = 3'h4 == _T_52[2:0] ? 32'h3f800000 : _GEN_134; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_136 = 3'h5 == _T_52[2:0] ? 32'h248d3131 : _GEN_135; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_137 = 3'h6 == _T_52[2:0] ? 32'h3f800000 : _GEN_136; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_142 = 3'h3 == _T_52[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_143 = 3'h4 == _T_52[2:0] ? 32'h80800000 : _GEN_142; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_144 = 3'h5 == _T_52[2:0] ? 32'hbf800000 : _GEN_143; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_145 = 3'h6 == _T_52[2:0] ? 32'h80800000 : _GEN_144; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_148 = 3'h1 == _T_52[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_149 = 3'h2 == _T_52[2:0] ? io_in_2_Im : _GEN_148; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_150 = 3'h3 == _T_52[2:0] ? io_in_3_Im : _GEN_149; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_151 = 3'h4 == _T_52[2:0] ? io_in_4_Im : _GEN_150; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_152 = 3'h5 == _T_52[2:0] ? io_in_5_Im : _GEN_151; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_153 = 3'h6 == _T_52[2:0] ? io_in_6_Im : _GEN_152; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_156 = 3'h1 == _T_52[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_157 = 3'h2 == _T_52[2:0] ? io_in_2_Re : _GEN_156; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_158 = 3'h3 == _T_52[2:0] ? io_in_3_Re : _GEN_157; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_159 = 3'h4 == _T_52[2:0] ? io_in_4_Re : _GEN_158; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_160 = 3'h5 == _T_52[2:0] ? io_in_5_Re : _GEN_159; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_161 = 3'h6 == _T_52[2:0] ? io_in_6_Re : _GEN_160; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_64 = _T_2 + 36'h5; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_166 = 3'h3 == _T_64[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_167 = 3'h4 == _T_64[2:0] ? 32'h3f800000 : _GEN_166; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_168 = 3'h5 == _T_64[2:0] ? 32'h248d3131 : _GEN_167; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_169 = 3'h6 == _T_64[2:0] ? 32'h3f800000 : _GEN_168; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_174 = 3'h3 == _T_64[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_175 = 3'h4 == _T_64[2:0] ? 32'h80800000 : _GEN_174; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_176 = 3'h5 == _T_64[2:0] ? 32'hbf800000 : _GEN_175; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_177 = 3'h6 == _T_64[2:0] ? 32'h80800000 : _GEN_176; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_180 = 3'h1 == _T_64[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_181 = 3'h2 == _T_64[2:0] ? io_in_2_Im : _GEN_180; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_182 = 3'h3 == _T_64[2:0] ? io_in_3_Im : _GEN_181; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_183 = 3'h4 == _T_64[2:0] ? io_in_4_Im : _GEN_182; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_184 = 3'h5 == _T_64[2:0] ? io_in_5_Im : _GEN_183; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_185 = 3'h6 == _T_64[2:0] ? io_in_6_Im : _GEN_184; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_188 = 3'h1 == _T_64[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_189 = 3'h2 == _T_64[2:0] ? io_in_2_Re : _GEN_188; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_190 = 3'h3 == _T_64[2:0] ? io_in_3_Re : _GEN_189; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_191 = 3'h4 == _T_64[2:0] ? io_in_4_Re : _GEN_190; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_192 = 3'h5 == _T_64[2:0] ? io_in_5_Re : _GEN_191; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_193 = 3'h6 == _T_64[2:0] ? io_in_6_Re : _GEN_192; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_76 = _T_2 + 36'h6; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_198 = 3'h3 == _T_76[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_199 = 3'h4 == _T_76[2:0] ? 32'h3f800000 : _GEN_198; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_200 = 3'h5 == _T_76[2:0] ? 32'h248d3131 : _GEN_199; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_201 = 3'h6 == _T_76[2:0] ? 32'h3f800000 : _GEN_200; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_206 = 3'h3 == _T_76[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_207 = 3'h4 == _T_76[2:0] ? 32'h80800000 : _GEN_206; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_208 = 3'h5 == _T_76[2:0] ? 32'hbf800000 : _GEN_207; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_209 = 3'h6 == _T_76[2:0] ? 32'h80800000 : _GEN_208; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_212 = 3'h1 == _T_76[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_213 = 3'h2 == _T_76[2:0] ? io_in_2_Im : _GEN_212; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_214 = 3'h3 == _T_76[2:0] ? io_in_3_Im : _GEN_213; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_215 = 3'h4 == _T_76[2:0] ? io_in_4_Im : _GEN_214; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_216 = 3'h5 == _T_76[2:0] ? io_in_5_Im : _GEN_215; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_217 = 3'h6 == _T_76[2:0] ? io_in_6_Im : _GEN_216; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_220 = 3'h1 == _T_76[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_221 = 3'h2 == _T_76[2:0] ? io_in_2_Re : _GEN_220; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_222 = 3'h3 == _T_76[2:0] ? io_in_3_Re : _GEN_221; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_223 = 3'h4 == _T_76[2:0] ? io_in_4_Re : _GEN_222; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_224 = 3'h5 == _T_76[2:0] ? io_in_5_Re : _GEN_223; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_225 = 3'h6 == _T_76[2:0] ? io_in_6_Re : _GEN_224; // @[FFTDesigns.scala 92:{23,23}]
+  wire [35:0] _T_88 = _T_2 + 36'h7; // @[FFTDesigns.scala 90:64]
+  wire [31:0] _GEN_230 = 3'h3 == _T_88[2:0] ? 32'h3f3504f2 : 32'h3f800000; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_231 = 3'h4 == _T_88[2:0] ? 32'h3f800000 : _GEN_230; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_232 = 3'h5 == _T_88[2:0] ? 32'h248d3131 : _GEN_231; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_233 = 3'h6 == _T_88[2:0] ? 32'h3f800000 : _GEN_232; // @[FFTDesigns.scala 90:{26,26}]
+  wire [31:0] _GEN_238 = 3'h3 == _T_88[2:0] ? 32'hbf3504f2 : 32'h80800000; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_239 = 3'h4 == _T_88[2:0] ? 32'h80800000 : _GEN_238; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_240 = 3'h5 == _T_88[2:0] ? 32'hbf800000 : _GEN_239; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_241 = 3'h6 == _T_88[2:0] ? 32'h80800000 : _GEN_240; // @[FFTDesigns.scala 91:{26,26}]
+  wire [31:0] _GEN_244 = 3'h1 == _T_88[2:0] ? io_in_1_Im : io_in_0_Im; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_245 = 3'h2 == _T_88[2:0] ? io_in_2_Im : _GEN_244; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_246 = 3'h3 == _T_88[2:0] ? io_in_3_Im : _GEN_245; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_247 = 3'h4 == _T_88[2:0] ? io_in_4_Im : _GEN_246; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_248 = 3'h5 == _T_88[2:0] ? io_in_5_Im : _GEN_247; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_249 = 3'h6 == _T_88[2:0] ? io_in_6_Im : _GEN_248; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_252 = 3'h1 == _T_88[2:0] ? io_in_1_Re : io_in_0_Re; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_253 = 3'h2 == _T_88[2:0] ? io_in_2_Re : _GEN_252; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_254 = 3'h3 == _T_88[2:0] ? io_in_3_Re : _GEN_253; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_255 = 3'h4 == _T_88[2:0] ? io_in_4_Re : _GEN_254; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_256 = 3'h5 == _T_88[2:0] ? io_in_5_Re : _GEN_255; // @[FFTDesigns.scala 92:{23,23}]
+  wire [31:0] _GEN_257 = 3'h6 == _T_88[2:0] ? io_in_6_Re : _GEN_256; // @[FFTDesigns.scala 92:{23,23}]
+  FPComplexMult FPComplexMult ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_clock),
+    .io_in_a_Re(FPComplexMult_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_1 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_1_clock),
+    .io_in_a_Re(FPComplexMult_1_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_1_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_1_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_1_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_1_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_1_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_2 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_2_clock),
+    .io_in_a_Re(FPComplexMult_2_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_2_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_2_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_2_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_2_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_2_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_3 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_3_clock),
+    .io_in_a_Re(FPComplexMult_3_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_3_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_3_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_3_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_3_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_3_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_4 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_4_clock),
+    .io_in_a_Re(FPComplexMult_4_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_4_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_4_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_4_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_4_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_4_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_5 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_5_clock),
+    .io_in_a_Re(FPComplexMult_5_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_5_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_5_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_5_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_5_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_5_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_6 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_6_clock),
+    .io_in_a_Re(FPComplexMult_6_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_6_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_6_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_6_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_6_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_6_io_out_s_Im)
+  );
+  FPComplexMult FPComplexMult_7 ( // @[FFTDesigns.scala 73:26]
+    .clock(FPComplexMult_7_clock),
+    .io_in_a_Re(FPComplexMult_7_io_in_a_Re),
+    .io_in_a_Im(FPComplexMult_7_io_in_a_Im),
+    .io_in_b_Re(FPComplexMult_7_io_in_b_Re),
+    .io_in_b_Im(FPComplexMult_7_io_in_b_Im),
+    .io_out_s_Re(FPComplexMult_7_io_out_s_Re),
+    .io_out_s_Im(FPComplexMult_7_io_out_s_Im)
+  );
+  assign io_out_0_Re = FPComplexMult_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_0_Im = FPComplexMult_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_1_Re = FPComplexMult_1_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_1_Im = FPComplexMult_1_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_2_Re = FPComplexMult_2_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_2_Im = FPComplexMult_2_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_3_Re = FPComplexMult_3_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_3_Im = FPComplexMult_3_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_4_Re = FPComplexMult_4_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_4_Im = FPComplexMult_4_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_5_Re = FPComplexMult_5_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_5_Im = FPComplexMult_5_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_6_Re = FPComplexMult_6_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_6_Im = FPComplexMult_6_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign io_out_7_Re = FPComplexMult_7_io_out_s_Re; // @[FFTDesigns.scala 93:17]
+  assign io_out_7_Im = FPComplexMult_7_io_out_s_Im; // @[FFTDesigns.scala 93:17]
+  assign FPComplexMult_clock = clock;
+  assign FPComplexMult_io_in_a_Re = 3'h7 == _T_3[2:0] ? 32'hbf3504f2 : _GEN_9; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_io_in_a_Im = 3'h7 == _T_3[2:0] ? 32'hbf3504f2 : _GEN_17; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_io_in_b_Re = 3'h7 == _T_3[2:0] ? io_in_7_Re : _GEN_33; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_io_in_b_Im = 3'h7 == _T_3[2:0] ? io_in_7_Im : _GEN_25; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_1_clock = clock;
+  assign FPComplexMult_1_io_in_a_Re = 3'h7 == _T_16[2:0] ? 32'hbf3504f2 : _GEN_41; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_1_io_in_a_Im = 3'h7 == _T_16[2:0] ? 32'hbf3504f2 : _GEN_49; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_1_io_in_b_Re = 3'h7 == _T_16[2:0] ? io_in_7_Re : _GEN_65; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_1_io_in_b_Im = 3'h7 == _T_16[2:0] ? io_in_7_Im : _GEN_57; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_2_clock = clock;
+  assign FPComplexMult_2_io_in_a_Re = 3'h7 == _T_28[2:0] ? 32'hbf3504f2 : _GEN_73; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_2_io_in_a_Im = 3'h7 == _T_28[2:0] ? 32'hbf3504f2 : _GEN_81; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_2_io_in_b_Re = 3'h7 == _T_28[2:0] ? io_in_7_Re : _GEN_97; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_2_io_in_b_Im = 3'h7 == _T_28[2:0] ? io_in_7_Im : _GEN_89; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_3_clock = clock;
+  assign FPComplexMult_3_io_in_a_Re = 3'h7 == _T_40[2:0] ? 32'hbf3504f2 : _GEN_105; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_3_io_in_a_Im = 3'h7 == _T_40[2:0] ? 32'hbf3504f2 : _GEN_113; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_3_io_in_b_Re = 3'h7 == _T_40[2:0] ? io_in_7_Re : _GEN_129; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_3_io_in_b_Im = 3'h7 == _T_40[2:0] ? io_in_7_Im : _GEN_121; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_4_clock = clock;
+  assign FPComplexMult_4_io_in_a_Re = 3'h7 == _T_52[2:0] ? 32'hbf3504f2 : _GEN_137; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_4_io_in_a_Im = 3'h7 == _T_52[2:0] ? 32'hbf3504f2 : _GEN_145; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_4_io_in_b_Re = 3'h7 == _T_52[2:0] ? io_in_7_Re : _GEN_161; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_4_io_in_b_Im = 3'h7 == _T_52[2:0] ? io_in_7_Im : _GEN_153; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_5_clock = clock;
+  assign FPComplexMult_5_io_in_a_Re = 3'h7 == _T_64[2:0] ? 32'hbf3504f2 : _GEN_169; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_5_io_in_a_Im = 3'h7 == _T_64[2:0] ? 32'hbf3504f2 : _GEN_177; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_5_io_in_b_Re = 3'h7 == _T_64[2:0] ? io_in_7_Re : _GEN_193; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_5_io_in_b_Im = 3'h7 == _T_64[2:0] ? io_in_7_Im : _GEN_185; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_6_clock = clock;
+  assign FPComplexMult_6_io_in_a_Re = 3'h7 == _T_76[2:0] ? 32'hbf3504f2 : _GEN_201; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_6_io_in_a_Im = 3'h7 == _T_76[2:0] ? 32'hbf3504f2 : _GEN_209; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_6_io_in_b_Re = 3'h7 == _T_76[2:0] ? io_in_7_Re : _GEN_225; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_6_io_in_b_Im = 3'h7 == _T_76[2:0] ? io_in_7_Im : _GEN_217; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_7_clock = clock;
+  assign FPComplexMult_7_io_in_a_Re = 3'h7 == _T_88[2:0] ? 32'hbf3504f2 : _GEN_233; // @[FFTDesigns.scala 90:{26,26}]
+  assign FPComplexMult_7_io_in_a_Im = 3'h7 == _T_88[2:0] ? 32'hbf3504f2 : _GEN_241; // @[FFTDesigns.scala 91:{26,26}]
+  assign FPComplexMult_7_io_in_b_Re = 3'h7 == _T_88[2:0] ? io_in_7_Re : _GEN_257; // @[FFTDesigns.scala 92:{23,23}]
+  assign FPComplexMult_7_io_in_b_Im = 3'h7 == _T_88[2:0] ? io_in_7_Im : _GEN_249; // @[FFTDesigns.scala 92:{23,23}]
+  always @(posedge clock) begin
+    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 78:38]
+      if (cnt == 32'h0) begin // @[FFTDesigns.scala 80:32]
+        cnt <= 32'h0; // @[FFTDesigns.scala 81:13]
+      end else begin
+        cnt <= _cnt_T_1; // @[FFTDesigns.scala 83:13]
+      end
+    end
+    if (cnt2 == 32'h1) begin // @[FFTDesigns.scala 78:38]
+      cnt2 <= 32'h0; // @[FFTDesigns.scala 79:12]
+    end else begin
+      cnt2 <= _cnt2_T_1; // @[FFTDesigns.scala 87:12]
     end
   end
 // Register and memory initialization
@@ -935,6 +1696,14 @@ module FFT_sr(
   input  [31:0] io_in_2_Im,
   input  [31:0] io_in_3_Re,
   input  [31:0] io_in_3_Im,
+  input  [31:0] io_in_4_Re,
+  input  [31:0] io_in_4_Im,
+  input  [31:0] io_in_5_Re,
+  input  [31:0] io_in_5_Im,
+  input  [31:0] io_in_6_Re,
+  input  [31:0] io_in_6_Im,
+  input  [31:0] io_in_7_Re,
+  input  [31:0] io_in_7_Im,
   output [31:0] io_out_0_Re,
   output [31:0] io_out_0_Im,
   output [31:0] io_out_1_Re,
@@ -942,110 +1711,319 @@ module FFT_sr(
   output [31:0] io_out_2_Re,
   output [31:0] io_out_2_Im,
   output [31:0] io_out_3_Re,
-  output [31:0] io_out_3_Im
+  output [31:0] io_out_3_Im,
+  output [31:0] io_out_4_Re,
+  output [31:0] io_out_4_Im,
+  output [31:0] io_out_5_Re,
+  output [31:0] io_out_5_Im,
+  output [31:0] io_out_6_Re,
+  output [31:0] io_out_6_Im,
+  output [31:0] io_out_7_Re,
+  output [31:0] io_out_7_Im
 );
-  wire  DFT_r_clock; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_in_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_in_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_in_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_in_1_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_out_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_out_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_out_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_io_out_1_Im; // @[FFTDesigns.scala 121:34]
-  wire  DFT_r_1_clock; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_in_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_in_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_in_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_in_1_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_out_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_out_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_out_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_1_io_out_1_Im; // @[FFTDesigns.scala 121:34]
-  wire  DFT_r_2_clock; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_in_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_in_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_in_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_in_1_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_out_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_out_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_out_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_2_io_out_1_Im; // @[FFTDesigns.scala 121:34]
-  wire  DFT_r_3_clock; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_in_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_in_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_in_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_in_1_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_out_0_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_out_0_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_out_1_Re; // @[FFTDesigns.scala 121:34]
-  wire [31:0] DFT_r_3_io_out_1_Im; // @[FFTDesigns.scala 121:34]
-  wire [31:0] PermutationsBasic_io_in_0_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_0_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_1_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_1_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_2_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_2_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_3_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_in_3_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_0_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_0_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_1_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_1_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_2_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_2_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_3_Re; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_io_out_3_Im; // @[FFTDesigns.scala 126:35]
-  wire [31:0] PermutationsBasic_1_io_in_0_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_0_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_1_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_1_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_2_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_2_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_3_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_in_3_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_0_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_0_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_1_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_1_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_2_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_2_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_3_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_1_io_out_3_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_0_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_0_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_1_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_1_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_2_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_2_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_3_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_in_3_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_0_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_0_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_1_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_1_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_2_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_2_Im; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_3_Re; // @[FFTDesigns.scala 128:37]
-  wire [31:0] PermutationsBasic_2_io_out_3_Im; // @[FFTDesigns.scala 128:37]
-  wire  TwiddleFactors_clock; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_0_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_0_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_1_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_1_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_2_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_2_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_3_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_in_3_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_0_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_0_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_1_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_1_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_2_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_2_Im; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_3_Re; // @[FFTDesigns.scala 132:24]
-  wire [31:0] TwiddleFactors_io_out_3_Im; // @[FFTDesigns.scala 132:24]
-  DFT_r DFT_r ( // @[FFTDesigns.scala 121:34]
+  wire  DFT_r_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_1_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_1_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_2_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_2_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_3_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_3_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_4_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_4_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_5_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_5_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_6_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_6_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_7_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_7_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_8_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_8_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_9_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_9_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_10_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_10_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire  DFT_r_11_clock; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_in_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_in_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_in_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_in_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_out_0_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_out_0_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_out_1_Re; // @[FFTDesigns.scala 326:34]
+  wire [31:0] DFT_r_11_io_out_1_Im; // @[FFTDesigns.scala 326:34]
+  wire [31:0] PermutationsBasic_io_in_0_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_0_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_1_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_1_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_2_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_2_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_3_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_3_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_4_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_4_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_5_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_5_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_6_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_6_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_7_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_in_7_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_0_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_0_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_1_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_1_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_2_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_2_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_3_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_3_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_4_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_4_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_5_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_5_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_6_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_6_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_7_Re; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_io_out_7_Im; // @[FFTDesigns.scala 331:35]
+  wire [31:0] PermutationsBasic_1_io_in_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_in_7_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_1_io_out_7_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_in_7_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_2_io_out_7_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_in_7_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_0_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_0_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_1_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_1_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_2_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_2_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_3_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_3_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_4_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_4_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_5_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_5_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_6_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_6_Im; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_7_Re; // @[FFTDesigns.scala 333:37]
+  wire [31:0] PermutationsBasic_3_io_out_7_Im; // @[FFTDesigns.scala 333:37]
+  wire  TwiddleFactors_clock; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_0_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_0_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_1_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_1_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_2_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_2_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_3_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_3_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_4_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_4_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_5_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_5_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_6_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_6_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_7_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_in_7_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_0_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_0_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_1_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_1_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_2_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_2_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_3_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_3_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_4_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_4_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_5_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_5_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_6_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_6_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_7_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_io_out_7_Im; // @[FFTDesigns.scala 337:24]
+  wire  TwiddleFactors_1_clock; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_0_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_0_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_1_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_1_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_2_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_2_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_3_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_3_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_4_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_4_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_5_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_5_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_6_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_6_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_7_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_in_7_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_0_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_0_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_1_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_1_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_2_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_2_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_3_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_3_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_4_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_4_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_5_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_5_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_6_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_6_Im; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_7_Re; // @[FFTDesigns.scala 337:24]
+  wire [31:0] TwiddleFactors_1_io_out_7_Im; // @[FFTDesigns.scala 337:24]
+  DFT_r DFT_r ( // @[FFTDesigns.scala 326:34]
     .clock(DFT_r_clock),
     .io_in_0_Re(DFT_r_io_in_0_Re),
     .io_in_0_Im(DFT_r_io_in_0_Im),
@@ -1056,7 +2034,7 @@ module FFT_sr(
     .io_out_1_Re(DFT_r_io_out_1_Re),
     .io_out_1_Im(DFT_r_io_out_1_Im)
   );
-  DFT_r DFT_r_1 ( // @[FFTDesigns.scala 121:34]
+  DFT_r DFT_r_1 ( // @[FFTDesigns.scala 326:34]
     .clock(DFT_r_1_clock),
     .io_in_0_Re(DFT_r_1_io_in_0_Re),
     .io_in_0_Im(DFT_r_1_io_in_0_Im),
@@ -1067,7 +2045,7 @@ module FFT_sr(
     .io_out_1_Re(DFT_r_1_io_out_1_Re),
     .io_out_1_Im(DFT_r_1_io_out_1_Im)
   );
-  DFT_r DFT_r_2 ( // @[FFTDesigns.scala 121:34]
+  DFT_r DFT_r_2 ( // @[FFTDesigns.scala 326:34]
     .clock(DFT_r_2_clock),
     .io_in_0_Re(DFT_r_2_io_in_0_Re),
     .io_in_0_Im(DFT_r_2_io_in_0_Im),
@@ -1078,7 +2056,7 @@ module FFT_sr(
     .io_out_1_Re(DFT_r_2_io_out_1_Re),
     .io_out_1_Im(DFT_r_2_io_out_1_Im)
   );
-  DFT_r DFT_r_3 ( // @[FFTDesigns.scala 121:34]
+  DFT_r DFT_r_3 ( // @[FFTDesigns.scala 326:34]
     .clock(DFT_r_3_clock),
     .io_in_0_Re(DFT_r_3_io_in_0_Re),
     .io_in_0_Im(DFT_r_3_io_in_0_Im),
@@ -1089,7 +2067,95 @@ module FFT_sr(
     .io_out_1_Re(DFT_r_3_io_out_1_Re),
     .io_out_1_Im(DFT_r_3_io_out_1_Im)
   );
-  PermutationsBasic PermutationsBasic ( // @[FFTDesigns.scala 126:35]
+  DFT_r DFT_r_4 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_4_clock),
+    .io_in_0_Re(DFT_r_4_io_in_0_Re),
+    .io_in_0_Im(DFT_r_4_io_in_0_Im),
+    .io_in_1_Re(DFT_r_4_io_in_1_Re),
+    .io_in_1_Im(DFT_r_4_io_in_1_Im),
+    .io_out_0_Re(DFT_r_4_io_out_0_Re),
+    .io_out_0_Im(DFT_r_4_io_out_0_Im),
+    .io_out_1_Re(DFT_r_4_io_out_1_Re),
+    .io_out_1_Im(DFT_r_4_io_out_1_Im)
+  );
+  DFT_r DFT_r_5 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_5_clock),
+    .io_in_0_Re(DFT_r_5_io_in_0_Re),
+    .io_in_0_Im(DFT_r_5_io_in_0_Im),
+    .io_in_1_Re(DFT_r_5_io_in_1_Re),
+    .io_in_1_Im(DFT_r_5_io_in_1_Im),
+    .io_out_0_Re(DFT_r_5_io_out_0_Re),
+    .io_out_0_Im(DFT_r_5_io_out_0_Im),
+    .io_out_1_Re(DFT_r_5_io_out_1_Re),
+    .io_out_1_Im(DFT_r_5_io_out_1_Im)
+  );
+  DFT_r DFT_r_6 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_6_clock),
+    .io_in_0_Re(DFT_r_6_io_in_0_Re),
+    .io_in_0_Im(DFT_r_6_io_in_0_Im),
+    .io_in_1_Re(DFT_r_6_io_in_1_Re),
+    .io_in_1_Im(DFT_r_6_io_in_1_Im),
+    .io_out_0_Re(DFT_r_6_io_out_0_Re),
+    .io_out_0_Im(DFT_r_6_io_out_0_Im),
+    .io_out_1_Re(DFT_r_6_io_out_1_Re),
+    .io_out_1_Im(DFT_r_6_io_out_1_Im)
+  );
+  DFT_r DFT_r_7 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_7_clock),
+    .io_in_0_Re(DFT_r_7_io_in_0_Re),
+    .io_in_0_Im(DFT_r_7_io_in_0_Im),
+    .io_in_1_Re(DFT_r_7_io_in_1_Re),
+    .io_in_1_Im(DFT_r_7_io_in_1_Im),
+    .io_out_0_Re(DFT_r_7_io_out_0_Re),
+    .io_out_0_Im(DFT_r_7_io_out_0_Im),
+    .io_out_1_Re(DFT_r_7_io_out_1_Re),
+    .io_out_1_Im(DFT_r_7_io_out_1_Im)
+  );
+  DFT_r DFT_r_8 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_8_clock),
+    .io_in_0_Re(DFT_r_8_io_in_0_Re),
+    .io_in_0_Im(DFT_r_8_io_in_0_Im),
+    .io_in_1_Re(DFT_r_8_io_in_1_Re),
+    .io_in_1_Im(DFT_r_8_io_in_1_Im),
+    .io_out_0_Re(DFT_r_8_io_out_0_Re),
+    .io_out_0_Im(DFT_r_8_io_out_0_Im),
+    .io_out_1_Re(DFT_r_8_io_out_1_Re),
+    .io_out_1_Im(DFT_r_8_io_out_1_Im)
+  );
+  DFT_r DFT_r_9 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_9_clock),
+    .io_in_0_Re(DFT_r_9_io_in_0_Re),
+    .io_in_0_Im(DFT_r_9_io_in_0_Im),
+    .io_in_1_Re(DFT_r_9_io_in_1_Re),
+    .io_in_1_Im(DFT_r_9_io_in_1_Im),
+    .io_out_0_Re(DFT_r_9_io_out_0_Re),
+    .io_out_0_Im(DFT_r_9_io_out_0_Im),
+    .io_out_1_Re(DFT_r_9_io_out_1_Re),
+    .io_out_1_Im(DFT_r_9_io_out_1_Im)
+  );
+  DFT_r DFT_r_10 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_10_clock),
+    .io_in_0_Re(DFT_r_10_io_in_0_Re),
+    .io_in_0_Im(DFT_r_10_io_in_0_Im),
+    .io_in_1_Re(DFT_r_10_io_in_1_Re),
+    .io_in_1_Im(DFT_r_10_io_in_1_Im),
+    .io_out_0_Re(DFT_r_10_io_out_0_Re),
+    .io_out_0_Im(DFT_r_10_io_out_0_Im),
+    .io_out_1_Re(DFT_r_10_io_out_1_Re),
+    .io_out_1_Im(DFT_r_10_io_out_1_Im)
+  );
+  DFT_r DFT_r_11 ( // @[FFTDesigns.scala 326:34]
+    .clock(DFT_r_11_clock),
+    .io_in_0_Re(DFT_r_11_io_in_0_Re),
+    .io_in_0_Im(DFT_r_11_io_in_0_Im),
+    .io_in_1_Re(DFT_r_11_io_in_1_Re),
+    .io_in_1_Im(DFT_r_11_io_in_1_Im),
+    .io_out_0_Re(DFT_r_11_io_out_0_Re),
+    .io_out_0_Im(DFT_r_11_io_out_0_Im),
+    .io_out_1_Re(DFT_r_11_io_out_1_Re),
+    .io_out_1_Im(DFT_r_11_io_out_1_Im)
+  );
+  PermutationsBasic PermutationsBasic ( // @[FFTDesigns.scala 331:35]
     .io_in_0_Re(PermutationsBasic_io_in_0_Re),
     .io_in_0_Im(PermutationsBasic_io_in_0_Im),
     .io_in_1_Re(PermutationsBasic_io_in_1_Re),
@@ -1098,6 +2164,14 @@ module FFT_sr(
     .io_in_2_Im(PermutationsBasic_io_in_2_Im),
     .io_in_3_Re(PermutationsBasic_io_in_3_Re),
     .io_in_3_Im(PermutationsBasic_io_in_3_Im),
+    .io_in_4_Re(PermutationsBasic_io_in_4_Re),
+    .io_in_4_Im(PermutationsBasic_io_in_4_Im),
+    .io_in_5_Re(PermutationsBasic_io_in_5_Re),
+    .io_in_5_Im(PermutationsBasic_io_in_5_Im),
+    .io_in_6_Re(PermutationsBasic_io_in_6_Re),
+    .io_in_6_Im(PermutationsBasic_io_in_6_Im),
+    .io_in_7_Re(PermutationsBasic_io_in_7_Re),
+    .io_in_7_Im(PermutationsBasic_io_in_7_Im),
     .io_out_0_Re(PermutationsBasic_io_out_0_Re),
     .io_out_0_Im(PermutationsBasic_io_out_0_Im),
     .io_out_1_Re(PermutationsBasic_io_out_1_Re),
@@ -1105,9 +2179,17 @@ module FFT_sr(
     .io_out_2_Re(PermutationsBasic_io_out_2_Re),
     .io_out_2_Im(PermutationsBasic_io_out_2_Im),
     .io_out_3_Re(PermutationsBasic_io_out_3_Re),
-    .io_out_3_Im(PermutationsBasic_io_out_3_Im)
+    .io_out_3_Im(PermutationsBasic_io_out_3_Im),
+    .io_out_4_Re(PermutationsBasic_io_out_4_Re),
+    .io_out_4_Im(PermutationsBasic_io_out_4_Im),
+    .io_out_5_Re(PermutationsBasic_io_out_5_Re),
+    .io_out_5_Im(PermutationsBasic_io_out_5_Im),
+    .io_out_6_Re(PermutationsBasic_io_out_6_Re),
+    .io_out_6_Im(PermutationsBasic_io_out_6_Im),
+    .io_out_7_Re(PermutationsBasic_io_out_7_Re),
+    .io_out_7_Im(PermutationsBasic_io_out_7_Im)
   );
-  PermutationsBasic PermutationsBasic_1 ( // @[FFTDesigns.scala 128:37]
+  PermutationsBasic_1 PermutationsBasic_1 ( // @[FFTDesigns.scala 333:37]
     .io_in_0_Re(PermutationsBasic_1_io_in_0_Re),
     .io_in_0_Im(PermutationsBasic_1_io_in_0_Im),
     .io_in_1_Re(PermutationsBasic_1_io_in_1_Re),
@@ -1116,6 +2198,14 @@ module FFT_sr(
     .io_in_2_Im(PermutationsBasic_1_io_in_2_Im),
     .io_in_3_Re(PermutationsBasic_1_io_in_3_Re),
     .io_in_3_Im(PermutationsBasic_1_io_in_3_Im),
+    .io_in_4_Re(PermutationsBasic_1_io_in_4_Re),
+    .io_in_4_Im(PermutationsBasic_1_io_in_4_Im),
+    .io_in_5_Re(PermutationsBasic_1_io_in_5_Re),
+    .io_in_5_Im(PermutationsBasic_1_io_in_5_Im),
+    .io_in_6_Re(PermutationsBasic_1_io_in_6_Re),
+    .io_in_6_Im(PermutationsBasic_1_io_in_6_Im),
+    .io_in_7_Re(PermutationsBasic_1_io_in_7_Re),
+    .io_in_7_Im(PermutationsBasic_1_io_in_7_Im),
     .io_out_0_Re(PermutationsBasic_1_io_out_0_Re),
     .io_out_0_Im(PermutationsBasic_1_io_out_0_Im),
     .io_out_1_Re(PermutationsBasic_1_io_out_1_Re),
@@ -1123,9 +2213,17 @@ module FFT_sr(
     .io_out_2_Re(PermutationsBasic_1_io_out_2_Re),
     .io_out_2_Im(PermutationsBasic_1_io_out_2_Im),
     .io_out_3_Re(PermutationsBasic_1_io_out_3_Re),
-    .io_out_3_Im(PermutationsBasic_1_io_out_3_Im)
+    .io_out_3_Im(PermutationsBasic_1_io_out_3_Im),
+    .io_out_4_Re(PermutationsBasic_1_io_out_4_Re),
+    .io_out_4_Im(PermutationsBasic_1_io_out_4_Im),
+    .io_out_5_Re(PermutationsBasic_1_io_out_5_Re),
+    .io_out_5_Im(PermutationsBasic_1_io_out_5_Im),
+    .io_out_6_Re(PermutationsBasic_1_io_out_6_Re),
+    .io_out_6_Im(PermutationsBasic_1_io_out_6_Im),
+    .io_out_7_Re(PermutationsBasic_1_io_out_7_Re),
+    .io_out_7_Im(PermutationsBasic_1_io_out_7_Im)
   );
-  PermutationsBasic PermutationsBasic_2 ( // @[FFTDesigns.scala 128:37]
+  PermutationsBasic_1 PermutationsBasic_2 ( // @[FFTDesigns.scala 333:37]
     .io_in_0_Re(PermutationsBasic_2_io_in_0_Re),
     .io_in_0_Im(PermutationsBasic_2_io_in_0_Im),
     .io_in_1_Re(PermutationsBasic_2_io_in_1_Re),
@@ -1134,6 +2232,14 @@ module FFT_sr(
     .io_in_2_Im(PermutationsBasic_2_io_in_2_Im),
     .io_in_3_Re(PermutationsBasic_2_io_in_3_Re),
     .io_in_3_Im(PermutationsBasic_2_io_in_3_Im),
+    .io_in_4_Re(PermutationsBasic_2_io_in_4_Re),
+    .io_in_4_Im(PermutationsBasic_2_io_in_4_Im),
+    .io_in_5_Re(PermutationsBasic_2_io_in_5_Re),
+    .io_in_5_Im(PermutationsBasic_2_io_in_5_Im),
+    .io_in_6_Re(PermutationsBasic_2_io_in_6_Re),
+    .io_in_6_Im(PermutationsBasic_2_io_in_6_Im),
+    .io_in_7_Re(PermutationsBasic_2_io_in_7_Re),
+    .io_in_7_Im(PermutationsBasic_2_io_in_7_Im),
     .io_out_0_Re(PermutationsBasic_2_io_out_0_Re),
     .io_out_0_Im(PermutationsBasic_2_io_out_0_Im),
     .io_out_1_Re(PermutationsBasic_2_io_out_1_Re),
@@ -1141,9 +2247,51 @@ module FFT_sr(
     .io_out_2_Re(PermutationsBasic_2_io_out_2_Re),
     .io_out_2_Im(PermutationsBasic_2_io_out_2_Im),
     .io_out_3_Re(PermutationsBasic_2_io_out_3_Re),
-    .io_out_3_Im(PermutationsBasic_2_io_out_3_Im)
+    .io_out_3_Im(PermutationsBasic_2_io_out_3_Im),
+    .io_out_4_Re(PermutationsBasic_2_io_out_4_Re),
+    .io_out_4_Im(PermutationsBasic_2_io_out_4_Im),
+    .io_out_5_Re(PermutationsBasic_2_io_out_5_Re),
+    .io_out_5_Im(PermutationsBasic_2_io_out_5_Im),
+    .io_out_6_Re(PermutationsBasic_2_io_out_6_Re),
+    .io_out_6_Im(PermutationsBasic_2_io_out_6_Im),
+    .io_out_7_Re(PermutationsBasic_2_io_out_7_Re),
+    .io_out_7_Im(PermutationsBasic_2_io_out_7_Im)
   );
-  TwiddleFactors TwiddleFactors ( // @[FFTDesigns.scala 132:24]
+  PermutationsBasic_1 PermutationsBasic_3 ( // @[FFTDesigns.scala 333:37]
+    .io_in_0_Re(PermutationsBasic_3_io_in_0_Re),
+    .io_in_0_Im(PermutationsBasic_3_io_in_0_Im),
+    .io_in_1_Re(PermutationsBasic_3_io_in_1_Re),
+    .io_in_1_Im(PermutationsBasic_3_io_in_1_Im),
+    .io_in_2_Re(PermutationsBasic_3_io_in_2_Re),
+    .io_in_2_Im(PermutationsBasic_3_io_in_2_Im),
+    .io_in_3_Re(PermutationsBasic_3_io_in_3_Re),
+    .io_in_3_Im(PermutationsBasic_3_io_in_3_Im),
+    .io_in_4_Re(PermutationsBasic_3_io_in_4_Re),
+    .io_in_4_Im(PermutationsBasic_3_io_in_4_Im),
+    .io_in_5_Re(PermutationsBasic_3_io_in_5_Re),
+    .io_in_5_Im(PermutationsBasic_3_io_in_5_Im),
+    .io_in_6_Re(PermutationsBasic_3_io_in_6_Re),
+    .io_in_6_Im(PermutationsBasic_3_io_in_6_Im),
+    .io_in_7_Re(PermutationsBasic_3_io_in_7_Re),
+    .io_in_7_Im(PermutationsBasic_3_io_in_7_Im),
+    .io_out_0_Re(PermutationsBasic_3_io_out_0_Re),
+    .io_out_0_Im(PermutationsBasic_3_io_out_0_Im),
+    .io_out_1_Re(PermutationsBasic_3_io_out_1_Re),
+    .io_out_1_Im(PermutationsBasic_3_io_out_1_Im),
+    .io_out_2_Re(PermutationsBasic_3_io_out_2_Re),
+    .io_out_2_Im(PermutationsBasic_3_io_out_2_Im),
+    .io_out_3_Re(PermutationsBasic_3_io_out_3_Re),
+    .io_out_3_Im(PermutationsBasic_3_io_out_3_Im),
+    .io_out_4_Re(PermutationsBasic_3_io_out_4_Re),
+    .io_out_4_Im(PermutationsBasic_3_io_out_4_Im),
+    .io_out_5_Re(PermutationsBasic_3_io_out_5_Re),
+    .io_out_5_Im(PermutationsBasic_3_io_out_5_Im),
+    .io_out_6_Re(PermutationsBasic_3_io_out_6_Re),
+    .io_out_6_Im(PermutationsBasic_3_io_out_6_Im),
+    .io_out_7_Re(PermutationsBasic_3_io_out_7_Re),
+    .io_out_7_Im(PermutationsBasic_3_io_out_7_Im)
+  );
+  TwiddleFactors TwiddleFactors ( // @[FFTDesigns.scala 337:24]
     .clock(TwiddleFactors_clock),
     .io_in_0_Re(TwiddleFactors_io_in_0_Re),
     .io_in_0_Im(TwiddleFactors_io_in_0_Im),
@@ -1153,6 +2301,14 @@ module FFT_sr(
     .io_in_2_Im(TwiddleFactors_io_in_2_Im),
     .io_in_3_Re(TwiddleFactors_io_in_3_Re),
     .io_in_3_Im(TwiddleFactors_io_in_3_Im),
+    .io_in_4_Re(TwiddleFactors_io_in_4_Re),
+    .io_in_4_Im(TwiddleFactors_io_in_4_Im),
+    .io_in_5_Re(TwiddleFactors_io_in_5_Re),
+    .io_in_5_Im(TwiddleFactors_io_in_5_Im),
+    .io_in_6_Re(TwiddleFactors_io_in_6_Re),
+    .io_in_6_Im(TwiddleFactors_io_in_6_Im),
+    .io_in_7_Re(TwiddleFactors_io_in_7_Re),
+    .io_in_7_Im(TwiddleFactors_io_in_7_Im),
     .io_out_0_Re(TwiddleFactors_io_out_0_Re),
     .io_out_0_Im(TwiddleFactors_io_out_0_Im),
     .io_out_1_Re(TwiddleFactors_io_out_1_Re),
@@ -1160,68 +2316,224 @@ module FFT_sr(
     .io_out_2_Re(TwiddleFactors_io_out_2_Re),
     .io_out_2_Im(TwiddleFactors_io_out_2_Im),
     .io_out_3_Re(TwiddleFactors_io_out_3_Re),
-    .io_out_3_Im(TwiddleFactors_io_out_3_Im)
+    .io_out_3_Im(TwiddleFactors_io_out_3_Im),
+    .io_out_4_Re(TwiddleFactors_io_out_4_Re),
+    .io_out_4_Im(TwiddleFactors_io_out_4_Im),
+    .io_out_5_Re(TwiddleFactors_io_out_5_Re),
+    .io_out_5_Im(TwiddleFactors_io_out_5_Im),
+    .io_out_6_Re(TwiddleFactors_io_out_6_Re),
+    .io_out_6_Im(TwiddleFactors_io_out_6_Im),
+    .io_out_7_Re(TwiddleFactors_io_out_7_Re),
+    .io_out_7_Im(TwiddleFactors_io_out_7_Im)
   );
-  assign io_out_0_Re = PermutationsBasic_2_io_out_0_Re; // @[FFTDesigns.scala 153:16]
-  assign io_out_0_Im = PermutationsBasic_2_io_out_0_Im; // @[FFTDesigns.scala 153:16]
-  assign io_out_1_Re = PermutationsBasic_2_io_out_1_Re; // @[FFTDesigns.scala 153:16]
-  assign io_out_1_Im = PermutationsBasic_2_io_out_1_Im; // @[FFTDesigns.scala 153:16]
-  assign io_out_2_Re = PermutationsBasic_2_io_out_2_Re; // @[FFTDesigns.scala 153:16]
-  assign io_out_2_Im = PermutationsBasic_2_io_out_2_Im; // @[FFTDesigns.scala 153:16]
-  assign io_out_3_Re = PermutationsBasic_2_io_out_3_Re; // @[FFTDesigns.scala 153:16]
-  assign io_out_3_Im = PermutationsBasic_2_io_out_3_Im; // @[FFTDesigns.scala 153:16]
+  TwiddleFactors_1 TwiddleFactors_1 ( // @[FFTDesigns.scala 337:24]
+    .clock(TwiddleFactors_1_clock),
+    .io_in_0_Re(TwiddleFactors_1_io_in_0_Re),
+    .io_in_0_Im(TwiddleFactors_1_io_in_0_Im),
+    .io_in_1_Re(TwiddleFactors_1_io_in_1_Re),
+    .io_in_1_Im(TwiddleFactors_1_io_in_1_Im),
+    .io_in_2_Re(TwiddleFactors_1_io_in_2_Re),
+    .io_in_2_Im(TwiddleFactors_1_io_in_2_Im),
+    .io_in_3_Re(TwiddleFactors_1_io_in_3_Re),
+    .io_in_3_Im(TwiddleFactors_1_io_in_3_Im),
+    .io_in_4_Re(TwiddleFactors_1_io_in_4_Re),
+    .io_in_4_Im(TwiddleFactors_1_io_in_4_Im),
+    .io_in_5_Re(TwiddleFactors_1_io_in_5_Re),
+    .io_in_5_Im(TwiddleFactors_1_io_in_5_Im),
+    .io_in_6_Re(TwiddleFactors_1_io_in_6_Re),
+    .io_in_6_Im(TwiddleFactors_1_io_in_6_Im),
+    .io_in_7_Re(TwiddleFactors_1_io_in_7_Re),
+    .io_in_7_Im(TwiddleFactors_1_io_in_7_Im),
+    .io_out_0_Re(TwiddleFactors_1_io_out_0_Re),
+    .io_out_0_Im(TwiddleFactors_1_io_out_0_Im),
+    .io_out_1_Re(TwiddleFactors_1_io_out_1_Re),
+    .io_out_1_Im(TwiddleFactors_1_io_out_1_Im),
+    .io_out_2_Re(TwiddleFactors_1_io_out_2_Re),
+    .io_out_2_Im(TwiddleFactors_1_io_out_2_Im),
+    .io_out_3_Re(TwiddleFactors_1_io_out_3_Re),
+    .io_out_3_Im(TwiddleFactors_1_io_out_3_Im),
+    .io_out_4_Re(TwiddleFactors_1_io_out_4_Re),
+    .io_out_4_Im(TwiddleFactors_1_io_out_4_Im),
+    .io_out_5_Re(TwiddleFactors_1_io_out_5_Re),
+    .io_out_5_Im(TwiddleFactors_1_io_out_5_Im),
+    .io_out_6_Re(TwiddleFactors_1_io_out_6_Re),
+    .io_out_6_Im(TwiddleFactors_1_io_out_6_Im),
+    .io_out_7_Re(TwiddleFactors_1_io_out_7_Re),
+    .io_out_7_Im(TwiddleFactors_1_io_out_7_Im)
+  );
+  assign io_out_0_Re = PermutationsBasic_3_io_out_0_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_0_Im = PermutationsBasic_3_io_out_0_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_1_Re = PermutationsBasic_3_io_out_1_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_1_Im = PermutationsBasic_3_io_out_1_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_2_Re = PermutationsBasic_3_io_out_2_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_2_Im = PermutationsBasic_3_io_out_2_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_3_Re = PermutationsBasic_3_io_out_3_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_3_Im = PermutationsBasic_3_io_out_3_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_4_Re = PermutationsBasic_3_io_out_4_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_4_Im = PermutationsBasic_3_io_out_4_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_5_Re = PermutationsBasic_3_io_out_5_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_5_Im = PermutationsBasic_3_io_out_5_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_6_Re = PermutationsBasic_3_io_out_6_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_6_Im = PermutationsBasic_3_io_out_6_Im; // @[FFTDesigns.scala 358:16]
+  assign io_out_7_Re = PermutationsBasic_3_io_out_7_Re; // @[FFTDesigns.scala 358:16]
+  assign io_out_7_Im = PermutationsBasic_3_io_out_7_Im; // @[FFTDesigns.scala 358:16]
   assign DFT_r_clock = clock;
-  assign DFT_r_io_in_0_Re = PermutationsBasic_io_out_0_Re; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_io_in_0_Im = PermutationsBasic_io_out_0_Im; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_io_in_1_Re = PermutationsBasic_io_out_1_Re; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_io_in_1_Im = PermutationsBasic_io_out_1_Im; // @[FFTDesigns.scala 142:39]
+  assign DFT_r_io_in_0_Re = PermutationsBasic_io_out_0_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_io_in_0_Im = PermutationsBasic_io_out_0_Im; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_io_in_1_Re = PermutationsBasic_io_out_1_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_io_in_1_Im = PermutationsBasic_io_out_1_Im; // @[FFTDesigns.scala 347:39]
   assign DFT_r_1_clock = clock;
-  assign DFT_r_1_io_in_0_Re = PermutationsBasic_io_out_2_Re; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_1_io_in_0_Im = PermutationsBasic_io_out_2_Im; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_1_io_in_1_Re = PermutationsBasic_io_out_3_Re; // @[FFTDesigns.scala 142:39]
-  assign DFT_r_1_io_in_1_Im = PermutationsBasic_io_out_3_Im; // @[FFTDesigns.scala 142:39]
+  assign DFT_r_1_io_in_0_Re = PermutationsBasic_io_out_2_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_1_io_in_0_Im = PermutationsBasic_io_out_2_Im; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_1_io_in_1_Re = PermutationsBasic_io_out_3_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_1_io_in_1_Im = PermutationsBasic_io_out_3_Im; // @[FFTDesigns.scala 347:39]
   assign DFT_r_2_clock = clock;
-  assign DFT_r_2_io_in_0_Re = TwiddleFactors_io_out_0_Re; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_2_io_in_0_Im = TwiddleFactors_io_out_0_Im; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_2_io_in_1_Re = TwiddleFactors_io_out_1_Re; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_2_io_in_1_Im = TwiddleFactors_io_out_1_Im; // @[FFTDesigns.scala 144:39]
+  assign DFT_r_2_io_in_0_Re = PermutationsBasic_io_out_4_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_2_io_in_0_Im = PermutationsBasic_io_out_4_Im; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_2_io_in_1_Re = PermutationsBasic_io_out_5_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_2_io_in_1_Im = PermutationsBasic_io_out_5_Im; // @[FFTDesigns.scala 347:39]
   assign DFT_r_3_clock = clock;
-  assign DFT_r_3_io_in_0_Re = TwiddleFactors_io_out_2_Re; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_3_io_in_0_Im = TwiddleFactors_io_out_2_Im; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_3_io_in_1_Re = TwiddleFactors_io_out_3_Re; // @[FFTDesigns.scala 144:39]
-  assign DFT_r_3_io_in_1_Im = TwiddleFactors_io_out_3_Im; // @[FFTDesigns.scala 144:39]
-  assign PermutationsBasic_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_1_Re = io_in_1_Re; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_1_Im = io_in_1_Im; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_2_Re = io_in_2_Re; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_2_Im = io_in_2_Im; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_3_Re = io_in_3_Re; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_io_in_3_Im = io_in_3_Im; // @[FFTDesigns.scala 136:31]
-  assign PermutationsBasic_1_io_in_0_Re = DFT_r_io_out_0_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_0_Im = DFT_r_io_out_0_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_1_Re = DFT_r_io_out_1_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_1_Im = DFT_r_io_out_1_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_2_Re = DFT_r_1_io_out_0_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_2_Im = DFT_r_1_io_out_0_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_3_Re = DFT_r_1_io_out_1_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_1_io_in_3_Im = DFT_r_1_io_out_1_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_0_Re = DFT_r_2_io_out_0_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_0_Im = DFT_r_2_io_out_0_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_1_Re = DFT_r_2_io_out_1_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_1_Im = DFT_r_2_io_out_1_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_2_Re = DFT_r_3_io_out_0_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_2_Im = DFT_r_3_io_out_0_Im; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_3_Re = DFT_r_3_io_out_1_Re; // @[FFTDesigns.scala 146:43]
-  assign PermutationsBasic_2_io_in_3_Im = DFT_r_3_io_out_1_Im; // @[FFTDesigns.scala 146:43]
+  assign DFT_r_3_io_in_0_Re = PermutationsBasic_io_out_6_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_3_io_in_0_Im = PermutationsBasic_io_out_6_Im; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_3_io_in_1_Re = PermutationsBasic_io_out_7_Re; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_3_io_in_1_Im = PermutationsBasic_io_out_7_Im; // @[FFTDesigns.scala 347:39]
+  assign DFT_r_4_clock = clock;
+  assign DFT_r_4_io_in_0_Re = TwiddleFactors_io_out_0_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_4_io_in_0_Im = TwiddleFactors_io_out_0_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_4_io_in_1_Re = TwiddleFactors_io_out_1_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_4_io_in_1_Im = TwiddleFactors_io_out_1_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_5_clock = clock;
+  assign DFT_r_5_io_in_0_Re = TwiddleFactors_io_out_2_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_5_io_in_0_Im = TwiddleFactors_io_out_2_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_5_io_in_1_Re = TwiddleFactors_io_out_3_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_5_io_in_1_Im = TwiddleFactors_io_out_3_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_6_clock = clock;
+  assign DFT_r_6_io_in_0_Re = TwiddleFactors_io_out_4_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_6_io_in_0_Im = TwiddleFactors_io_out_4_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_6_io_in_1_Re = TwiddleFactors_io_out_5_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_6_io_in_1_Im = TwiddleFactors_io_out_5_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_7_clock = clock;
+  assign DFT_r_7_io_in_0_Re = TwiddleFactors_io_out_6_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_7_io_in_0_Im = TwiddleFactors_io_out_6_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_7_io_in_1_Re = TwiddleFactors_io_out_7_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_7_io_in_1_Im = TwiddleFactors_io_out_7_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_8_clock = clock;
+  assign DFT_r_8_io_in_0_Re = TwiddleFactors_1_io_out_0_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_8_io_in_0_Im = TwiddleFactors_1_io_out_0_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_8_io_in_1_Re = TwiddleFactors_1_io_out_1_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_8_io_in_1_Im = TwiddleFactors_1_io_out_1_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_9_clock = clock;
+  assign DFT_r_9_io_in_0_Re = TwiddleFactors_1_io_out_2_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_9_io_in_0_Im = TwiddleFactors_1_io_out_2_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_9_io_in_1_Re = TwiddleFactors_1_io_out_3_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_9_io_in_1_Im = TwiddleFactors_1_io_out_3_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_10_clock = clock;
+  assign DFT_r_10_io_in_0_Re = TwiddleFactors_1_io_out_4_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_10_io_in_0_Im = TwiddleFactors_1_io_out_4_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_10_io_in_1_Re = TwiddleFactors_1_io_out_5_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_10_io_in_1_Im = TwiddleFactors_1_io_out_5_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_11_clock = clock;
+  assign DFT_r_11_io_in_0_Re = TwiddleFactors_1_io_out_6_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_11_io_in_0_Im = TwiddleFactors_1_io_out_6_Im; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_11_io_in_1_Re = TwiddleFactors_1_io_out_7_Re; // @[FFTDesigns.scala 349:39]
+  assign DFT_r_11_io_in_1_Im = TwiddleFactors_1_io_out_7_Im; // @[FFTDesigns.scala 349:39]
+  assign PermutationsBasic_io_in_0_Re = io_in_0_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_0_Im = io_in_0_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_1_Re = io_in_1_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_1_Im = io_in_1_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_2_Re = io_in_2_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_2_Im = io_in_2_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_3_Re = io_in_3_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_3_Im = io_in_3_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_4_Re = io_in_4_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_4_Im = io_in_4_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_5_Re = io_in_5_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_5_Im = io_in_5_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_6_Re = io_in_6_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_6_Im = io_in_6_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_7_Re = io_in_7_Re; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_io_in_7_Im = io_in_7_Im; // @[FFTDesigns.scala 341:31]
+  assign PermutationsBasic_1_io_in_0_Re = DFT_r_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_0_Im = DFT_r_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_1_Re = DFT_r_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_1_Im = DFT_r_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_2_Re = DFT_r_1_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_2_Im = DFT_r_1_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_3_Re = DFT_r_1_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_3_Im = DFT_r_1_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_4_Re = DFT_r_2_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_4_Im = DFT_r_2_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_5_Re = DFT_r_2_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_5_Im = DFT_r_2_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_6_Re = DFT_r_3_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_6_Im = DFT_r_3_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_7_Re = DFT_r_3_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_1_io_in_7_Im = DFT_r_3_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_0_Re = DFT_r_4_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_0_Im = DFT_r_4_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_1_Re = DFT_r_4_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_1_Im = DFT_r_4_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_2_Re = DFT_r_5_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_2_Im = DFT_r_5_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_3_Re = DFT_r_5_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_3_Im = DFT_r_5_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_4_Re = DFT_r_6_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_4_Im = DFT_r_6_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_5_Re = DFT_r_6_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_5_Im = DFT_r_6_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_6_Re = DFT_r_7_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_6_Im = DFT_r_7_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_7_Re = DFT_r_7_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_2_io_in_7_Im = DFT_r_7_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_0_Re = DFT_r_8_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_0_Im = DFT_r_8_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_1_Re = DFT_r_8_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_1_Im = DFT_r_8_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_2_Re = DFT_r_9_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_2_Im = DFT_r_9_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_3_Re = DFT_r_9_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_3_Im = DFT_r_9_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_4_Re = DFT_r_10_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_4_Im = DFT_r_10_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_5_Re = DFT_r_10_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_5_Im = DFT_r_10_io_out_1_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_6_Re = DFT_r_11_io_out_0_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_6_Im = DFT_r_11_io_out_0_Im; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_7_Re = DFT_r_11_io_out_1_Re; // @[FFTDesigns.scala 351:43]
+  assign PermutationsBasic_3_io_in_7_Im = DFT_r_11_io_out_1_Im; // @[FFTDesigns.scala 351:43]
   assign TwiddleFactors_clock = clock;
-  assign TwiddleFactors_io_in_0_Re = PermutationsBasic_1_io_out_0_Re; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_0_Im = PermutationsBasic_1_io_out_0_Im; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_1_Re = PermutationsBasic_1_io_out_1_Re; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_1_Im = PermutationsBasic_1_io_out_1_Im; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_2_Re = PermutationsBasic_1_io_out_2_Re; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_2_Im = PermutationsBasic_1_io_out_2_Im; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_3_Re = PermutationsBasic_1_io_out_3_Re; // @[FFTDesigns.scala 150:38]
-  assign TwiddleFactors_io_in_3_Im = PermutationsBasic_1_io_out_3_Im; // @[FFTDesigns.scala 150:38]
+  assign TwiddleFactors_io_in_0_Re = PermutationsBasic_1_io_out_0_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_0_Im = PermutationsBasic_1_io_out_0_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_1_Re = PermutationsBasic_1_io_out_1_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_1_Im = PermutationsBasic_1_io_out_1_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_2_Re = PermutationsBasic_1_io_out_2_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_2_Im = PermutationsBasic_1_io_out_2_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_3_Re = PermutationsBasic_1_io_out_3_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_3_Im = PermutationsBasic_1_io_out_3_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_4_Re = PermutationsBasic_1_io_out_4_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_4_Im = PermutationsBasic_1_io_out_4_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_5_Re = PermutationsBasic_1_io_out_5_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_5_Im = PermutationsBasic_1_io_out_5_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_6_Re = PermutationsBasic_1_io_out_6_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_6_Im = PermutationsBasic_1_io_out_6_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_7_Re = PermutationsBasic_1_io_out_7_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_io_in_7_Im = PermutationsBasic_1_io_out_7_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_clock = clock;
+  assign TwiddleFactors_1_io_in_0_Re = PermutationsBasic_2_io_out_0_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_0_Im = PermutationsBasic_2_io_out_0_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_1_Re = PermutationsBasic_2_io_out_1_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_1_Im = PermutationsBasic_2_io_out_1_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_2_Re = PermutationsBasic_2_io_out_2_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_2_Im = PermutationsBasic_2_io_out_2_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_3_Re = PermutationsBasic_2_io_out_3_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_3_Im = PermutationsBasic_2_io_out_3_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_4_Re = PermutationsBasic_2_io_out_4_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_4_Im = PermutationsBasic_2_io_out_4_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_5_Re = PermutationsBasic_2_io_out_5_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_5_Im = PermutationsBasic_2_io_out_5_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_6_Re = PermutationsBasic_2_io_out_6_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_6_Im = PermutationsBasic_2_io_out_6_Im; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_7_Re = PermutationsBasic_2_io_out_7_Re; // @[FFTDesigns.scala 355:38]
+  assign TwiddleFactors_1_io_in_7_Im = PermutationsBasic_2_io_out_7_Im; // @[FFTDesigns.scala 355:38]
 endmodule
 

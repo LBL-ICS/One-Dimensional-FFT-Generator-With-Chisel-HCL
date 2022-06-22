@@ -73,7 +73,23 @@ object FFTMain {
     // third input radix
     // fourth input is base radix for which radix r is based on
     // fifth input is to specify permutation type, 0 for stride-m (L) and 1 for digit reversal (R)
-    // at the moment, the w must be a divisor of N
-    GenerateStreamingAddr(n_size, w,rr,base_r,t)
+    // at the moment, the w must be a divisor of N and multiple of the radix
+    var mappings = GenerateStreamingMapping(N, w,rr,base_r,t)
+    mappings = Mapping_Sort(mappings,0)
+    val M0_access = (for(i <- 0 until N/w)yield{
+      val M0_slice = (for(j <- 0 until w)yield{
+        mappings(i)(j)._2._1
+      }).toArray
+      M0_slice
+    }).toArray
+    M0_access.map(x=>println(x.toList))
+    var mem_map = (for(i <- 0 until N/w) yield{
+      val temp = (for(j <- 0 until w) yield{
+        mappings(i)(j)._2._2
+      }).toArray
+      temp
+    }).toArray
+    println()
+    mem_map.map(x=>println(x.toList))
   }
 }
