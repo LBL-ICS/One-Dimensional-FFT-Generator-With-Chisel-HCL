@@ -47,7 +47,7 @@ object FFT_GoldenModels {
     val r = 2
     val w = 8
     val bw = 32
-    val runs = 2
+    val runs = 4
     val name = "example"
     genRandom(N*2*runs,name, bw)
 
@@ -81,18 +81,25 @@ object FFT_GoldenModels {
       }).toArray
       for(j <- 0 until runs) {
         var index = 0
-        for (i <- 0 until (2*N) by 2) {
+        for (i <- 0 until (2 * N) by 2) {
           c.io.in(index).Re.poke(input_List(i).U)
-          c.io.in(index).Im.poke(input_List(i+1).U)
+          c.io.in(index).Im.poke(input_List(i + 1).U)
           index += 1
         }
-        c.clock.step(Total_Latency)
-        for(i <- 0 until N){
+        c.clock.step(1)
+      }
+      for(j <-0 until runs) {
+        if(j == 0){
+          c.clock.step(Total_Latency-runs)
+        }else{
+          c.clock.step(1)
+        }
+        for (i <- 0 until N) {
           val val1 = convert_long_to_float(c.io.out(i).Re.peek().litValue, bw).toDouble
           val val2 = convert_long_to_float(c.io.out(i).Im.peek().litValue, bw).toDouble
           println(s"Real Output: ${val1}")
           println(s"Imaginary Output: ${val2}")
-          hw_model(j)(i) = cmplx(val1,val2)
+          hw_model(j)(i) = cmplx(val1, val2)
         }
       }
       sw_model.map(x=>x.map(y=>y.print_mag)) // sw results stored here

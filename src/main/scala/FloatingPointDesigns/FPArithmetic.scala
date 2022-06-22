@@ -28,33 +28,33 @@ object FPArithmetic {
       mantissa = 112
     }
 
-    val reg_in_a = Reg(UInt(bw.W))
-    val reg_in_b = Reg(UInt(bw.W))
-    reg_in_a := io.in_a
-    reg_in_b := io.in_b
+    //    val reg_in_a = Reg(UInt(bw.W))
+    //    val reg_in_b = Reg(UInt(bw.W))
+    //    reg_in_a := io.in_a
+    //    reg_in_b := io.in_b
 
     // sign part of ieee number
     val sign = Wire(Vec(2, UInt(1.W)))
-    sign(0) := reg_in_a(bw-1)
-    sign(1) := reg_in_b(bw-1)
+    sign(0) := io.in_a(bw-1)
+    sign(1) := io.in_b(bw-1)
 
     // exponent part of ieee number
     val exp = Wire(Vec(2, UInt(exponent.W)))
-    when(reg_in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+    when(io.in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
       exp(0) := BigInt(2).pow(exponent).U - 2.U
     }.otherwise{
-      exp(0) := reg_in_a(bw-2, mantissa)
+      exp(0) := io.in_a(bw-2, mantissa)
     }
-    when(reg_in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
+    when(io.in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
       exp(1) := BigInt(2).pow(exponent).U - 2.U
     }.otherwise{
-      exp(1) := reg_in_b(bw-2, mantissa)
+      exp(1) := io.in_b(bw-2, mantissa)
     }
 
     //fractional part of ieee number
     val frac = Wire(Vec(2, UInt(mantissa.W)))
-    frac(0) := reg_in_a(mantissa-1,0)
-    frac(1) := reg_in_b(mantissa-1,0)
+    frac(0) := io.in_a(mantissa-1,0)
+    frac(1) := io.in_b(mantissa-1,0)
 
     // 1.0 + fractional part
     val whole_frac = Wire(Vec(2, UInt((mantissa+1).W)))
@@ -166,7 +166,7 @@ object FPArithmetic {
     subber2.io.in_a := out_exp
     subber2.io.in_b := ((mantissa + 1).U - leadingOneFinder.io.out)
     subber2.io.in_c := 0.U
-    when(reg_in_a(bw-2,0) === 0.U && reg_in_b(bw-2, 0) === 0.U){
+    when(io.in_a(bw-2,0) === 0.U && io.in_b(bw-2, 0) === 0.U){
       new_s := 0.U
       new_out_exp := 0.U
       new_out_frac := 0.U
@@ -186,7 +186,7 @@ object FPArithmetic {
         new_out_frac := adder_result(mantissa,1)
       }
     }.elsewhen(D === 1.U){ // if exponent needs to be decreased by 1 or more
-      when(leadingOneFinder.io.out === 1.U && adder_result === 0.U && ((1.U === (sign(0) ^ sign(1)) && reg_in_a(bw-2, 0)===reg_in_b(bw-2,0)))){
+      when(leadingOneFinder.io.out === 1.U && adder_result === 0.U && ((1.U === (sign(0) ^ sign(1)) && io.in_a(bw-2, 0)===io.in_b(bw-2,0)))){
         new_out_exp := 0.U
       }.otherwise{
         when(subber2.io.out_c === 1.U){
@@ -198,10 +198,10 @@ object FPArithmetic {
         }
       }
     }
-//    val reg_out_s = Reg(UInt(bw.W))
-//    reg_out_s := new_s ## new_out_exp ## new_out_frac
+    val reg_out_s = Reg(UInt(bw.W))
+    reg_out_s := new_s ## new_out_exp ## new_out_frac
     // combine all of the final results
-    io.out_s := new_s ## new_out_exp ## new_out_frac
+    io.out_s := reg_out_s
   }
 
   // FP subtraction
@@ -228,7 +228,6 @@ object FPArithmetic {
       val in_a = Input(UInt(bw.W))
       val in_b = Input(UInt(bw.W))
       val out_s = Output(UInt(bw.W))
-      val out_0 = Output(UInt(bw.W))
     })
     var exponent = 0
     var mantissa = 0
@@ -246,40 +245,40 @@ object FPArithmetic {
       exponent = 15
       mantissa = 112
     }
-    val reg_in_a = Reg(UInt(bw.W))
-    val reg_in_b = Reg(UInt(bw.W))
-    reg_in_a := io.in_a
-    reg_in_b := io.in_b
+//    val reg_in_a = Reg(UInt(bw.W))
+//    val reg_in_b = Reg(UInt(bw.W))
+//    reg_in_a := io.in_a
+//    reg_in_b := io.in_b
 
     // get the sign bit of the two inptus
     val s = Wire(Vec(2, UInt(1.W)))
-    s(0) := reg_in_a(bw-1)
-    s(1) := reg_in_b(bw-1)
+    s(0) := io.in_a(bw-1)
+    s(1) := io.in_b(bw-1)
 
     // get the exponents of the two inputs
     val exp = Wire(Vec(2, UInt(exponent.W)))
-    when(reg_in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+    when(io.in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
       exp(0) := BigInt(2).pow(exponent).U - 2.U
     }.otherwise{
-      exp(0) := reg_in_a(bw-2, mantissa)
+      exp(0) := io.in_a(bw-2, mantissa)
     }
-    when(reg_in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
+    when(io.in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
       exp(1) := BigInt(2).pow(exponent).U - 2.U
     }.otherwise{
-      exp(1) := reg_in_b(bw-2, mantissa)
+      exp(1) := io.in_b(bw-2, mantissa)
     }
 
     val exp_check = Wire(Vec(2, UInt(mantissa.W)))
-    exp_check(0) := reg_in_a(bw-2,mantissa)
-    exp_check(1) := reg_in_b(bw-2, mantissa)
+    exp_check(0) := io.in_a(bw-2,mantissa)
+    exp_check(1) := io.in_b(bw-2, mantissa)
 
     val cond_holder = Wire(UInt(mantissa.W))
     cond_holder :=  exp_check(0) + 1.U + ~((BigInt(2).pow(exponent - 1) - 1).U - exp_check(1))
 
     // get the mantissa parts of the two inputs
     val frac = Wire(Vec(2, UInt(mantissa.W)))
-    frac(0) := reg_in_a(mantissa - 1,0)
-    frac(1) := reg_in_b(mantissa - 1,0)
+    frac(0) := io.in_a(mantissa - 1,0)
+    frac(1) := io.in_b(mantissa - 1,0)
 
     // 1.0 + mantissa part of the two numbers
     val new_frac = Wire(Vec(2, UInt((mantissa + 1).W)))
@@ -331,23 +330,23 @@ object FPArithmetic {
       cond_holder :=  exp_check(0) + 1.U + ~((BigInt(2).pow(exponent - 1) - 1).U - exp_check(1))
       new_mant := multiplier.io.out_s(((mantissa+1)*2) - 2, mantissa+1) << (1).U
     }
-
+    val reg_out_s = Reg(UInt(bw.W))
     when(BigInt(2).pow(exponent).U - 2.U >= 1.U + ~(cond_holder) ){
       new_exp := 1.U(exponent.W)
       new_mant := BigInt(2).pow(mantissa-1).U(mantissa.W)
-      io.out_s := new_s ## new_exp ## new_mant
+      reg_out_s := new_s ## new_exp ## new_mant
     }
     .elsewhen(cond_holder > BigInt(2).pow(exponent).U - 2.U){
       new_exp := BigInt(2).pow(exponent).U - 2.U
       new_mant := BigInt(2).pow(mantissa).U - 1.U
-      io.out_s := new_s ## new_exp ## new_mant
+      reg_out_s := new_s ## new_exp ## new_mant
     }
     when(exp(0) === 0.U || exp(1) === 0.U){ // if multiplication by 0, output is 0
-      io.out_s := 0.U
+      reg_out_s := 0.U
     }.otherwise{ // otherwise just output the computed value
-      io.out_s := new_s ## new_exp ## new_mant
+      reg_out_s := new_s ## new_exp ## new_mant
     }
-    io.out_0 := new_exp
+    io.out_s := reg_out_s
   }
 
 }
