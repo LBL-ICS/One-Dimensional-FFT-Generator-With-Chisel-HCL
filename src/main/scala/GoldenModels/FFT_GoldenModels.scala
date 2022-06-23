@@ -43,11 +43,11 @@ object FFT_GoldenModels {
 
   // Just an example
   def main(args: Array[String]): Unit = {
-    val N = 2
+    val N = 8
     val r = 2
-    val w = 2
+    val w = 8
     val bw = 32
-    val runs = 250000
+    val runs = 3
     val name = "TestInputs"
     genRandom(N*2*runs,name, bw)
 
@@ -63,19 +63,22 @@ object FFT_GoldenModels {
     val golden_input = scala.io.Source.fromFile(name + ".txt").getLines().map(x=>x.toDouble).toArray
     val pw2 = new PrintWriter("inputfile0.txt")
     val pw3 = new PrintWriter("inputfile1.txt")
-    golden_input.slice(0,golden_input.length/2).map(x=>pw2.println(convert_string_to_IEEE_754(x.toString,bw).toLong.toHexString))
-    golden_input.slice(golden_input.length/2, golden_input.length).map(x=>pw3.println(convert_string_to_IEEE_754(x.toString,bw).toLong.toHexString))
-    val in0 = golden_input.slice(0,golden_input.length/2)
-    val in1 = golden_input.slice(golden_input.length/2, golden_input.length)
+    //golden_input.slice(0,golden_input.length/2).map(x=>pw2.println(convert_string_to_IEEE_754(x.toString,bw).toLong.toHexString))
+    //golden_input.slice(golden_input.length/2, golden_input.length).map(x=>pw3.println(convert_string_to_IEEE_754(x.toString,bw).toLong.toHexString))
+    //val in0 = golden_input.slice(0,golden_input.length/2)
+    //val in1 = golden_input.slice(golden_input.length/2, golden_input.length)
     pw2.close()
     pw3.close()
-
-    val cmplx_inputs = (for(j <- 0 until runs*2 by 2)yield{
-      val inp = Array(cmplx(in0(j),in0(j + 1))
-        ,cmplx(in1(j),in1(j+1)))
+    var index = 0
+    val cmplx_inputs = (for(j <- 0 until runs)yield{
+      val inp = (for(i <- 0 until N) yield{
+        val temp = cmplx(golden_input(index),golden_input(index+1))
+        index+=2
+        temp
+      }).toArray
       inp
     }).toArray
-
+    cmplx_inputs.map(x=>x.map(y=>println(y.re)))
     val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 
     val pw1 = new PrintWriter("outputfile.txt")
@@ -87,40 +90,43 @@ object FFT_GoldenModels {
     }
     pw1.close()
 
-//    test(new FFT_sr(N,r,w,bw)){c=>
-//      val input_List = scala.io.Source.fromFile(name + ".txt").getLines().map(x=>convert_string_to_IEEE_754(x, bw)).toArray
-//      var hw_model = (for(i <- 0 until runs)yield{
-//        val t = (for(j <- 0 until N)yield{
-//          cmplx(0,0)
-//        }).toArray
-//        t
-//      }).toArray
-//      for(j <- 0 until runs) {
-//        var index = 0
-//        for (i <- 0 until (2 * N) by 2) {
-//          c.io.in(index).Re.poke(input_List(i).U)
-//          c.io.in(index).Im.poke(input_List(i + 1).U)
-//          index += 1
-//        }
-//        c.clock.step(1)
-//      }
-//      for(j <-0 until runs) {
-//        if(j == 0){
-//          c.clock.step(Total_Latency-runs)
-//        }else{
-//          c.clock.step(1)
-//        }
-//        for (i <- 0 until N) {
-//          val val1 = convert_long_to_float(c.io.out(i).Re.peek().litValue, bw).toDouble
-//          val val2 = convert_long_to_float(c.io.out(i).Im.peek().litValue, bw).toDouble
-//          println(s"Real Output: ${val1}")
-//          println(s"Imaginary Output: ${val2}")
-//          hw_model(j)(i) = cmplx(val1, val2)
-//        }
-//      }
-//      sw_model.map(x=>x.map(y=>y.print_mag)) // sw results stored here
-//      println()
-//      hw_model.map(x=>x.map(y=>y.print_mag)) // hw results stored here
-//    }
+    test(new FFT_sr(N,r,w,bw)){c=>
+      val input_List = scala.io.Source.fromFile(name + ".txt").getLines().map(x=>convert_string_to_IEEE_754(x, bw)).toArray
+      val inp3 = input_List.slice(0, input_List.length/2)
+      val inp4 = input_List.slice(input_List.length/2,input_List.length)
+      var hw_model = (for(i <- 0 until runs)yield{
+        val t = (for(j <- 0 until N)yield{
+          cmplx(0,0)
+        }).toArray
+        t
+      }).toArray
+      var index = 0
+      for(j <- 0 until runs) {
+        for (i <- 0 until N) {
+          c.io.in(i).Re.poke(input_List(index).U)
+          println(input_List(index))
+          c.io.in(i).Im.poke(input_List(index+ 1).U)
+          index += 2
+        }
+        c.clock.step(1)
+      }
+      for(j <-0 until runs) {
+        if(j == 0){
+          c.clock.step(Total_Latency-runs)
+        }else{
+          c.clock.step(1)
+        }
+        for (i <- 0 until N) {
+          val val1 = convert_long_to_float(c.io.out(i).Re.peek().litValue, bw).toDouble
+          val val2 = convert_long_to_float(c.io.out(i).Im.peek().litValue, bw).toDouble
+          println(s"Real Output: ${val1}")
+          println(s"Imaginary Output: ${val2}")
+          hw_model(j)(i) = cmplx(val1, val2)
+        }
+      }
+      sw_model.map(x=>x.map(y=>y.print_mag)) // sw results stored here
+      println()
+      hw_model.map(x=>x.map(y=>y.print_mag)) // hw results stored here
+    }
   }
 }

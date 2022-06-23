@@ -3,6 +3,7 @@ import chisel3._
 import ComplexModules.FPComplex._
 import implementation._
 import IEEEConversions.FPConvert._
+import Chisel.log2Ceil
 
 object FFTDesigns {
   class DFT_r(r: Int, bw: Int) extends Module{
@@ -29,11 +30,26 @@ object FFTDesigns {
         FP_Mults(i)(j).in_a.Im := convert_string_to_IEEE_754(DFTr_Constants(1+i)(1+j).im.toString, bw).U
       }
     }
+    val CMultLatency = 2
+    val CAddLatency = 1
+    val reg_syncs = (for(i <- 0 until CMultLatency)yield{
+      val regs = Reg(Vec(r, new ComplexNum(bw)))
+      regs
+    }).toVector
+    for(i <- 0 until CMultLatency){
+      if(i==0){
+        for(j <- 0 until r){
+          reg_syncs(i)(j) := io.in(j)
+        }
+      }else{
+        reg_syncs(i) := reg_syncs(i-1)
+      }
+    }
     val mult_results = Wire(Vec(r, Vec(r, new ComplexNum(bw))))
     for(i <- 0 until r){
-      mult_results(0)(i) := io.in(i)
+      mult_results(0)(i) := reg_syncs(CMultLatency-1)(i)
       if(i != 0 )
-        mult_results(i)(0) := io.in(0)
+        mult_results(i)(0) := reg_syncs(CMultLatency-1)(0)
     }
     for(i <- 0 until r-1){
       for(j <- 0 until r-1){
@@ -102,6 +118,210 @@ object FFTDesigns {
       io.out(i) := io.in(PermutationModel(i))
     }
   }
+//  class PermutationsWithStreaming(N:Int, r: Int, base_r: Int, w:Int, ptype: Int, bw: Int) extends Module{
+//    val io = IO(new Bundle() {
+//      val in = Input(Vec(w, new ComplexNum(bw)))
+//      val in_en = Input(Bool())
+//      val out = Output(Vec(w, new ComplexNum(bw)))
+//      val out_t = Output(UInt(bw.W))
+//    })
+//    val is_enabled = Reg(Bool())
+//    val offset = (N/w).U
+//    val offset_switch = Reg(UInt(1.W))
+//    when(io.in_en){
+//      is_enabled := true.B
+//    }.otherwise{
+//      is_enabled := false.B
+//    }
+//    val M0 = (for(i <- 0 until w) yield{
+//      val M0_t = Module(new RAM_Block(N,w,bw)).io
+//      M0_t
+//    }).toVector
+//    val M1 = (for(i <- 0 until w) yield{
+//      val M1_t = Module(new RAM_Block(N,w,bw)).io
+//      M1_t
+//    }).toVector
+//    val Perm_Mod = Module(new PermutationModuleStreamed(w, bw)).io
+//    val M0_config = Module(new M0_Config_ROM(N,r,base_r,ptype,w)).io
+//    val M1_config = Module(new M1_Config_ROM(N,r,base_r, ptype, w)).io
+//    val Perm_Config = Module(new Streaming_Permute_Config(N,r, base_r, ptype, w)).io
+//    val cnt = RegInit(0.U(log2Ceil(N/w).W))
+//    when(is_enabled){
+//      when(cnt === ((N/w)-1).U){
+//        cnt := 0.U
+//        offset_switch := ~offset_switch
+//      }.otherwise{
+//        cnt := cnt + 1.U
+//        offset_switch := offset_switch
+//      }
+//      for(i <- 0 until w){
+//        M0(i).en := true.B
+//        M0(i).re := true.B
+//        M0(i).wr := true.B
+//        M1(i).en := true.B
+//        M1(i).re := true.B
+//        M1(i).wr := true.B
+//        M0(i).in_raddr := M0_config.out(i) + (offset * ~offset_switch)
+//        M0(i).in_waddr := cnt + (offset * offset_switch)
+//        M0(i).in_data := io.in(i)
+//        M1(i).in_raddr := cnt + (offset * ~offset_switch)
+//        M1(i).in_waddr := M1_config.out(i) + (offset * offset_switch)
+//        M1(i).in_data := Perm_Mod.out(i)
+//        Perm_Mod.in_config(i) := Perm_Config.out(i)
+//        Perm_Mod.in(i) := M0(i).out_data
+//        io.out(i) := M1(i).out_data
+//      }
+//    }.otherwise{
+//      for(i <- 0 until w){
+//        M0(i).en := false.B
+//        M0(i).re := false.B
+//        M0(i).wr := false.B
+//        M1(i).en := false.B
+//        M1(i).re := false.B
+//        M1(i).wr := false.B
+//        M0(i).in_raddr := 0.U
+//        M0(i).in_waddr := 0.U
+//        M0(i).in_data := io.in(i)
+//        M1(i).in_raddr := 0.U
+//        M1(i).in_waddr := 0.U
+//        M1(i).in_data := Perm_Mod.out(i)
+//        Perm_Mod.in_config(i) := Perm_Config.out(i)
+//        Perm_Mod.in(i) := M0(i).out_data
+//        io.out(i) := M1(i).out_data
+//      }
+//      offset_switch := 0.U
+//      cnt := cnt
+//    }
+//    M0_config.in_cnt := cnt
+//    M1_config.in_cnt := cnt
+//    Perm_Config.in_cnt := cnt
+//    io.out_t := cnt + (offset * offset_switch)
+//  }
+//  class PermutationModuleStreamed(w: Int, bw: Int) extends Module {
+//    val io = IO(new Bundle() {
+//      val in = Input(Vec(w, new ComplexNum(bw)))
+//      val in_config = Input(Vec(w, UInt(log2Ceil(w).W)))
+//      val out = Output(Vec(w, new ComplexNum(bw)))
+//    })
+//    for(i <- 0 until w){
+//      io.out(i) := io.in(io.in_config(i))
+//    }
+//  }
+//  class M0_Config_ROM(N: Int, r: Int, base_r: Int, ptype: Int, w: Int) extends Module{
+//    val io = IO(new Bundle() {
+//      val in_cnt = Input(UInt((log2Ceil(N/w).W)))
+//      val out = Output(Vec(w, UInt((log2Ceil((N/w) * 2)).W)))
+//    })
+//    val cnt = RegInit(0.U(log2Ceil(N/w).W))
+////    when(cnt === ((N/w) - 1).U){
+////      cnt := 0.U
+////    }.otherwise{
+////      cnt := cnt + 1.U
+////    }
+//    //val offset = (N/w)
+//    var generated_address = Permutations.GenerateStreamingMapping(N,w,r,base_r, ptype)
+//    generated_address = Permutations.Mapping_Sort(generated_address,0)
+//    val M0_access = (for(i <- 0 until N/w)yield{
+//      val M0_slice = (for(j <- 0 until w)yield{
+//        generated_address(i)(j)._1._1
+//      }).toArray
+//      M0_slice
+//    }).toArray
+//    M0_access.map(x=> println(x.toList))
+//    val M0_vec = for(i <- 0 until N/w) yield{
+//      val V = VecInit(M0_access(i).map(_.U((log2Ceil((N/w) * 2)).W)))
+//      V
+//    }
+//    val vvf = VecInit(M0_vec)
+//    for(i <- 0 until w){
+//      io.out(i) := vvf(io.in_cnt)(i) //+ offset.U((log2Ceil((N/w) * 2)).W)
+//    }
+//  }
+//  class M1_Config_ROM(N: Int, r: Int, base_r: Int, ptype: Int, w: Int) extends Module{
+//    val io = IO(new Bundle() {
+//      val in_cnt = Input(UInt((log2Ceil(N/w).W)))
+//      val out = Output(Vec(w, UInt((log2Ceil((N/w) * 2)).W)))
+//    })
+////    val cnt = RegInit(0.U(log2Ceil(N/w).W))
+////    when(cnt === ((N/w) - 1).U){
+////      cnt := 0.U
+////    }.otherwise{
+////      cnt := cnt + 1.U
+////    }
+//    //val offset = (N/w)
+//    var generated_address = Permutations.GenerateStreamingMapping(N,w,r,base_r, ptype)
+//    generated_address = Permutations.Mapping_Sort(generated_address,1)
+//    val M1_access = (for(i <- 0 until N/w)yield{
+//      val M1_slice = (for(j <- 0 until w)yield{
+//        generated_address(i)(j)._2._1
+//      }).toArray
+//      M1_slice
+//    }).toArray
+//    M1_access.map(x=> println(x.toList))
+//    val M1_vec = for(i <- 0 until N/w) yield{
+//      val V = VecInit(M1_access(i).map(_.U((log2Ceil((N/w) * 2)).W)))
+//      V
+//    }
+//    val vvf = VecInit(M1_vec)
+//    for(i <- 0 until w){
+//      io.out(i) := vvf(io.in_cnt)(i) //+ offset.U((log2Ceil((N/w) * 2)).W)
+//    }
+//  }
+//  class Streaming_Permute_Config(N: Int, r: Int, base_r: Int, ptype: Int, w: Int)extends Module{
+//    val io = IO(new Bundle() {
+//      val in_cnt = Input(UInt((log2Ceil(N/w).W)))
+//      val out = Output(Vec(w, UInt((log2Ceil(w)).W)))
+//    })
+////    val cnt = RegInit(0.U(log2Ceil(N/w).W))
+////    when(cnt === ((N/w) - 1).U){
+////      cnt := 0.U
+////    }.otherwise{
+////      cnt := cnt + 1.U
+////    }
+//    var generated_address = Permutations.GenerateStreamingMapping(N,w,r,base_r, ptype)
+//    generated_address = Permutations.Mapping_Sort(generated_address,0)
+//    val M1_access = (for(i <- 0 until N/w)yield{
+//      val M1_slice = (for(j <- 0 until w)yield{
+//        generated_address(i)(j)._2._2
+//      }).toArray
+//      M1_slice
+//    }).toArray
+//    M1_access.map(x=> println(x.toList))
+//    val M1_vec = for(i <- 0 until N/w) yield{
+//      val V = VecInit(M1_access(i).map(_.U((log2Ceil(w).W))))
+//      V
+//    }
+//    val vvf = VecInit(M1_vec)
+//    for(i <- 0 until w){
+//      io.out(i) := vvf(io.in_cnt)(i)
+//    }
+//  }
+//  class RAM_Block(N: Int, w: Int, bw: Int) extends Module{
+//    val io = IO(new Bundle() {
+//      val in_raddr = Input(UInt((log2Ceil(2 * (N/w))).W))
+//      val in_waddr = Input(UInt((log2Ceil(2 * (N/w))).W))
+//      val in_data = Input(new ComplexNum(bw))
+//      val re = Input(Bool())
+//      val wr = Input(Bool())
+//      val en = Input(Bool())
+//      val out_data = Output(new ComplexNum(bw))
+//    })
+//    val mem = Reg(Vec((N/w)*2, new ComplexNum(bw)))
+//    when(io.en){
+//      when(io.wr){
+//        mem(io.in_waddr) := io.in_data
+//      }
+//      when(io.re){
+//        io.out_data := mem(io.in_raddr)
+//      }.otherwise{
+//        io.out_data.Re := 0.U
+//        io.out_data.Im := 0.U
+//      }
+//    }.otherwise{
+//      io.out_data.Re := 0.U
+//      io.out_data.Im := 0.U
+//    }
+//  }
   class FFT_sr(N:Int, r: Int, w: Int, bw: Int) extends Module{
     val io = IO(new Bundle() {
       val in = Input(Vec(N, new ComplexNum(bw)))
