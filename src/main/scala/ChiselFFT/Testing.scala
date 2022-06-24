@@ -11,38 +11,44 @@ import implementation.ComplexNumbers._
 import java.io.PrintWriter
 import scala.util.Random
 import GoldenModels.FFT_GoldenModels._
+import Chisel.log2Ceil
 
 object Testing {
   def main(args: Array[String]): Unit = {
-//    val N = 16
-//    val r = 4
-//    val base_r = 2
-//    val w = 4
-//    val ptype = 1
-//    val bw = 32
-//    test(new PermutationsWithStreaming(N,r,base_r,w,ptype,bw)) { c =>
-//      c.io.in_en.poke(true.B)
-//      c.clock.step(1)
-//      for (j <- 0 until N / w) {
-//        println(s"clock: ${c.io.out_t.peek().litValue}")
-//        for (i <- 0 until w) {
-//          c.io.in(i).Re.poke(convert_string_to_IEEE_754((j * w +i).toDouble.toString, 32).U)
-//          c.io.in(i).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
-//        }
-//        c.clock.step(1)
-//      }
-//      println(s"clock: ${c.io.out_t.peek().litValue}")
-//      c.clock.step(N/w)
-//      println(s"clock: ${c.io.out_t.peek().litValue}")
-//      for(j <- 0 until N/w) {
-//        for(i <- 0 until w){
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(i).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(i).Im.peek().litValue, 32)}")
-//        }
-//        c.clock.step(1)
-//        println(s"clock: ${c.io.out_t.peek().litValue}")
-//      }
-//    }
+    val N = 25
+    val r = 5
+    val base_r = 5
+    val w = 5
+    val ptype = 1
+    val bw = 32
+    val l2c = (log2Ceil((N/w)))
+    println(s"l2c: ${l2c}")
+    test(new PermutationsWithStreaming(N,r,base_r,w,ptype,bw)) { c =>
+      c.io.in_en.poke(true.B)
+      c.clock.step(1)
+      for (j <- 0 until N / w) {
+        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
+        for (i <- 0 until w) {
+          c.io.in(i).Re.poke(convert_string_to_IEEE_754((j * w +i).toDouble.toString, 32).U)
+          c.io.in(i).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+        }
+        c.clock.step(1)
+      }
+      println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
+      for(i <- 0 until N/w){
+        c.clock.step(1)
+        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
+      }
+
+      for(j <- 0 until N/w) {
+        for(i <- 0 until w){
+          println(s"Real Output: ${convert_long_to_float(c.io.out(i).Re.peek().litValue, 32)}")
+          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(i).Im.peek().litValue, 32)}")
+        }
+        c.clock.step(1)
+        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
+      }
+    }
 ////    test(new Streaming_Permute_Config(8,2,2,1,2)){c=>
 ////      for(i <- 0 until 8/2) {
 ////        for(j <- 0 until 2){

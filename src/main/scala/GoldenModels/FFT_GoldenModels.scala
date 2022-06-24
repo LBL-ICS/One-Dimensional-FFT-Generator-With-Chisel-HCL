@@ -43,11 +43,11 @@ object FFT_GoldenModels {
 
   // Just an example
   def main(args: Array[String]): Unit = {
-    val N = 8
+    val N = 2
     val r = 2
-    val w = 8
+    val w = 2
     val bw = 32
-    val runs = 3
+    val runs = 2
     val name = "TestInputs"
     genRandom(N*2*runs,name, bw)
 
