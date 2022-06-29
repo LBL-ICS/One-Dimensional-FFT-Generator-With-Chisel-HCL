@@ -95,6 +95,13 @@ object FFT {
     xk = L[cmplx](xk,N,nr) // permute the xk one last time
     xk // return the xk array, now holding the solution
   }
-
+  def isReducable(num:Double):(Boolean,Int) = {
+    val pow = (Math.log10(num)/Math.log10(2)).round
+    //println(s"Pows: ${pow}")
+    if((num - Math.pow(2,pow)).abs <= 0.000001)
+      (true, pow.toInt)
+    else
+      (false, 0)
+  }
 
 }
