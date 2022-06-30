@@ -27,10 +27,10 @@ object Testing {
     val l2c = (log2Ceil((N/w)))
 
     val pw = new PrintWriter("DFT_r.v")
-    pw.println(getVerilogString(new DFT_r(4, bw/*bit width precision*/)))
+    pw.println(getVerilogString(new DFT_r(2,32)))
     pw.close()
     val pw2 = new PrintWriter("FFT_sr.v")
-    pw2.println(getVerilogString(new FFT_sr(4,2,4,bw/*bit width precision*/)))
+    pw2.println(getVerilogString(new FFT_sr(8,2,8,bw/*bit width precision*/)))
     pw2.close()
     genDFTInOutFile(N = 27,r = 3,bw = 32, runs = 100) // this is how to generate input/output files for testing
 
@@ -141,6 +141,12 @@ object Testing {
         c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
         c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
         c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+        if(i==1){
+          c.io.in(0).Re.poke(convert_string_to_IEEE_754("0", 32).U)
+          c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+          c.io.in(1).Re.poke(convert_string_to_IEEE_754("0", 32).U)
+          c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+        }
         for (i <- 0 until 1) {
           c.clock.step(1)
           println(s"Clock cycle ${i + 1}")
@@ -235,7 +241,7 @@ object Testing {
 //
 //    val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 println("-----------------------------------------------??????????????????")
-    test(new FFT_sr(8,2,8,32)){c=>
+      test(new FFT_sr(8,2,8,32)){c=>
       val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
       var mult_count = 0
       for(i <- 0 until r-1){
@@ -298,6 +304,7 @@ println("-----------------------------------------------??????????????????")
       c.io.in(7).Re.poke(convert_string_to_IEEE_754("3.984", 32).U)
       c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
       var g = false
+        c.clock.step(1)
       for(i <- 0 until Total_Latency*2) {
         c.clock.step(1)
         println(s"Clock cycle ${i+1}")
@@ -317,13 +324,6 @@ println("-----------------------------------------------??????????????????")
         println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
         println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
         println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
-        if(g){
-          c.io.in_ready.poke(true.B)
-          g = false
-        }else{
-          c.io.in_ready.poke(false.B)
-          g = true
-        }
       }
     }
 

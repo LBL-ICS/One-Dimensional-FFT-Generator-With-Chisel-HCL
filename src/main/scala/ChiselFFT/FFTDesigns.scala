@@ -4,7 +4,7 @@ import chisel3.util._
 import ComplexModules.FPComplex._
 import implementation._
 import IEEEConversions.FPConvert._
-import Chisel.{MuxLookup, log2Ceil}
+import Chisel.{MuxLookup, log2Ceil, resetToBool}
 
 import scala.collection.mutable
 
@@ -249,7 +249,7 @@ object FFTDesigns {
 //      }
 //    }
     val FP_adds = (for (i <- 0 until r) yield {
-      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
+      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
       fpadds
     }).toVector
     if(mult_count != 0) {
@@ -329,7 +329,8 @@ object FFTDesigns {
         }
       }
     }
-    val result = Wire(Vec(r, new ComplexNum(bw)))
+    val result = RegInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
+    //val result = Reg(Vec(r, new ComplexNum(bw)))
     when(valid_signal) {
       for (i <- 0 until r) {
         result(i) := FP_adds(i).out
@@ -427,7 +428,7 @@ object FFTDesigns {
     //      }
     //    }
     val FP_adds = (for (i <- 0 until r) yield {
-      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
+      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
       fpadds
     }).toVector
     if(mult_count != 0) {
@@ -491,7 +492,165 @@ object FFTDesigns {
         }
       }
     }
-    val result = Wire(Vec(r, new ComplexNum(bw)))
+    val result = RegInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
+    //val result = Reg(Vec(r, new ComplexNum(bw)))
+    for (i <- 0 until r) {
+      result(i) := FP_adds(i).out
+    }
+
+    for(i <- 0 until r) {
+      io.out(i) := result(i)
+    }
+  }
+
+  class DFT_r_V1_nonregout(r: Int, bw: Int) extends Module{
+    val io = IO(new Bundle() {
+      val in = Input(Vec(r, new ComplexNum(bw)))
+      val out = Output(Vec(r, new ComplexNum(bw)))
+    })
+    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+    var mult_count = 0
+    val mult_ind = mutable.ArrayBuffer[Int]()
+    val mult_needs = for(i <- 0 until r-1) yield{
+      val multiplier_ind = for(j <- 0 until r-1) yield {
+        val n  = DFTr_Constants(i+1)(j+1)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))){
+          mult_count += 1
+          mult_ind += (i*(r-1) + j)
+          (i, j, 0, false, false, true)
+        }else{
+          mult_ind += (i*(r-1) + j)
+          if((c1._1 && n.im.abs < 0.005)){
+            (i,j, c1._2.abs, n.re < -0.0005, false, false)
+          }else{
+            (i,j, c2._2.abs, n.im < -0.0005, true, false)
+          }
+        }
+      }
+      multiplier_ind.toIndexedSeq
+    }
+    val CMultLatency = 2
+    val CAddLatency = 1
+    var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{((r/Math.pow(2,l)).floor.toInt) % 2}).reduce(_+_)) * (CAddLatency)
+    if(mult_count == 0){
+      DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+    }
+    println(s"Teh DFT Latencyt : ${DFT_latency}")
+    val adj = mutable.ArrayBuffer[(Int, Int, Int, Boolean, Boolean, Boolean)]()
+    val mult_ind_adj = mutable.ArrayBuffer[Int]()
+    val adj_non_mult = mutable.ArrayBuffer[(Int, Int, Int, Boolean, Boolean, Boolean)]()
+    val mult_ind_adj_non_mult = mutable.ArrayBuffer[Int]()
+    for(i <- 0 until r-1){
+      for(j <- 0 until r-1){
+        if(mult_needs(i)(j)._6){
+          adj += mult_needs(i)(j)
+          mult_ind_adj += mult_ind(i*(r-1)+j)
+        }else{
+          adj_non_mult += mult_needs(i)(j)
+          mult_ind_adj_non_mult += mult_ind(i*(r-1)+j)
+        }
+      }
+    }
+    var cmplx_adjusts = for(i <- 0 until (r-1)*(r-1) - mult_count) yield{
+      val cm = Module(new cmplx_adj(bw)).io
+      cm
+    }
+    //    var cmplx_adjusts = for(i <- 0 until r-1)yield{
+    //      var c_mod = for(j <- 0 until r-1)yield{
+    //        val cm = Module(new  cmplx_adj(bw)).io
+    //        cm
+    //      }
+    //      c_mod
+    //    }
+    val adj_wire = Wire(Vec((r-1)*(r-1), new ComplexNum(bw)))
+    for(i <- 0 until (r-1)*(r-1) - mult_count){
+      cmplx_adjusts(i).in := io.in(adj_non_mult(i)._2 + 1)
+      cmplx_adjusts(i).in_adj := adj_non_mult(i)._3.U
+      cmplx_adjusts(i).is_neg := adj_non_mult(i)._4.B
+      cmplx_adjusts(i).is_flip := adj_non_mult(i)._5.B
+      adj_wire(mult_ind_adj_non_mult(i)) := cmplx_adjusts(i).out
+    }
+    for(i <- 0 until mult_count){
+      adj_wire(mult_ind_adj(i)) := io.in(adj(i)._2 + 1)
+    }
+    //    for(i <- 0 until r-1){
+    //      for(j <- 0 until r-1){
+    //        cmplx_adjusts(i)(j).in := io.in(1+j)
+    //        cmplx_adjusts(i)(j).in_adj := mult_needs(i)(j)._3.U
+    //        cmplx_adjusts(i)(j).is_neg := mult_needs(i)(j)._4.B
+    //        cmplx_adjusts(i)(j).is_flip := mult_needs(i)(j)._5.B
+    //        adj_wire(i*(r-1)+j) := cmplx_adjusts(i)(j).out
+    //      }
+    //    }
+    val FP_adds = (for (i <- 0 until r) yield {
+      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
+      fpadds
+    }).toVector
+    if(mult_count != 0) {
+      var FP_Mults = (for (i <- 0 until mult_count) yield {
+        val fpmult = Module(new FPComplexMult_reducable(bw, DFTr_Constants(adj(i)._1 + 1)(adj(i)._2 + 1).re, DFTr_Constants(adj(i)._1 + 1)(adj(i)._2 + 1).im)).io
+        fpmult
+      })
+      for (k <- 0 until mult_count) {
+        FP_Mults(k).in_b.Re := convert_string_to_IEEE_754(DFTr_Constants(adj(k)._1 + 1)(adj(k)._2 + 1).re.toString, bw).U
+        FP_Mults(k).in_a := adj_wire(mult_ind_adj(k)) //io.in(mult_ind_adj(k))
+        FP_Mults(k).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(adj(k)._1 + 1)(adj(k)._2 + 1).im.toString, bw).U
+      }
+      val total_reg = r + ((r-1)*(r-1) - mult_count)
+      val reg_syncs = (for (i <- 0 until CMultLatency) yield {
+        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        regs
+      }).toVector
+      for (i <- 0 until CMultLatency) {
+        if (i == 0) {
+          for (j <- 0 until r) {
+            reg_syncs(0)(j) := io.in(j)
+          }
+          for (j <- 0 until ((r-1)*(r-1))-mult_count){
+            reg_syncs(0)(j+r) := adj_wire(mult_ind_adj_non_mult(j))
+          }
+        } else {
+          reg_syncs(i) := reg_syncs(i - 1)
+        }
+      }
+      val mult_results = Wire(Vec(r, Vec(r, new ComplexNum(bw))))
+      for (i <- 0 until r) {
+        mult_results(0)(i) := reg_syncs(CMultLatency - 1)(i)
+        if (i != 0)
+          mult_results(i)(0) := reg_syncs(CMultLatency - 1)(0)
+      }
+      for(i <- 0 until ((r-1)*(r-1)) - mult_count){
+        mult_results(adj_non_mult(i)._1 + 1)(adj_non_mult(i)._2 + 1) := reg_syncs(CMultLatency-1)(i+r)
+      }
+      for(i <- 0 until mult_count){
+        mult_results(adj(i)._1 + 1)(adj(i)._2 + 1) := FP_Mults(i).out_s
+      }
+      for (i <- 0 until r) {
+        for (j <- 0 until r) {
+          FP_adds(i).in(j) := mult_results(i)(j)
+        }
+      }
+    }else{
+      for (i <- 0 until r) {
+        if(i == 0){
+          for (j <- 0 until r) {
+            FP_adds(i).in(j) := io.in(j)
+          }
+        }else{
+          for (j <- 0 until r) {
+            if(j == 0){
+              FP_adds(i).in(0) := io.in(0)
+            }else{
+              FP_adds(i).in(j) := adj_wire((i-1)*(r-1) + j-1)
+            }
+          }
+        }
+      }
+    }
+    val result = WireInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
+    //val result = Wire(Vec(r, new ComplexNum(bw)))
     for (i <- 0 until r) {
       result(i) := FP_adds(i).out
     }
@@ -892,7 +1051,7 @@ object FFTDesigns {
     println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
     val DFT_instances = (for(i <- 0 until number_of_stages) yield{
       val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
-        val DFT_instance = Module(new DFT_r_V1(r, bw)).io
+        val DFT_instance = if(i == number_of_stages - 1){Module(new DFT_r_V1_nonregout(r, bw)).io}else{Module(new DFT_r_V1(r, bw)).io}
         DFT_instance
       }).toVector
       DFT_instnace_row
@@ -916,6 +1075,8 @@ object FFTDesigns {
         Input_Permutation.in(i).Im := 0.U
       }
     }
+    val results = RegInit(VecInit.fill(N)(0.U.asTypeOf(new ComplexNum(bw))))
+    //val results = Reg(Vec(N, new ComplexNum(bw)))
     for(i <- 0 until number_of_stages){
       for(j <- 0 until DFTs_per_stage){
         for(k <- 0 until r){
@@ -930,19 +1091,18 @@ object FFTDesigns {
       if(i != 0){
         TwiddleFactorModules(i-1).in := Stage_Permutations(i-1).out
       }
-      when(io.out_validate){
-        if(i == number_of_stages - 1){
-          io.out := Stage_Permutations(i).out
-        }
-      }.otherwise{
-        if(i == number_of_stages - 1){
-          for(j <- 0 until N){
-            io.out(j).Re := 0.U
-            io.out(j).Im := 0.U
+      if(i == number_of_stages - 1) {
+        when(io.out_validate) {
+          results := Stage_Permutations(i).out
+        }.otherwise {
+          for (j <- 0 until N) {
+            results(j).Re := 0.U
+            results(j).Im := 0.U
           }
         }
       }
     }
+    io.out := results
   }
 
   class cmplx_adj(bw: Int) extends Module{
