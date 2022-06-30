@@ -30,7 +30,7 @@ object Testing {
     pw.println(getVerilogString(new DFT_r(4, bw/*bit width precision*/)))
     pw.close()
     val pw2 = new PrintWriter("FFT_sr.v")
-    pw2.println(getVerilogString(new FFT_sr(27,3,27,bw/*bit width precision*/)))
+    pw2.println(getVerilogString(new FFT_sr(4,2,4,bw/*bit width precision*/)))
     pw2.close()
     genDFTInOutFile(N = 27,r = 3,bw = 32, runs = 100) // this is how to generate input/output files for testing
 
@@ -130,27 +130,27 @@ object Testing {
 //      println(s"Imaginary Output: ${convert_long_to_float(c.io.out.Im.peek().litValue, 32)}")
 //    }
     println("--------")
-//    test(new DFT_r(2, 32)){c=>
-//      val CMultLatency = 2
-//      val CAddLatency = 1
-//      val DFT_latency = CMultLatency + ((Math.log10(4)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(4)/Math.log10(2)).floor.toInt)yield{(4/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
-//      println(DFT_latency)
-//      for(i <- 0 until 2) {
-//        c.io.in_ready.poke(true.B)
-//        c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
-//        c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
-//        c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        for (i <- 0 until DFT_latency) {
-//          c.clock.step(1)
-//          println(s"Clock cycle ${i + 1}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
-//        }
-//      }
-//    }
+    test(new DFT_r(2, 32)){c=>
+      val CMultLatency = 2
+      val CAddLatency = 1
+      val DFT_latency = CMultLatency + ((Math.log10(2)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(4)/Math.log10(2)).floor.toInt)yield{(4/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+      println(DFT_latency)
+      for(i <- 0 until 2) {
+        c.io.in_ready.poke(true.B)
+        c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
+        c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+        c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
+        c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+        for (i <- 0 until 1) {
+          c.clock.step(1)
+          println(s"Clock cycle ${i + 1}")
+          println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+          println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+        }
+      }
+    }
 //    println("--------")
 //    test(new TwiddleFactors(4,2,2,0,32)){c=>
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
@@ -235,77 +235,97 @@ object Testing {
 //
 //    val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 println("-----------------------------------------------??????????????????")
-//    test(new FFT_sr(8,2,8,32)){c=>
-//      val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
-//      var mult_count = 0
-//      for(i <- 0 until r-1){
-//        for(j <- 0 until r-1){
-//          val n  = DFTr_Constants(i+1)(j+1)
-//          val c1 = FFT.isReducable(n.re.abs)
-//          val c2 = FFT.isReducable(n.im.abs)
-//          if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
-//            mult_count += 1
-//          }
-//        }
-//      }
-//      val DFTs_per_stage = N/r
-//      val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
-//      val CMultLatency = 2
-//      val CAddLatency = 1
-//      var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
-//      if(mult_count == 0){
-//        DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
-//      }
-//      val Twid_latency = (N/w) * CMultLatency
-//      val Perm_latency = 0
-//      val Total_Latency = (number_of_stages - 1) * Twid_latency + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
-//      println(Total_Latency)
-//      c.io.in_ready.poke(true.B)
-//      c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
-//      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
-//      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(2).Re.poke(convert_string_to_IEEE_754("2.9", 32).U)
-//      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.984", 32).U)
-//      c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(4).Re.poke(convert_string_to_IEEE_754("11.3", 32).U)
-//      c.io.in(4).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(5).Re.poke(convert_string_to_IEEE_754("-6.984", 32).U)
-//      c.io.in(5).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(6).Re.poke(convert_string_to_IEEE_754("1.9", 32).U)
-//      c.io.in(6).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      c.io.in(7).Re.poke(convert_string_to_IEEE_754("3.984", 32).U)
-//      c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//      var g = false
-//      for(i <- 0 until Total_Latency*2) {
-//        c.clock.step(1)
-//        println(s"Clock cycle ${i+1}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
-//        println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
-//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
-//        if(g){
-//          c.io.in_ready.poke(true.B)
-//          g = false
-//        }else{
-//          c.io.in_ready.poke(false.B)
-//          g = true
-//        }
-//      }
-//    }
+    test(new FFT_sr(8,2,8,32)){c=>
+      val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+      var mult_count = 0
+      for(i <- 0 until r-1){
+        for(j <- 0 until r-1){
+          val n  = DFTr_Constants(i+1)(j+1)
+          val c1 = FFT.isReducable(n.re.abs)
+          val c2 = FFT.isReducable(n.im.abs)
+          if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+            mult_count += 1
+          }
+        }
+      }
+      val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+      var T_L = 0
+      val CMultLatency = 2
+      val CAddLatency = 1
+      for(i <- 0 until TotalStages) {
+        val twid = Permutations.T2(N, r)(i)
+        var mult_count2 = 0
+        for (i <- 0 until w){
+          val n = twid(i)
+          val c1 = FFT.isReducable(n.re.abs)
+          val c2 = FFT.isReducable(n.im.abs)
+          if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+            mult_count2 += 1
+          }
+        }
+        var T_latency = CMultLatency
+        if (mult_count2 == 0) {
+          T_latency = 0
+        }
+        println(mult_count2 + "yay")
+        T_L += T_latency
+      }
+      val DFTs_per_stage = N/r
+      val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+      var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
+      if(mult_count == 0){
+        DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+      }
+      val Twid_latency = (N/w) * CMultLatency
+      val Perm_latency = 0
+      val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+      println(Total_Latency)
+      c.io.in_ready.poke(true.B)
+      c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
+      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(1).Re.poke(convert_string_to_IEEE_754("-7.984", 32).U)
+      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(2).Re.poke(convert_string_to_IEEE_754("2.9", 32).U)
+      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.984", 32).U)
+      c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(4).Re.poke(convert_string_to_IEEE_754("11.3", 32).U)
+      c.io.in(4).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(5).Re.poke(convert_string_to_IEEE_754("-6.984", 32).U)
+      c.io.in(5).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(6).Re.poke(convert_string_to_IEEE_754("1.9", 32).U)
+      c.io.in(6).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      c.io.in(7).Re.poke(convert_string_to_IEEE_754("3.984", 32).U)
+      c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+      var g = false
+      for(i <- 0 until Total_Latency*2) {
+        c.clock.step(1)
+        println(s"Clock cycle ${i+1}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
+        if(g){
+          c.io.in_ready.poke(true.B)
+          g = false
+        }else{
+          c.io.in_ready.poke(false.B)
+          g = true
+        }
+      }
+    }
 
   }
 }

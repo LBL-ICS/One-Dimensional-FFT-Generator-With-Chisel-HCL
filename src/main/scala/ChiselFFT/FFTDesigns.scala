@@ -506,42 +506,119 @@ object FFTDesigns {
       val out = Output(Vec(w, new ComplexNum(bw)))
     })
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
-//    val TRes = VecInit(for(i <- 0 until TotalStages)yield{
-//      val Tre = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
-//      Tre
-//    })
-//    val TIms = VecInit(for(i <- 0 until TotalStages)yield{
-//      val TIm = VecInit(Permutations.T2(N,r)(i).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
-//      TIm
-//    })
+    val DFTr_Constants = Permutations.T2(N,r)(stage)
+    var mult_count = 0
+    val mult_ind = mutable.ArrayBuffer[Int]()
+    val mult_needs = for(i <- 0 until w) yield{
+      val n  = DFTr_Constants(i)
+      val c1 = FFT.isReducable(n.re.abs)
+      val c2 = FFT.isReducable(n.im.abs)
+      if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))){
+        mult_count += 1
+        mult_ind += (i)
+        (i, 0, false, false, true)
+      }else{
+        mult_ind += (i)
+        if((c1._1 && n.im.abs < 0.005)){
+          (i, c1._2.abs, n.re < -0.0005, false, false)
+        }else{
+          (i, c2._2.abs, n.im < -0.0005, true, false)
+        }
+      }
+    }
+    val CMultLatency = 2
+    var T_latency = CMultLatency
+    if(mult_count == 0){
+      T_latency = 0
+    }
     val TwiddleFactorConstantsRe = VecInit(Permutations.T2(N,r)(stage).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
     Permutations.T2(N,r)(stage).map(x=>x.print_complex)
     val TwiddleFactorConstantsIm = VecInit(Permutations.T2(N,r)(stage).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
     val TotalCycles = N/w
     val offset = w
-    val CMultLatency = 2
-    val FPMults = (for(i <- 0 until w)yield{
-      val fpmult = Module(new FPComplexMult(bw)).io
-      fpmult
-    }).toVector
-    val cnt = Reg(UInt(bw.W))
-    val cnt2 = Reg(UInt(bw.W))
-    when(cnt2 === (CMultLatency-1).U){
-      cnt2 := 0.U
-      when(cnt === ((N/w)-1).U){
-        cnt := 0.U
-      }.otherwise{
-        cnt := cnt + 1.U
-      }
-    }.otherwise{
-      cnt := cnt
-      cnt2 := cnt2 + 1.U
-    }
+    val adj = mutable.ArrayBuffer[(Int, Int, Boolean, Boolean, Boolean)]()
+    val mult_ind_adj = mutable.ArrayBuffer[Int]()
+    val adj_non_mult = mutable.ArrayBuffer[(Int, Int, Boolean, Boolean, Boolean)]()
+    val mult_ind_adj_non_mult = mutable.ArrayBuffer[Int]()
     for(i <- 0 until w){
-      FPMults(i).in_a.Re := TwiddleFactorConstantsRe(cnt * w.U + i.U)
-      FPMults(i).in_a.Im := TwiddleFactorConstantsIm(cnt * w.U + i.U)
-      FPMults(i).in_b := io.in(cnt * w.U + i.U)
-      io.out(i) := FPMults(i).out_s
+        if(mult_needs(i)._5){
+          adj += mult_needs(i)
+          mult_ind_adj += mult_ind(i)
+        }else{
+          adj_non_mult += mult_needs(i)
+          mult_ind_adj_non_mult += mult_ind(i)
+        }
+    }
+    var cmplx_adjusts = for(i <- 0 until w - mult_count) yield{
+      val cm = Module(new cmplx_adj(bw)).io
+      cm
+    }
+    val adj_wire = Wire(Vec(w, new ComplexNum(bw)))
+    for(i <- 0 until w - mult_count){
+      cmplx_adjusts(i).in := io.in(adj_non_mult(i)._1)
+      cmplx_adjusts(i).in_adj := adj_non_mult(i)._2.U
+      cmplx_adjusts(i).is_neg := adj_non_mult(i)._3.B
+      cmplx_adjusts(i).is_flip := adj_non_mult(i)._4.B
+      adj_wire(mult_ind_adj_non_mult(i)) := cmplx_adjusts(i).out
+    }
+    for(i <- 0 until mult_count){
+      adj_wire(mult_ind_adj(i)) := io.in(adj(i)._1)
+    }
+    if(mult_count != 0) {
+      val FPMults = (for (i <- 0 until mult_count) yield {
+        val fpmult = Module(new FPComplexMult_reducable(bw, DFTr_Constants(adj(i)._1).re, DFTr_Constants(adj(i)._1).im)).io
+        fpmult
+      }).toVector
+      for (k <- 0 until mult_count) {
+        FPMults(k).in_b.Re := convert_string_to_IEEE_754(DFTr_Constants(adj(k)._1).re.toString, bw).U
+        FPMults(k).in_a := adj_wire(mult_ind_adj(k)) //io.in(mult_ind_adj(k))
+        FPMults(k).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(adj(k)._1).im.toString, bw).U
+      }
+      val total_reg = (w - mult_count)
+      val reg_syncs = (for (i <- 0 until CMultLatency) yield {
+        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        regs
+      }).toVector
+      for (i <- 0 until CMultLatency) {
+        if (i == 0) {
+          for (j <- 0 until w-mult_count){
+            reg_syncs(0)(j) := adj_wire(mult_ind_adj_non_mult(j))
+          }
+        } else {
+          reg_syncs(i) := reg_syncs(i - 1)
+        }
+      }
+      val mult_results = Wire(Vec(w, new ComplexNum(bw)))
+      for(i <- 0 until (w - mult_count)){
+        mult_results(adj_non_mult(i)._1) := reg_syncs(CMultLatency-1)(i)
+      }
+      for(i <- 0 until mult_count){
+        mult_results(adj(i)._1) := FPMults(i).out_s
+      }
+//      val cnt = Reg(UInt(bw.W))
+//      val cnt2 = Reg(UInt(bw.W))
+//      when(cnt2 === (CMultLatency - 1).U) {
+//        cnt2 := 0.U
+//        when(cnt === ((N / w) - 1).U) {
+//          cnt := 0.U
+//        }.otherwise {
+//          cnt := cnt + 1.U
+//        }
+//      }.otherwise {
+//        cnt := cnt
+//        cnt2 := cnt2 + 1.U
+//      }
+      for(i <- 0 until w){
+        io.out(i) := mult_results(i)
+      }
+//      for (i <- 0 until w) {
+//        FPMults(i).in_a.Re := TwiddleFactorConstantsRe(cnt * w.U + i.U)
+//        FPMults(i).in_a.Im := TwiddleFactorConstantsIm(cnt * w.U + i.U)
+//        FPMults(i).in_b := io.in(cnt * w.U + i.U)
+//        io.out(i) := FPMults(i).out_s
+//      }
+    }else{
+      io.out := adj_wire
     }
   }
   class PermutationsBasic(N:Int, r: Int, Type: Int, bw: Int) extends Module{
@@ -779,9 +856,28 @@ object FFTDesigns {
     if(mult_count == 0){
       DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
     }
+    val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+    var T_L = 0
+    for(i <- 0 until TotalStages) {
+      val twid = Permutations.T2(N, r)(i)
+      var mult_count2 = 0
+      for (i <- 0 until w){
+        val n = twid(i)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+          mult_count2 += 1
+        }
+      }
+      var T_latency = CMultLatency
+      if (mult_count2 == 0) {
+        T_latency = 0
+      }
+      T_L += T_latency
+    }
     val Twid_latency = (N/w) * CMultLatency
     val Perm_latency = 0
-    val Total_Latency = (number_of_stages - 1) * Twid_latency + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+    val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
     val regDelays = Reg(Vec(Total_Latency, Bool()))
     for(i <- 0 until Total_Latency){
       if(i == 0){
