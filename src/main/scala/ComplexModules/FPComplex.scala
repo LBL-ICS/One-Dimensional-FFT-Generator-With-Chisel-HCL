@@ -140,7 +140,8 @@ object FPComplex {
 
     val mult_results = Wire(Vec(4, UInt(bw.W)))
     if(c1._1){
-      val regs1 = Reg(Vec(2, UInt(bw.W)))
+      val regs1 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+      //val regs1 = Reg(Vec(2, UInt(bw.W)))
       regs1(0) := sign(0) ## new_exp1(0) ## frac(0)
       regs1(1) := sign(1) ## new_exp1(1) ## frac(1)
       mult_results(0) := regs1(0)
@@ -158,7 +159,8 @@ object FPComplex {
       mult_results(3) := FP_multipliers1(1).out_s
     }
     if(c2._1){
-      val regs2 = Reg(Vec(2, UInt(bw.W)))
+      val regs2 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+      //val regs2 = Reg(Vec(2, UInt(bw.W)))
       regs2(0) := sign(0) ## new_exp1(0) ## frac(0)
       regs2(1) := sign(1) ## new_exp1(1) ## frac(1)
       mult_results(2) := regs2(0)

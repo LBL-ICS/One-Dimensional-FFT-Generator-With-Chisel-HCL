@@ -191,7 +191,7 @@ object FFTDesigns {
       DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
     }
     println(s"Teh DFT Latencyt : ${DFT_latency}")
-    val regDelays = Reg(Vec(DFT_latency, Bool()))
+    val regDelays = RegInit(VecInit.fill(DFT_latency)(false.B)/*(DFT_latency, Bool())*/)
     for(i <- 0 until DFT_latency){
       if(i == 0){
         regDelays(0) := io.in_ready
@@ -273,7 +273,8 @@ object FFTDesigns {
       }
       val total_reg = r + ((r-1)*(r-1) - mult_count)
       val reg_syncs = (for (i <- 0 until CMultLatency) yield {
-        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        val regs = RegInit(VecInit.fill(total_reg)(0.U.asTypeOf(new ComplexNum(bw))))
+        //val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
         regs
       }).toVector
       for (i <- 0 until CMultLatency) {
@@ -443,7 +444,8 @@ object FFTDesigns {
       }
       val total_reg = r + ((r-1)*(r-1) - mult_count)
       val reg_syncs = (for (i <- 0 until CMultLatency) yield {
-        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        val regs = RegInit(VecInit.fill(total_reg)(0.U.asTypeOf(new ComplexNum(bw))))
+        //val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
         regs
       }).toVector
       for (i <- 0 until CMultLatency) {
@@ -600,7 +602,8 @@ object FFTDesigns {
       }
       val total_reg = r + ((r-1)*(r-1) - mult_count)
       val reg_syncs = (for (i <- 0 until CMultLatency) yield {
-        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        val regs = RegInit(VecInit.fill(total_reg)(0.U.asTypeOf(new ComplexNum(bw))))
+        //val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
         regs
       }).toVector
       for (i <- 0 until CMultLatency) {
@@ -735,7 +738,8 @@ object FFTDesigns {
       }
       val total_reg = (w - mult_count)
       val reg_syncs = (for (i <- 0 until CMultLatency) yield {
-        val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
+        val regs = RegInit(VecInit.fill(total_reg)(0.U.asTypeOf(new ComplexNum(bw))))
+        //val regs = Reg(Vec(total_reg, new ComplexNum(bw)))
         regs
       }).toVector
       for (i <- 0 until CMultLatency) {
@@ -1037,7 +1041,8 @@ object FFTDesigns {
     val Twid_latency = (N/w) * CMultLatency
     val Perm_latency = 0
     val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
-    val regDelays = Reg(Vec(Total_Latency, Bool()))
+    val regDelays = RegInit(VecInit.fill(Total_Latency)(false.B))
+    //val regDelays = Reg(Vec(Total_Latency, Bool()))
     for(i <- 0 until Total_Latency){
       if(i == 0){
         regDelays(0) := io.in_ready

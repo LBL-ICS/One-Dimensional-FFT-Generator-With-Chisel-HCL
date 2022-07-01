@@ -198,7 +198,8 @@ object FPArithmetic {
         }
       }
     }
-    val reg_out_s = Reg(UInt(bw.W))
+    val reg_out_s = RegInit(0.U(bw.W))
+    //val reg_out_s = Reg(UInt(bw.W))
     reg_out_s := new_s ## new_out_exp ## new_out_frac
     // combine all of the final results
     io.out_s := reg_out_s
@@ -527,7 +528,8 @@ object FPArithmetic {
       cond_holder :=  exp_check(0) + 1.U + ~((BigInt(2).pow(exponent - 1) - 1).U - exp_check(1))
       new_mant := multiplier.io.out_s(((mantissa+1)*2) - 2, mantissa+1) << (1).U
     }
-    val reg_out_s = Reg(UInt(bw.W))
+    val reg_out_s = RegInit(0.U(bw.W))
+    //val reg_out_s = Reg(UInt(bw.W))
     when(BigInt(2).pow(exponent).U - 2.U >= 1.U + ~(cond_holder) ){
       new_exp := 1.U(exponent.W)
       new_mant := BigInt(2).pow(mantissa-1).U(mantissa.W)
