@@ -133,9 +133,9 @@ object Testing {
     test(new DFT_r(2, 32)){c=>
       val CMultLatency = 2
       val CAddLatency = 1
-      val DFT_latency = CMultLatency + ((Math.log10(2)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(4)/Math.log10(2)).floor.toInt)yield{(4/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+      val DFT_latency = CMultLatency + ((Math.log10(2)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(4)/Math.log10(2)).floor.toInt)yield{(4/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
       println(DFT_latency)
-      for(i <- 0 until 2) {
+      for(i <- 0 until 1) {
         c.io.in_ready.poke(true.B)
         c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
         c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
@@ -147,7 +147,7 @@ object Testing {
           c.io.in(1).Re.poke(convert_string_to_IEEE_754("0", 32).U)
           c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
         }
-        for (i <- 0 until 1) {
+        for (i <- 0 until 2) {
           c.clock.step(1)
           println(s"Clock cycle ${i + 1}")
           println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
@@ -284,7 +284,7 @@ println("-----------------------------------------------??????????????????")
       }
       val Twid_latency = (N/w) * CMultLatency
       val Perm_latency = 0
-      val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+      val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
       println(Total_Latency)
       c.io.in_ready.poke(true.B)
       c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
@@ -304,7 +304,6 @@ println("-----------------------------------------------??????????????????")
       c.io.in(7).Re.poke(convert_string_to_IEEE_754("3.984", 32).U)
       c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
       var g = false
-        c.clock.step(1)
       for(i <- 0 until Total_Latency*2) {
         c.clock.step(1)
         println(s"Clock cycle ${i+1}")

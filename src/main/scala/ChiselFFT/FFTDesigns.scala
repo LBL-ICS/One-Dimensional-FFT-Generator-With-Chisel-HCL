@@ -9,150 +9,150 @@ import Chisel.{MuxLookup, log2Ceil, resetToBool}
 import scala.collection.mutable
 
 object FFTDesigns {
-  class DFT_EnVal(DFT_Latency: Int, isPipeline: Boolean) extends Module{
-    val io = IO(new Bundle() {
-      val in_enable = Input(Bool())
-      val out_enable = Output(Bool())
-      val out_validate = Output(Bool())
-    })
-    val cnt = RegInit(0.U((log2Ceil(DFT_Latency)+1).W))
-    val start_condition = RegInit(false.B)
-    val en_s = WireInit(false.B)
-    val val_s = Wire(Bool())
-    val can_Pipe = Reg(Bool())
-    when(io.in_enable && start_condition =/= true.B){
-      start_condition := true.B
-      en_s := true.B
-    }.elsewhen(!io.in_enable){
-      start_condition := false.B
-      cnt := 0.U
-      en_s := false.B
-    }
-    when(start_condition){
-      if(isPipeline){
-        en_s := true.B
-        when((cnt === DFT_Latency.U - 1.U) || can_Pipe) {
-          val_s := true.B
-        }.otherwise{
-          val_s := false.B
-        }
-      }else{
-        when(cnt === DFT_Latency.U - 1.U){
-          en_s := true.B
-          val_s := true.B
-        }.otherwise{
-          en_s := false.B
-          val_s := false.B
-        }
-      }
-      when(cnt === DFT_Latency.U-1.U){
-        cnt := 0.U
-        can_Pipe := true.B
-      }.otherwise{
-        cnt := cnt + 1.U
-        can_Pipe := can_Pipe
-      }
-    }.otherwise{
-      val_s := false.B
-      can_Pipe := false.B
-    }
-
-    io.out_enable := en_s
-    io.out_validate := val_s
-  }
-  class DFT_r_old_version(r: Int, bw: Int) extends Module{
-    val io = IO(new Bundle() {
-      val in = Input(Vec(r, new ComplexNum(bw)))
-      val in_en = Input(Bool())
-      val in_Override = Input(Bool())
-      val out = Output(Vec(r, new ComplexNum(bw)))
-    })
-    val CMultLatency = 2
-    val CAddLatency = 1
-    val DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
-    val EnVal_Control = Module(new DFT_EnVal(DFT_latency, true)).io
-    EnVal_Control.in_enable := io.in_en
-    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
-    val FP_Mults = (for(i <- 0 until r-1) yield{
-      val fpmults = (for(j <- 0 until r-1)yield{
-        val fpmult = Module(new FPComplexMult(bw)).io
-        fpmult
-      }).toVector
-      fpmults
-    }).toVector
-    val FP_adds = (for(i <- 0 until r)yield{
-      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
-      fpadds
-    }).toVector
-    when((EnVal_Control.out_enable || io.in_Override) && io.in_en) {
-      for (i <- 0 until r - 1) {
-        for (j <- 0 until r - 1) {
-          FP_Mults(i)(j).in_a.Re := convert_string_to_IEEE_754(DFTr_Constants(1 + i)(1 + j).re.toString, bw).U
-          FP_Mults(i)(j).in_b := io.in(1 + j)
-          FP_Mults(i)(j).in_a.Im := convert_string_to_IEEE_754(DFTr_Constants(1 + i)(1 + j).im.toString, bw).U
-        }
-      }
-    }.otherwise{
-      for (i <- 0 until r - 1) {
-        for (j <- 0 until r - 1) {
-          FP_Mults(i)(j).in_a.Re := 0.U
-          FP_Mults(i)(j).in_b.Re := 0.U
-          FP_Mults(i)(j).in_b.Im := 0.U
-          FP_Mults(i)(j).in_a.Im := 0.U
-        }
-      }
-    }
-    val reg_syncs = (for(i <- 0 until CMultLatency)yield{
-      val regs = Reg(Vec(r, new ComplexNum(bw)))
-      regs
-    }).toVector
-    for(i <- 0 until CMultLatency){
-      if(i==0){
-        when((EnVal_Control.out_enable || io.in_Override) && io.in_en){
-          for(j <- 0 until r){
-            reg_syncs(i)(j) := io.in(j)
-          }
-        }.otherwise{
-          for(j <- 0 until r){
-            reg_syncs(i)(j).Re := 0.U
-            reg_syncs(i)(j).Im := 0.U
-          }
-        }
-      }else{
-        reg_syncs(i) := reg_syncs(i-1)
-      }
-    }
-    val mult_results = Wire(Vec(r, Vec(r, new ComplexNum(bw))))
-    for(i <- 0 until r){
-      mult_results(0)(i) := reg_syncs(CMultLatency-1)(i)
-      if(i != 0 )
-        mult_results(i)(0) := reg_syncs(CMultLatency-1)(0)
-    }
-    for(i <- 0 until r-1){
-      for(j <- 0 until r-1){
-        mult_results(i+1)(j+1) := FP_Mults(i)(j).out_s
-      }
-    }
-    for(i <- 0 until r){
-      for(j <- 0 until r){
-        FP_adds(i).in(j) := mult_results(i)(j)
-      }
-    }
-    val result = Wire(Vec(r, new ComplexNum(bw)))
-    when((EnVal_Control.out_validate || io.in_Override) && io.in_en) {
-      for (i <- 0 until r) {
-        result(i) := FP_adds(i).out
-      }
-    }.otherwise{
-      for(i <- 0 until r){
-        result(i).Re := 0.U
-        result(i).Im := 0.U
-      }
-    }
-    for(i <- 0 until r) {
-      io.out(i) := result(i)
-    }
-  }
+//  class DFT_EnVal(DFT_Latency: Int, isPipeline: Boolean) extends Module{
+//    val io = IO(new Bundle() {
+//      val in_enable = Input(Bool())
+//      val out_enable = Output(Bool())
+//      val out_validate = Output(Bool())
+//    })
+//    val cnt = RegInit(0.U((log2Ceil(DFT_Latency)+1).W))
+//    val start_condition = RegInit(false.B)
+//    val en_s = WireInit(false.B)
+//    val val_s = Wire(Bool())
+//    val can_Pipe = Reg(Bool())
+//    when(io.in_enable && start_condition =/= true.B){
+//      start_condition := true.B
+//      en_s := true.B
+//    }.elsewhen(!io.in_enable){
+//      start_condition := false.B
+//      cnt := 0.U
+//      en_s := false.B
+//    }
+//    when(start_condition){
+//      if(isPipeline){
+//        en_s := true.B
+//        when((cnt === DFT_Latency.U - 1.U) || can_Pipe) {
+//          val_s := true.B
+//        }.otherwise{
+//          val_s := false.B
+//        }
+//      }else{
+//        when(cnt === DFT_Latency.U - 1.U){
+//          en_s := true.B
+//          val_s := true.B
+//        }.otherwise{
+//          en_s := false.B
+//          val_s := false.B
+//        }
+//      }
+//      when(cnt === DFT_Latency.U-1.U){
+//        cnt := 0.U
+//        can_Pipe := true.B
+//      }.otherwise{
+//        cnt := cnt + 1.U
+//        can_Pipe := can_Pipe
+//      }
+//    }.otherwise{
+//      val_s := false.B
+//      can_Pipe := false.B
+//    }
+//
+//    io.out_enable := en_s
+//    io.out_validate := val_s
+//  }
+//  class DFT_r_old_version(r: Int, bw: Int) extends Module{
+//    val io = IO(new Bundle() {
+//      val in = Input(Vec(r, new ComplexNum(bw)))
+//      val in_en = Input(Bool())
+//      val in_Override = Input(Bool())
+//      val out = Output(Vec(r, new ComplexNum(bw)))
+//    })
+//    val CMultLatency = 2
+//    val CAddLatency = 1
+//    val DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+//    val EnVal_Control = Module(new DFT_EnVal(DFT_latency, true)).io
+//    EnVal_Control.in_enable := io.in_en
+//    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+//    val FP_Mults = (for(i <- 0 until r-1) yield{
+//      val fpmults = (for(j <- 0 until r-1)yield{
+//        val fpmult = Module(new FPComplexMult(bw)).io
+//        fpmult
+//      }).toVector
+//      fpmults
+//    }).toVector
+//    val FP_adds = (for(i <- 0 until r)yield{
+//      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
+//      fpadds
+//    }).toVector
+//    when((EnVal_Control.out_enable || io.in_Override) && io.in_en) {
+//      for (i <- 0 until r - 1) {
+//        for (j <- 0 until r - 1) {
+//          FP_Mults(i)(j).in_a.Re := convert_string_to_IEEE_754(DFTr_Constants(1 + i)(1 + j).re.toString, bw).U
+//          FP_Mults(i)(j).in_b := io.in(1 + j)
+//          FP_Mults(i)(j).in_a.Im := convert_string_to_IEEE_754(DFTr_Constants(1 + i)(1 + j).im.toString, bw).U
+//        }
+//      }
+//    }.otherwise{
+//      for (i <- 0 until r - 1) {
+//        for (j <- 0 until r - 1) {
+//          FP_Mults(i)(j).in_a.Re := 0.U
+//          FP_Mults(i)(j).in_b.Re := 0.U
+//          FP_Mults(i)(j).in_b.Im := 0.U
+//          FP_Mults(i)(j).in_a.Im := 0.U
+//        }
+//      }
+//    }
+//    val reg_syncs = (for(i <- 0 until CMultLatency)yield{
+//      val regs = Reg(Vec(r, new ComplexNum(bw)))
+//      regs
+//    }).toVector
+//    for(i <- 0 until CMultLatency){
+//      if(i==0){
+//        when((EnVal_Control.out_enable || io.in_Override) && io.in_en){
+//          for(j <- 0 until r){
+//            reg_syncs(i)(j) := io.in(j)
+//          }
+//        }.otherwise{
+//          for(j <- 0 until r){
+//            reg_syncs(i)(j).Re := 0.U
+//            reg_syncs(i)(j).Im := 0.U
+//          }
+//        }
+//      }else{
+//        reg_syncs(i) := reg_syncs(i-1)
+//      }
+//    }
+//    val mult_results = Wire(Vec(r, Vec(r, new ComplexNum(bw))))
+//    for(i <- 0 until r){
+//      mult_results(0)(i) := reg_syncs(CMultLatency-1)(i)
+//      if(i != 0 )
+//        mult_results(i)(0) := reg_syncs(CMultLatency-1)(0)
+//    }
+//    for(i <- 0 until r-1){
+//      for(j <- 0 until r-1){
+//        mult_results(i+1)(j+1) := FP_Mults(i)(j).out_s
+//      }
+//    }
+//    for(i <- 0 until r){
+//      for(j <- 0 until r){
+//        FP_adds(i).in(j) := mult_results(i)(j)
+//      }
+//    }
+//    val result = Wire(Vec(r, new ComplexNum(bw)))
+//    when((EnVal_Control.out_validate || io.in_Override) && io.in_en) {
+//      for (i <- 0 until r) {
+//        result(i) := FP_adds(i).out
+//      }
+//    }.otherwise{
+//      for(i <- 0 until r){
+//        result(i).Re := 0.U
+//        result(i).Im := 0.U
+//      }
+//    }
+//    for(i <- 0 until r) {
+//      io.out(i) := result(i)
+//    }
+//  }
 
   class DFT_r(r: Int, bw: Int) extends Module{
     val io = IO(new Bundle() {
@@ -249,7 +249,7 @@ object FFTDesigns {
 //      }
 //    }
     val FP_adds = (for (i <- 0 until r) yield {
-      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
+      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
       fpadds
     }).toVector
     if(mult_count != 0) {
@@ -428,7 +428,7 @@ object FFTDesigns {
     //      }
     //    }
     val FP_adds = (for (i <- 0 until r) yield {
-      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
+      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
       fpadds
     }).toVector
     if(mult_count != 0) {
@@ -585,7 +585,7 @@ object FFTDesigns {
     //      }
     //    }
     val FP_adds = (for (i <- 0 until r) yield {
-      val fpadds = Module(new FPComplexMultiAdder_nonregout(r, bw)).io
+      val fpadds = Module(new FPComplexMultiAdder(r, bw)).io
       fpadds
     }).toVector
     if(mult_count != 0) {
@@ -1051,7 +1051,7 @@ object FFTDesigns {
     println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
     val DFT_instances = (for(i <- 0 until number_of_stages) yield{
       val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
-        val DFT_instance = if(i == number_of_stages - 1){Module(new DFT_r_V1_nonregout(r, bw)).io}else{Module(new DFT_r_V1(r, bw)).io}
+        val DFT_instance = Module(new DFT_r_V1_nonregout(r, bw)).io
         DFT_instance
       }).toVector
       DFT_instnace_row
