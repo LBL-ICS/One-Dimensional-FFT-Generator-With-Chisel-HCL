@@ -12,8 +12,8 @@ object FFTMain {
   def main(args: Array[String]): Unit = {
 
     // This is for testing the FFT for any radix r
-    val n_size = 64  // the size of the DFT
-    val r = 4 //the radix r specification
+    val n_size = 9  // the size of the DFT
+    val r = 3 //the radix r specification
 
     // creating n_size random complex numbers for input into FFT
     val xi = for(i <- 0 until n_size) yield{
@@ -25,15 +25,16 @@ object FFTMain {
     }
     println("-----------------------------------------------")
     // Use the FFT algorithm of radix r to solve the DFT of n_size
-    val soln2 = FFT_r(n_size, r, xi.toArray).map(complex_mag(_)).toSeq
+    println("hello")
+    val soln2 = FFT_r(n_size, r, xi.toArray).map(x=>println(x.print_complex)).toSeq
     val pw = new PrintWriter("FFT_out.txt")
     soln2.map(pw.println(_))
     pw.close()
 
     println("-----------------------------------------------")
     // Compare previous solution with the normal DFT of n_size computation
-//    val soln5 = DFT_compute(DFT_gen(n_size), xi.toArray, n_size).map(complex_mag(_)).toSeq
-//    soln5.map(println(_))
+    val soln5 = DFT_compute(DFT_gen(n_size), xi.toArray, n_size).map(x=>println(x.print_complex)).toSeq
+    soln5.map(println(_))
 
     println("-----------------------------------------------")
 

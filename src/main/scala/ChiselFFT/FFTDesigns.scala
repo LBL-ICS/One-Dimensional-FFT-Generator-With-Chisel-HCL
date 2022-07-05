@@ -154,6 +154,491 @@ object FFTDesigns {
 //    }
 //  }
 
+  class DFT_r_v2(r: Int, bw: Int) extends Module{
+    val io = IO(new Bundle() {
+      val in = Input(Vec(r, new ComplexNum(bw)))
+//      val in_ready = Input(Bool())
+//      val out_validate = Output(Bool())
+      val out = Output(Vec(r, new ComplexNum(bw)))
+      val out_test = Output(new ComplexNum(bw))
+    })
+    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+    val is_odd = if(r % 2 == 0){false}else{true}
+    if(is_odd){
+      val inner_square_size = r-1
+      var last_ind = r-1
+      var start_ind = 1
+      val inner_inner_square_size = inner_square_size/2
+      val ind_sq = for(i <- 0 until inner_inner_square_size)yield{
+        val row = for(j <- 0 until inner_inner_square_size)yield{
+          if(((i+1)*(j+1) % r) > r/2){((i+1)*(j+1) % r) - r}else{((i+1)*(j+1) % r)}
+        }
+        row
+      }
+      ind_sq.map(x=>println(x))
+      val ind_sq_unique = mutable.ArrayBuffer[Int]()
+      val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
+      val cases = mutable.ArrayBuffer[(Int,Int)]()
+      val cases_addr = mutable.ArrayBuffer[(Int,Int)]()
+      for(i <- 0 until inner_inner_square_size){
+        for(j <- 0 until inner_inner_square_size){
+          if(!ind_sq_unique.contains(ind_sq(i)(j).abs)){
+            ind_sq_unique += ind_sq(i)(j)
+            val temp = (i,j)
+            ind_sq_unique_address += temp
+          }
+          if(!cases.contains((ind_sq(i)(j).abs, j))){
+            val temp = (ind_sq(i)(j).abs, j)
+            cases += temp
+            val temp2 = (i,j)
+            cases_addr += temp2
+          }
+        }
+      }
+      println(ind_sq_unique.zipWithIndex.toList)
+      println(ind_sq_unique_address.toList)
+      println(cases.toList)
+      println(cases_addr.toList)
+      def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
+        var returnval = (0,0)
+        for(i <- 0 until arr.length){
+          if(num == arr(i)._1){
+            returnval = ind_sq_unique_address(i)
+          }
+        }
+        returnval
+      }
+      val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
+      println(cases_addr_adjusted.toList)
+
+      def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
+        var returnval = 0
+        for(i <- 0 until arr.length){
+          if(num == arr(i)){
+            returnval = i
+          }
+        }
+        returnval
+      }
+      val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
+      new_adj_case_sq.map(x=>println(x.toList))
+
+      val initial_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
+        val ias = for(j <- 0 until 2)yield{
+          if(j== 0){
+            val instance = Module(new FPComplexAdder(bw)).io
+            instance
+          }else{
+            val instance = Module(new FPComplexSub(bw)).io
+            instance
+          }
+        }
+        ias
+      }
+      for(i <- 0 until inner_inner_square_size){
+        initial_adds_subs(i)(0).in_a := io.in(start_ind)
+        initial_adds_subs(i)(0).in_b := io.in(last_ind)
+        initial_adds_subs(i)(1).in_a := io.in(start_ind)
+        initial_adds_subs(i)(1).in_b := io.in(last_ind)
+        start_ind += 1
+        last_ind -= 1
+      }
+      val top_row_init_sum = Module(new FPComplexMultiAdder(inner_inner_square_size,bw)).io
+      for(i <- 0 until inner_inner_square_size){
+        top_row_init_sum.in(i) := initial_adds_subs(i)(0).out_s
+      }
+      val initial_mults = for(i <- 0 until cases.length) yield {
+        val mults = for(j <- 0 until 2) yield{
+          if(j == 0){
+            val mult_instance = Module(new FPComplexMult_reducable_v2(bw,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, 0.0)).io
+            mult_instance
+          }else{
+            val mult_instance = Module(new FPComplexMult_reducable_v2(bw,0.0,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            mult_instance
+          }
+        }
+        mults
+      }
+//      val initial_mults = for(i <- 0 until inner_inner_square_size)yield{
+//        val mult_row = for(j <- 0 until inner_inner_square_size)yield{
+//          val mults = for(k <- 0 until 2)yield{
+//            if(k == 0){
+//              val mult_instance = Module(new FPComplexMult_reducable_v2(bw,DFTr_Constants(i+1)(j+1).re, 0.0)).io
+//              mult_instance
+//            }else{
+//              val mult_instance = Module(new FPComplexMult_reducable_v2(bw,0.0,DFTr_Constants(i+1)(j+1).im)).io
+//              mult_instance
+//            }
+//          }
+//          mults
+//        }
+//        mult_row
+//      }
+
+      for(i <- 0 until cases.length){
+        initial_mults(i)(0).in_a := initial_adds_subs(cases_addr(i)._2)(0).out_s
+        initial_mults(i)(0).in_b.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re.toString,bw).U
+        initial_mults(i)(0).in_b.Im := 0.U
+        initial_mults(i)(1).in_a := initial_adds_subs(cases_addr(i)._2)(1).out_s
+        initial_mults(i)(1).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im.toString,bw).U
+        initial_mults(i)(1).in_b.Re := 0.U
+      }
+      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
+      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
+//      for(i <- 0 until inner_inner_square_size){
+//        for(j <- 0 until inner_inner_square_size){
+//          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
+//          initial_mults(i)(j)(0).in_b := convert_string_to_IEEE_754(DFTr_Constants(i+1)(j+1).re.toString,bw).U
+//          initial_mults(i)(j)(1).in_a := initial_adds_subs(j)(1).out_s
+//          initial_mults(i)(j)(1).in_b := convert_string_to_IEEE_754(DFTr_Constants(i+1)(j+1).im.toString,bw).U
+//        }
+//      }
+
+      val stage_adds_subs = for(i <- 0 until cases.length)yield{
+        val instances = for(j <- 0 until 2) yield{
+          if(j==0){
+            val instance = Module(new FPComplexAdder_reducable(bw,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            instance
+          }else{
+            val instance = Module(new FPComplexSub_reducable(bw, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            instance
+          }
+        }
+        instances
+      }
+
+
+//      val stage_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
+//        val sas = for( j <- 0 until inner_inner_square_size)yield{
+//          val instances = for(k <- 0 until 2) yield{
+//            if(k == 0){
+//              val instance = Module(new FPComplexAdder_reducable(bw,DFTr_Constants(i+1)(j+1).re, DFTr_Constants(i+1)(j+1).im)).io
+//              instance
+//            }else{
+//              val instance = Module(new FPComplexSub_reducable(bw, DFTr_Constants(i+1)(j+1).re, DFTr_Constants(i+1)(j+1).im)).io
+//              instance
+//            }
+//          }
+//          instances
+//        }
+//        sas
+//      }
+
+      for(i <- 0 until cases.length){
+        stage_adds_subs(i)(0).in_a := initial_mults(i)(0).out_s
+        stage_adds_subs(i)(0).in_b := initial_mults(i)(1).out_s
+        stage_adds_subs(i)(1).in_a := initial_mults(i)(0).out_s
+        stage_adds_subs(i)(1).in_b := initial_mults(i)(1).out_s
+      }
+
+//      for(i <- 0 until inner_inner_square_size){
+//        for(j <- 0 until inner_inner_square_size){
+//          stage_adds_subs(i)(j)(0).in_a := initial_mults(i)(j)(0)
+//          stage_adds_subs(i)(j)(0).in_b := initial_mults(i)(j)(1)
+//          stage_adds_subs(i)(j)(1).in_a := initial_mults(i)(j)(0)
+//          stage_adds_subs(i)(j)(1).in_b := initial_mults(i)(j)(1)
+//        }
+//      }
+      val fillIn = WireInit(VecInit.fill(inner_inner_square_size)(VecInit.fill(inner_inner_square_size)(VecInit.fill(2)(0.U.asTypeOf(new ComplexNum(bw))))))
+      for(i <- 0 until inner_inner_square_size){
+        for(j <- 0 until inner_inner_square_size){
+          if(new_adj_case_sq(i)(j)._2){
+            fillIn(i)(j)(0) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(1).out_s
+            fillIn(i)(j)(1) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(0).out_s
+          }else{
+            fillIn(i)(j)(0) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(0).out_s
+            fillIn(i)(j)(1) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(1).out_s
+          }
+        }
+      }
+
+      val fpmultiadds = for(i <- 0 until inner_square_size)yield{
+        val fpmadds = Module(new FPComplexMultiAdder(inner_inner_square_size,bw)).io
+        fpmadds
+      }
+
+      for(i <- 0 until 2) {
+        for (j <- 0 until inner_inner_square_size) {
+          for (k <- 0 until inner_inner_square_size) {
+            if(i == 0){
+              fpmultiadds(j).in(k) := fillIn(j)(k)(i)
+            }else{
+              fpmultiadds(inner_square_size - j - 1 ).in(k) := fillIn(j)(k)(i)
+            }
+          }
+        }
+      }
+      val results = WireInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
+      for(i <- 0 until r){
+        if(i == 0){
+          results(0) := top_row_init_sum.out
+        }else{
+          results(i) := fpmultiadds(i-1).out
+        }
+      }
+      val final_adder_layer = for(i <- 0 until r)yield{
+        val adder = Module(new FPComplexAdder(bw)).io
+        adder
+      }
+      for(i <- 0 until r){
+        final_adder_layer(i).in_a := io.in(0)
+        final_adder_layer(i).in_b := results(i)
+        io.out(i) := final_adder_layer(i).out_s
+      }
+    }else{
+      //val inner_sqaure_size = r-2
+      val inner_square_size = r-2
+      var last_ind = r-1
+      var start_ind = 1
+      val inner_inner_square_size = inner_square_size/2
+      val ind_sq = for(i <- 0 until inner_inner_square_size)yield{
+        val row = for(j <- 0 until inner_inner_square_size)yield{
+          if(((i+1)*(j+1) % r) > r/2){((i+1)*(j+1) % r) - r}else{((i+1)*(j+1) % r)}
+        }
+        row
+      }
+      ind_sq.map(x=>println(x))
+      val ind_sq_unique = mutable.ArrayBuffer[Int]()
+      val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
+      val cases = mutable.ArrayBuffer[(Int,Int)]()
+      val cases_addr = mutable.ArrayBuffer[(Int,Int)]()
+      for(i <- 0 until inner_inner_square_size){
+        for(j <- 0 until inner_inner_square_size){
+          if(!ind_sq_unique.contains(ind_sq(i)(j).abs)){
+            ind_sq_unique += ind_sq(i)(j)
+            val temp = (i,j)
+            ind_sq_unique_address += temp
+          }
+          if(!cases.contains((ind_sq(i)(j).abs, j))){
+            val temp = (ind_sq(i)(j).abs, j)
+            cases += temp
+            val temp2 = (i,j)
+            cases_addr += temp2
+          }
+        }
+      }
+      println(ind_sq_unique.zipWithIndex.toList)
+      println(ind_sq_unique_address.toList)
+      println(cases.toList)
+      println(cases_addr.toList)
+      def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
+        var returnval = (0,0)
+        for(i <- 0 until arr.length){
+          if(num == arr(i)._1){
+            returnval = ind_sq_unique_address(i)
+          }
+        }
+        returnval
+      }
+      val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
+      println("lolzzz")
+      println(cases_addr_adjusted.toList)
+
+      def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
+        var returnval = 0
+        for(i <- 0 until arr.length){
+          if(num == arr(i)){
+            returnval = i
+          }
+        }
+        returnval
+      }
+      val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
+      new_adj_case_sq.map(x=>println(x.toList))
+      val initial_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
+        val ias = for(j <- 0 until 2)yield{
+          if(j== 0){
+            val instance = Module(new FPComplexAdder(bw)).io
+            instance
+          }else{
+            val instance = Module(new FPComplexSub(bw)).io
+            instance
+          }
+        }
+        ias
+      }
+      for(i <- 0 until inner_inner_square_size){
+        initial_adds_subs(i)(0).in_a := io.in(start_ind)
+        initial_adds_subs(i)(0).in_b := io.in(last_ind)
+        initial_adds_subs(i)(1).in_a := io.in(start_ind)
+        initial_adds_subs(i)(1).in_b := io.in(last_ind)
+        start_ind += 1
+        last_ind -= 1
+      }
+
+      val top_row_init_sum = Module(new FPComplexMultiAdder(inner_inner_square_size,bw)).io
+      val mid_row_init_sum = Module(new FPComplexMultiAdder(inner_inner_square_size,bw)).io
+      var switch = true
+      for(i <- 0 until inner_inner_square_size){
+        top_row_init_sum.in(i) := initial_adds_subs(i)(0).out_s
+        if(switch) {
+          mid_row_init_sum.in(i).Re := (~initial_adds_subs(i)(0).out_s.Re(bw - 1)) ## initial_adds_subs(i)(0).out_s.Re(bw - 2, 0)
+          mid_row_init_sum.in(i).Im := (~initial_adds_subs(i)(0).out_s.Im(bw - 1)) ## initial_adds_subs(i)(0).out_s.Im(bw - 2, 0)
+          switch = false
+        }else{
+          mid_row_init_sum.in(i) := initial_adds_subs(i)(0).out_s
+          switch = true
+        }
+      }
+
+      val initial_mults = for(i <- 0 until cases.length) yield {
+        val mults = for(j <- 0 until 2) yield{
+          if(j == 0){
+            val mult_instance = Module(new FPComplexMult_reducable_v2(bw,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, 0.0)).io
+            mult_instance
+          }else{
+            val mult_instance = Module(new FPComplexMult_reducable_v2(bw,0.0,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            mult_instance
+          }
+        }
+        mults
+      }
+//      val initial_mults = for(i <- 0 until inner_inner_square_size)yield{
+//        val mult_row = for(j <- 0 until inner_inner_square_size)yield{
+//          val mults = for(k <- 0 until 2)yield{
+//            if(k == 0){
+//              val mult_instance = Module(new FPComplexMult_reducable_v2(bw,DFTr_Constants(i+1)(j+1).re, 0.0)).io
+//              mult_instance
+//            }else{
+//              val mult_instance = Module(new FPComplexMult_reducable_v2(bw,0.0,DFTr_Constants(i+1)(j+1).im)).io
+//              mult_instance
+//            }
+//          }
+//          mults
+//        }
+//        mult_row
+//      }
+
+      for(i <- 0 until cases.length){
+        initial_mults(i)(0).in_a := initial_adds_subs(cases_addr(i)._2)(0).out_s
+        initial_mults(i)(0).in_b.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re.toString,bw).U
+        initial_mults(i)(0).in_b.Im := 0.U
+        initial_mults(i)(1).in_a := initial_adds_subs(cases_addr(i)._2)(1).out_s
+        initial_mults(i)(1).in_b.Re := 0.U
+        initial_mults(i)(1).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im.toString,bw).U
+      }
+
+//      DFTr_Constants.map(x=>x.map(y=>println(y.im)))
+      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
+      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
+//      for(i <- 0 until inner_inner_square_size){
+//        for(j <- 0 until inner_inner_square_size){
+//          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
+//          initial_mults(i)(j)(0).in_b := convert_string_to_IEEE_754(DFTr_Constants(i+1)(j+1).re.toString,bw).U
+//          initial_mults(i)(j)(1).in_a := initial_adds_subs(j)(1).out_s
+//          initial_mults(i)(j)(1).in_b := convert_string_to_IEEE_754(DFTr_Constants(i+1)(j+1).im.toString,bw).U
+//        }
+//      }
+
+      val stage_adds_subs = for(i <- 0 until cases.length)yield{
+        val instances = for(j <- 0 until 2) yield{
+          if(j==0){
+            val instance = Module(new FPComplexAdder_reducable(bw,DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            instance
+          }else{
+            val instance = Module(new FPComplexSub_reducable(bw, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).re, DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im)).io
+            instance
+          }
+        }
+        instances
+      }
+
+//      val stage_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
+//        val sas = for( j <- 0 until inner_inner_square_size)yield{
+//          val instances = for(k <- 0 until 2) yield{
+//            if(k == 0){
+//              val instance = Module(new FPComplexAdder_reducable(bw,DFTr_Constants(i+1)(j+1).re, DFTr_Constants(i+1)(j+1).im)).io
+//              instance
+//            }else{
+//              val instance = Module(new FPComplexSub_reducable(bw, DFTr_Constants(i+1)(j+1).re, DFTr_Constants(i+1)(j+1).im)).io
+//              instance
+//            }
+//          }
+//          instances
+//        }
+//        sas
+//      }
+
+      for(i <- 0 until cases.length){
+        stage_adds_subs(i)(0).in_a := initial_mults(i)(0).out_s
+        stage_adds_subs(i)(0).in_b := initial_mults(i)(1).out_s
+        stage_adds_subs(i)(1).in_a := initial_mults(i)(0).out_s
+        stage_adds_subs(i)(1).in_b := initial_mults(i)(1).out_s
+      }
+//      for(i <- 0 until inner_inner_square_size){
+//        for(j <- 0 until inner_inner_square_size){
+//          stage_adds_subs(i)(j)(0).in_a := initial_mults(i)(j)(0)
+//          stage_adds_subs(i)(j)(0).in_b := initial_mults(i)(j)(1)
+//          stage_adds_subs(i)(j)(1).in_a := initial_mults(i)(j)(0)
+//          stage_adds_subs(i)(j)(1).in_b := initial_mults(i)(j)(1)
+//        }
+//      }
+
+      val fillIn = WireInit(VecInit.fill(inner_inner_square_size)(VecInit.fill(inner_inner_square_size)(VecInit.fill(2)(0.U.asTypeOf(new ComplexNum(bw))))))
+      for(i <- 0 until inner_inner_square_size){
+        for(j <- 0 until inner_inner_square_size){
+          if(new_adj_case_sq(i)(j)._2){
+            fillIn(i)(j)(0) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(1).out_s
+            fillIn(i)(j)(1) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(0).out_s
+          }else{
+            fillIn(i)(j)(0) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(0).out_s
+            fillIn(i)(j)(1) := stage_adds_subs(new_adj_case_sq(i)(j)._1)(1).out_s
+          }
+        }
+      }
+      val fpmultiadds = for(i <- 0 until inner_square_size)yield{
+        val fpmadds = Module(new FPComplexMultiAdder(inner_inner_square_size,bw)).io
+        fpmadds
+      }
+      for(i <- 0 until 2) {
+        for (j <- 0 until inner_inner_square_size) {
+          for (k <- 0 until inner_inner_square_size) {
+            if(i == 0){
+              fpmultiadds(j).in(k) := fillIn(j)(k)(i)
+            }else{
+              fpmultiadds(inner_square_size - j - 1 ).in(k) := fillIn(j)(k)(i)
+            }
+          }
+        }
+      }
+      val results = WireInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
+      var offst = 0
+      for(i <- 0 until r){
+        if(i == 0){
+          results(0) := top_row_init_sum.out
+        }else if(i == r/2){
+          results(r/2) := mid_row_init_sum.out
+          offst = 1
+        }else{
+          results(i) := fpmultiadds(i-1-offst).out
+        }
+      }
+      val prep_adder_layer = for(i <- 0 until 2)yield{
+        if(i == 0){
+          val adder = Module(new FPComplexAdder(bw)).io
+          adder
+        }else{
+          val adder = Module(new FPComplexSub(bw)).io
+          adder
+        }
+      }
+      for(i <- 0 until 2){
+        prep_adder_layer(i).in_a := io.in(0)
+        prep_adder_layer(i).in_b := io.in(r/2)
+      }
+      for(i <- 0 until r){}
+      val final_adder_layer = for(i <- 0 until r)yield{
+        val adder = Module(new FPComplexAdder(bw)).io
+        adder
+      }
+      for(i <- 0 until r){
+        final_adder_layer(i).in_a := prep_adder_layer(i % 2).out_s//io.in(0)
+        final_adder_layer(i).in_b := results(i)
+        io.out(i) := final_adder_layer(i).out_s
+      }
+    }
+  }
+
   class DFT_r(r: Int, bw: Int) extends Module{
     val io = IO(new Bundle() {
       val in = Input(Vec(r, new ComplexNum(bw)))
@@ -184,11 +669,12 @@ object FFTDesigns {
       }
       multiplier_ind.toIndexedSeq
     }
+    mult_needs.map(x=>println(x.toList))
     val CMultLatency = 2
     val CAddLatency = 1
-    var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{((r/Math.pow(2,l)).floor.toInt) % 2}).reduce(_+_)) * (CAddLatency)
+    var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{((r/Math.pow(2,l)).floor.toInt) % 2}).reduce(_+_)) * (CAddLatency) + 1
     if(mult_count == 0){
-      DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+      DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
     }
     println(s"Teh DFT Latencyt : ${DFT_latency}")
     val regDelays = RegInit(VecInit.fill(DFT_latency)(false.B)/*(DFT_latency, Bool())*/)
@@ -332,7 +818,7 @@ object FFTDesigns {
     }
     val result = RegInit(VecInit.fill(r)(0.U.asTypeOf(new ComplexNum(bw))))
     //val result = Reg(Vec(r, new ComplexNum(bw)))
-    when(valid_signal) {
+    when(regDelays(DFT_latency-2)) {
       for (i <- 0 until r) {
         result(i) := FP_adds(i).out
       }
@@ -1015,7 +1501,7 @@ object FFTDesigns {
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val CMultLatency = 2
     val CAddLatency = 1
-    var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
+    var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
     if(mult_count == 0){
       DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
     }
@@ -1040,7 +1526,7 @@ object FFTDesigns {
     }
     val Twid_latency = (N/w) * CMultLatency
     val Perm_latency = 0
-    val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+    val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
     val regDelays = RegInit(VecInit.fill(Total_Latency)(false.B))
     //val regDelays = Reg(Vec(Total_Latency, Bool()))
     for(i <- 0 until Total_Latency){
@@ -1097,7 +1583,7 @@ object FFTDesigns {
         TwiddleFactorModules(i-1).in := Stage_Permutations(i-1).out
       }
       if(i == number_of_stages - 1) {
-        when(io.out_validate) {
+        when(regDelays(Total_Latency-2)) {
           results := Stage_Permutations(i).out
         }.otherwise {
           for (j <- 0 until N) {
