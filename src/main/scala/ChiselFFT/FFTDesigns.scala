@@ -160,7 +160,6 @@ object FFTDesigns {
 //      val in_ready = Input(Bool())
 //      val out_validate = Output(Bool())
       val out = Output(Vec(r, new ComplexNum(bw)))
-      val out_test = Output(new ComplexNum(bw))
     })
     val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
     val is_odd = if(r % 2 == 0){false}else{true}
@@ -168,7 +167,6 @@ object FFTDesigns {
       val dft2 = Module(new DFT_r_V1(2,bw)).io
       dft2.in := io.in
       io.out := dft2.out
-      io.out_test := 0.U.asTypeOf(new ComplexNum(bw))
     }
     else if(is_odd){
       val inner_square_size = r-1
@@ -324,8 +322,6 @@ object FFTDesigns {
         initial_mults(i)(1).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im.toString,bw).U
         initial_mults(i)(1).in_b.Re := 0.U
       }
-      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
-      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
 //      for(i <- 0 until inner_inner_square_size){
 //        for(j <- 0 until inner_inner_square_size){
 //          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
@@ -614,8 +610,6 @@ object FFTDesigns {
       }
 
 //      DFTr_Constants.map(x=>x.map(y=>println(y.im)))
-      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
-      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
 //      for(i <- 0 until inner_inner_square_size){
 //        for(j <- 0 until inner_inner_square_size){
 //          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
@@ -751,7 +745,6 @@ object FFTDesigns {
       val in_ready = Input(Bool())
       val out_validate = Output(Bool())
       val out = Output(Vec(r, new ComplexNum(bw)))
-      val out_test = Output(new ComplexNum(bw))
     })
     val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
     val is_odd = if(r % 2 == 0){false}else{true}
@@ -760,7 +753,7 @@ object FFTDesigns {
       dft2.in := io.in
       dft2.in_ready := io.in_ready
       io.out := dft2.out
-      io.out_test := 0.U.asTypeOf(new ComplexNum(bw))
+      io.out_validate := dft2.out_validate
     }
     else if(is_odd){
       val inner_square_size = r-1
@@ -935,8 +928,6 @@ object FFTDesigns {
         initial_mults(i)(1).in_b.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(i)._1+1)(cases_addr_adjusted(i)._2+1).im.toString,bw).U
         initial_mults(i)(1).in_b.Re := 0.U
       }
-      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
-      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
       //      for(i <- 0 until inner_inner_square_size){
       //        for(j <- 0 until inner_inner_square_size){
       //          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
@@ -1258,8 +1249,6 @@ object FFTDesigns {
       }
 
       //      DFTr_Constants.map(x=>x.map(y=>println(y.im)))
-      io.out_test.Re := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).re.toString,bw).U
-      io.out_test.Im := convert_string_to_IEEE_754(DFTr_Constants(cases_addr_adjusted(0)._1+1)(cases_addr_adjusted(0)._2+1).im.toString,bw).U
       //      for(i <- 0 until inner_inner_square_size){
       //        for(j <- 0 until inner_inner_square_size){
       //          initial_mults(i)(j)(0).in_a := initial_adds_subs(j)(0).out_s
@@ -1482,7 +1471,7 @@ object FFTDesigns {
 //      }
 //      c_mod
 //    }
-    val adj_wire = Wire(Vec((r-1)*(r-1), new ComplexNum(bw)))
+    val adj_wire = WireInit(VecInit.fill((r-1)*(r-1))(0.U.asTypeOf(new ComplexNum(bw))))
     for(i <- 0 until (r-1)*(r-1) - mult_count){
       cmplx_adjusts(i).in := io.in(adj_non_mult(i)._2 + 1)
       cmplx_adjusts(i).in_adj := adj_non_mult(i)._3.U
