@@ -1104,7 +1104,6 @@ object FFTDesigns {
         returnval
       }
       val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-      println("lolzzz")
       println(cases_addr_adjusted.toList)
 
       def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
