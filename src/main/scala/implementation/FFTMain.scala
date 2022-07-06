@@ -41,7 +41,7 @@ object FFTMain {
     // This part is for testing the mixed radix implementation of the DFT
     // We want to split the DFT_n into the DFT_ns and DFT_nr
     // where ns and nr are integers whose radix is s and r respectively.
-    val Nw = 108 // size of the DFT
+    val Nw = 27 // size of the DFT
 
     // generating some input complex numbers
     val ll = for(i <- 0 until Nw) yield{
@@ -53,11 +53,11 @@ object FFTMain {
     // where nr and ns are specified such that ns*nr = Nw
     // fourth input radix of nr and fifth input is the radix of ns
     // the sixth input is the the input array of size Nw
-    val soln3 = FFT_mr(Nw,4,27,2,3, ll.toArray)
+    val soln3 = FFT_mr(Nw,3,9,3,9, ll.toArray)
     soln3.map(_.print_complex)
     println("-------------------------------")
     // Let us compute the same DFT using the normal DFT matrix for comparison
-//    val soln4 = DFT_compute(DFT_gen(Nw),ll.toArray,Nw).map(_.print_complex)
+    val soln4 = DFT_compute(DFT_gen(Nw),ll.toArray,Nw).map(_.print_complex)
 
     //    val k = T2_rs(6,3,2)
     //    k.map(_.print_complex)

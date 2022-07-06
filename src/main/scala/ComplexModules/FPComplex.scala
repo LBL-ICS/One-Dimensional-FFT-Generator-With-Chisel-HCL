@@ -28,12 +28,24 @@ object FPComplex {
     io.out_s.Re := FP_adders(0).out_s
     io.out_s.Im := FP_adders(1).out_s
   }
-  class FPComplexAdder_reducable(bw: Int, sRe:Double, sIm:Double) extends Module{
+  class FPComplexAdder_reducable(bw: Int, sRe:Double, sIm:Double, add_reg: Boolean) extends Module{
     val io = IO(new ComplexIO(bw))
     if(sRe.abs < 0.00005){
-      io.out_s := io.in_b
+      if(add_reg){
+        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+        result := io.in_b
+        io.out_s := result
+      }else {
+        io.out_s := io.in_b
+      }
     }else if(sIm.abs < 0.00005){
-      io.out_s := io.in_a
+      if(add_reg){
+        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+        result := io.in_a
+        io.out_s := result
+      }else{
+        io.out_s := io.in_a
+      }
     }else {
       val FP_adders = (for (i <- 0 until 2) yield {
         val fpadd = Module(new FP_adder(bw)).io
@@ -73,13 +85,26 @@ object FPComplex {
     io.out_s.Re := FP_subbers(0).out_s
     io.out_s.Im := FP_subbers(1).out_s
   }
-  class FPComplexSub_reducable(bw: Int, sRe: Double, sIm: Double) extends Module{
+  class FPComplexSub_reducable(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean) extends Module{
     val io = IO(new ComplexIO(bw))
     if(sRe.abs < 0.00005){
-      io.out_s.Re := (~io.in_b.Re(bw-1)) ## io.in_b.Re(bw-2,0)
-      io.out_s.Im := (~io.in_b.Im(bw-1)) ## io.in_b.Im(bw-2,0)
+      if(add_reg){
+        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+        result.Re := (~io.in_b.Re(bw - 1)) ## io.in_b.Re(bw - 2, 0)
+        result.Im := (~io.in_b.Im(bw - 1)) ## io.in_b.Im(bw - 2, 0)
+        io.out_s := result
+      }else {
+        io.out_s.Re := (~io.in_b.Re(bw - 1)) ## io.in_b.Re(bw - 2, 0)
+        io.out_s.Im := (~io.in_b.Im(bw - 1)) ## io.in_b.Im(bw - 2, 0)
+      }
     }else if(sIm.abs < 0.00005){
-      io.out_s := io.in_a
+      if(add_reg){
+        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+        result := io.in_a
+        io.out_s := result
+      }else {
+        io.out_s := io.in_a
+      }
     }else {
       val FP_subbers = (for (i <- 0 until 2) yield {
         val fpsub = Module(new FP_subber(bw)).io
@@ -229,7 +254,7 @@ object FPComplex {
     io.out_s.Re := FP_sub.out_s
     io.out_s.Im := FP_add.out_s
   }
-  class FPComplexMult_reducable_v2(bw: Int, sRe: Double, sIm: Double) extends Module{
+  class FPComplexMult_reducable_v2(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean) extends Module{
     var exponent = 0
     var mantissa = 0
     if (bw == 16){
@@ -248,7 +273,13 @@ object FPComplex {
     val bias = Math.pow(2, exponent - 1) - 1
     val io = IO(new ComplexIO(bw))
     if(sRe.abs < 0.00005 && sIm.abs <0.00005){
-      io.out_s := 0.U.asTypeOf(new ComplexNum(bw))
+      if(add_reg){
+        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+        result := 0.U.asTypeOf(new ComplexNum(bw))
+        io.out_s := result
+      }else {
+        io.out_s := 0.U.asTypeOf(new ComplexNum(bw))
+      }
     }else if(sRe.abs < 0.00005){
       val conds = isReducable(sIm.abs)
       val cmplx_reorder = Module(new cmplx_adj(bw)).io
@@ -261,7 +292,13 @@ object FPComplex {
         } else {
           cmplx_reorder.is_neg := false.B
         }
-        io.out_s := cmplx_reorder.out
+        if(add_reg){
+          val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+          result := cmplx_reorder.out
+          io.out_s := result
+        }else {
+          io.out_s := cmplx_reorder.out
+        }
       } else{
         cmplx_reorder.in_adj := 0.U
         cmplx_reorder.is_neg := false.B
@@ -288,7 +325,13 @@ object FPComplex {
         } else {
           cmplx_reorder.is_neg := false.B
         }
-        io.out_s := cmplx_reorder.out
+        if(add_reg){
+          val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
+          result := cmplx_reorder.out
+          io.out_s := result
+        }else {
+          io.out_s := cmplx_reorder.out
+        }
       }else{
         cmplx_reorder.in_adj := 0.U
         cmplx_reorder.is_neg := false.B
@@ -414,52 +457,116 @@ object FPComplex {
       var odd_inner = 0
       var offset = 0 //this is used to keep the counter synchronized when dealing with an odd number of summations in a layer
       var count_lastadder = n - 2 // keeps track of position of the last adder relative to the current summation layer
-      if (tracker_sumCount % 2 != 0) { // if summing an odd number of elements
-        odd = 1
-        FP_adders(count_lastadder).in_b := io.in(tracker_sumCount - 1)
-        count_lastadder -= 1
-        offset += 1
+      var blncing_regs = 0
+      var total_adders = n
+      while(total_adders > 1){
+        if(total_adders%2 == 1){
+          blncing_regs += 1
+        }
+        total_adders /= 2
       }
-      for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the first layer of FP-adders
-        FP_adders(count_FP_adder).in_a := io.in(inputcounter)
-        FP_adders(count_FP_adder).in_b := io.in(inputcounter + 1)
-        inputcounter += 2
-        count_FP_adder += 1
-      }
-      offset = 0
-      tracker_sumCount /= 2
-      inputcounter = 0
-      for (i <- 0 until log2Ceil(n) - 1) { // for all the adding stages that are needed to compute the full sum
-        if (tracker_sumCount == 0 || tracker_sumCount == 1) { // if we have reached the end of the adders
-          FP_adders(count_FP_adder).in_a := FP_adders(count_lastadder).out_s
-          if (odd_inner > 0) { // connect the rest of the unconnected modules
-            for (i <- 0 until odd_inner) {
-              if (count_FP_adder < n - 2 - odd && n - 2 - odd > 0) {
-                FP_adders(count_FP_adder + 1).in_a := FP_adders(count_FP_adder).out_s
-                count_FP_adder += 1
-              }
-            }
-          }
-        } else if (tracker_sumCount % 2 != 0) { // if trying to sum up an odd number of results
-          odd_inner += 1
-          FP_adders(count_lastadder).in_b := FP_adders(inputcounter + tracker_sumCount - 1).out_s
+      if(blncing_regs > 0){
+        val regs = RegInit(VecInit.fill(blncing_regs)(0.U.asTypeOf(new ComplexNum(bw))))
+        var reg_indx = 0
+        if (tracker_sumCount % 2 != 0) { // if summing an odd number of elements
+          odd = 1
+          regs(reg_indx) := io.in(tracker_sumCount - 1)
+          FP_adders(count_lastadder).in_b := regs(reg_indx)
           count_lastadder -= 1
           offset += 1
+          reg_indx += 1
         }
-        for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the next layer FP-adders
-          FP_adders(count_FP_adder).in_a := FP_adders(inputcounter).out_s
-          FP_adders(count_FP_adder).in_b := FP_adders(inputcounter + 1).out_s
+        for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the first layer of FP-adders
+          FP_adders(count_FP_adder).in_a := io.in(inputcounter)
+          FP_adders(count_FP_adder).in_b := io.in(inputcounter + 1)
           inputcounter += 2
           count_FP_adder += 1
         }
-        inputcounter += offset
         offset = 0
         tracker_sumCount /= 2
+        inputcounter = 0
+        for (i <- 0 until log2Ceil(n) - 1) { // for all the adding stages that are needed to compute the full sum
+          if (tracker_sumCount == 0 || tracker_sumCount == 1) { // if we have reached the end of the adders
+            FP_adders(count_FP_adder).in_a := FP_adders(count_lastadder).out_s
+            if (odd_inner > 0) { // connect the rest of the unconnected modules
+              for (i <- 0 until odd_inner) {
+                if (count_FP_adder < n - 2 - odd && n - 2 - odd > 0) {
+                  FP_adders(count_FP_adder + 1).in_a := FP_adders(count_FP_adder).out_s
+                  count_FP_adder += 1
+                }
+              }
+            }
+          } else if (tracker_sumCount % 2 != 0) { // if trying to sum up an odd number of results
+            odd_inner += 1
+            regs(reg_indx) := FP_adders(inputcounter + tracker_sumCount - 1).out_s
+            FP_adders(count_lastadder).in_b := regs(reg_indx)
+            count_lastadder -= 1
+            offset += 1
+            reg_indx += 1
+          }
+          for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the next layer FP-adders
+            FP_adders(count_FP_adder).in_a := FP_adders(inputcounter).out_s
+            FP_adders(count_FP_adder).in_b := FP_adders(inputcounter + 1).out_s
+            inputcounter += 2
+            count_FP_adder += 1
+          }
+          inputcounter += offset
+          offset = 0
+          tracker_sumCount /= 2
+        }
+        if (odd == 1 && n - 2 - odd > 0) { // connect remaining module
+          FP_adders(if (n - 2 > 0) n - 2 else 0).in_a := FP_adders(if (n - 2 > 0) n - 2 - 1 else 0).out_s
+        }
+        io.out := FP_adders(n - 2).out_s
+      }else{
+        var reg_indx = 0
+        if (tracker_sumCount % 2 != 0) { // if summing an odd number of elements
+          odd = 1
+          FP_adders(count_lastadder).in_b := io.in(tracker_sumCount - 1)
+          count_lastadder -= 1
+          offset += 1
+        }
+        for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the first layer of FP-adders
+          FP_adders(count_FP_adder).in_a := io.in(inputcounter)
+          FP_adders(count_FP_adder).in_b := io.in(inputcounter + 1)
+          inputcounter += 2
+          count_FP_adder += 1
+        }
+        offset = 0
+        tracker_sumCount /= 2
+        inputcounter = 0
+        for (i <- 0 until log2Ceil(n) - 1) { // for all the adding stages that are needed to compute the full sum
+          if (tracker_sumCount == 0 || tracker_sumCount == 1) { // if we have reached the end of the adders
+            FP_adders(count_FP_adder).in_a := FP_adders(count_lastadder).out_s
+            if (odd_inner > 0) { // connect the rest of the unconnected modules
+              for (i <- 0 until odd_inner) {
+                if (count_FP_adder < n - 2 - odd && n - 2 - odd > 0) {
+                  FP_adders(count_FP_adder + 1).in_a := FP_adders(count_FP_adder).out_s
+                  count_FP_adder += 1
+                }
+              }
+            }
+          } else if (tracker_sumCount % 2 != 0) { // if trying to sum up an odd number of results
+            odd_inner += 1
+            FP_adders(count_lastadder).in_b := FP_adders(inputcounter + tracker_sumCount - 1).out_s
+            count_lastadder -= 1
+            offset += 1
+          }
+          for (i <- 0 until tracker_sumCount / 2) { // add all the multiplication results using the next layer FP-adders
+            FP_adders(count_FP_adder).in_a := FP_adders(inputcounter).out_s
+            FP_adders(count_FP_adder).in_b := FP_adders(inputcounter + 1).out_s
+            inputcounter += 2
+            count_FP_adder += 1
+          }
+          inputcounter += offset
+          offset = 0
+          tracker_sumCount /= 2
+        }
+        if (odd == 1 && n - 2 - odd > 0) { // connect remaining module
+          FP_adders(if (n - 2 > 0) n - 2 else 0).in_a := FP_adders(if (n - 2 > 0) n - 2 - 1 else 0).out_s
+        }
+        io.out := FP_adders(n - 2).out_s
       }
-      if (odd == 1 && n - 2 - odd > 0) { // connect remaining module
-        FP_adders(if (n - 2 > 0) n - 2 else 0).in_a := FP_adders(if (n - 2 > 0) n - 2 - 1 else 0).out_s
-      }
-      io.out := FP_adders(n - 2).out_s
     }
   }
 
