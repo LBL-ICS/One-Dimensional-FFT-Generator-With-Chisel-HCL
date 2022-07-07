@@ -17,7 +17,7 @@ object FFTMain {
 
     // creating n_size random complex numbers for input into FFT
     var index = 1
-    val xi = for(i <- 0 until n_size) yield{
+    val xi_alt = for(i <- 0 until n_size) yield{
 //      val start = -10
 //      val end = 10
 //      val rnd = new Random()
@@ -27,6 +27,7 @@ object FFTMain {
       index += 2
       num
     }
+    val xi = List(cmplx(138828.10499857602, 173601.66334722503),cmplx(-410110.178645231,-401463.419424068),cmplx(86280.417921146,-492295.84887818), cmplx(324183.590607955,-466084.993285151), cmplx(-379932.300333563,400780.130324218), cmplx(368398.14913881,420746.270209735), cmplx(352380.284566766,-120056.103771629), cmplx(216285.915855303,-183953.351843056), cmplx(496446.93387681,97079.355405773))
     println("-----------------------------------------------")
     // Use the FFT algorithm of radix r to solve the DFT of n_size
     println("hello")

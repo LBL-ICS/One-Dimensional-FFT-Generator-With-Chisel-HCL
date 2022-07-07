@@ -27,8 +27,8 @@ object Testing {
     val ptype = 1
     val bw = 32
     val l2c = (log2Ceil((N/w)))
-    val pw3 = new PrintWriter("DFT_r_v2_rv.v")
-    pw3.println(getVerilogString(new DFT_r_v2_rv(2,32)))
+    val pw3 = new PrintWriter("FFT_sr_v2.v")
+    pw3.println(getVerilogString(new FFT_sr_v2(9,3,9,32)))
     pw3.close()
 //    val pw = new PrintWriter("DFT_r.v")
 //    pw.println(getVerilogString(new DFT_r(2,32)))
@@ -331,7 +331,7 @@ object Testing {
 //
 //    val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 println("-----------------------------------------------??????????????????")
-      test(new FFT_sr(9,3,9,32)){c=>
+      test(new FFT_sr_v2(9,3,9,32)){c=>
       val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
       var mult_count = 0
       for(i <- 0 until r-1){

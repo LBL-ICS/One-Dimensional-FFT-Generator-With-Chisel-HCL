@@ -846,7 +846,9 @@ object FFTDesigns {
           regdelays(i) := regdelays(i-1)
         }
       }
-      io.out_validate := regdelays(total_latency-1)
+      val valid_signal = Wire(Bool())
+      valid_signal := regdelays(total_latency-1)
+      io.out_validate := valid_signal
       val initial_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
         val ias = for(j <- 0 until 2)yield{
           if(j== 0){
@@ -1142,7 +1144,9 @@ object FFTDesigns {
           regdelays(i) := regdelays(i-1)
         }
       }
-      io.out_validate := regdelays(total_latency-1)
+      val valid_signal = Wire(Bool())
+      valid_signal := regdelays(total_latency-1)
+      io.out_validate := valid_signal
       val initial_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
         val ias = for(j <- 0 until 2)yield{
           if(j== 0){
@@ -1442,7 +1446,7 @@ object FFTDesigns {
         regDelays(i) := regDelays(i-1)
       }
     }
-    val valid_signal = WireInit(false.B)
+    val valid_signal = Wire(Bool())
     valid_signal := regDelays(DFT_latency-1)
     io.out_validate := valid_signal
     val adj = mutable.ArrayBuffer[(Int, Int, Int, Boolean, Boolean, Boolean)]()
@@ -2293,7 +2297,7 @@ object FFTDesigns {
         regDelays(i) := regDelays(i-1)
       }
     }
-    val valid_signal = WireInit(false.B)
+    val valid_signal = Wire(Bool())
     valid_signal := regDelays(Total_Latency-1)
     io.out_validate := valid_signal
     println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
@@ -2489,7 +2493,7 @@ object FFTDesigns {
         regDelays(i) := regDelays(i-1)
       }
     }
-    val valid_signal = WireInit(false.B)
+    val valid_signal = Wire(Bool())
     valid_signal := regDelays(Total_Latency-1)
     io.out_validate := valid_signal
     println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
