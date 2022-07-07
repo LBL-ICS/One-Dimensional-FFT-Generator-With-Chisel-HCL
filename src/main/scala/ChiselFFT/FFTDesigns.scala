@@ -1475,7 +1475,7 @@ object FFTDesigns {
 //      }
 //      c_mod
 //    }
-    val adj_wire = WireInit(VecInit.fill((r-1)*(r-1))(0.U.asTypeOf(new ComplexNum(bw))))
+    val adj_wire = Wire(Vec((r-1)*(r-1), new ComplexNum(bw)))
     for(i <- 0 until (r-1)*(r-1) - mult_count){
       cmplx_adjusts(i).in := io.in(adj_non_mult(i)._2 + 1)
       cmplx_adjusts(i).in_adj := adj_non_mult(i)._3.U
