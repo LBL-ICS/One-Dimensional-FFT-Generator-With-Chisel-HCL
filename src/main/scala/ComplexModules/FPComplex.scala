@@ -254,7 +254,7 @@ object FPComplex {
     io.out_s.Re := FP_sub.out_s
     io.out_s.Im := FP_add.out_s
   }
-  class FPComplexMult_reducable_v2(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean) extends Module{
+  class FPComplexMult_reducable_v2(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean, special_mult: Boolean) extends Module{
     var exponent = 0
     var mantissa = 0
     if (bw == 16){
@@ -270,13 +270,21 @@ object FPComplex {
       exponent = 15
       mantissa = 112
     }
+    val regdpth = if(special_mult){1}else{2}
     val bias = Math.pow(2, exponent - 1) - 1
     val io = IO(new ComplexIO(bw))
     if(sRe.abs < 0.00005 && sIm.abs <0.00005){
       if(add_reg){
-        val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
-        result := 0.U.asTypeOf(new ComplexNum(bw))
-        io.out_s := result
+        val result = RegInit(VecInit.fill(regdpth)(0.U.asTypeOf(new ComplexNum(bw))))
+        for(i <- 0 until regdpth){
+          if(i == 0){
+            result(0) := 0.U.asTypeOf(new ComplexNum(bw))
+          }else{
+            result(i) := result(i-1)
+          }
+        }
+        //result := cmplx_reorder.out
+        io.out_s := result(regdpth-1)
       }else {
         io.out_s := 0.U.asTypeOf(new ComplexNum(bw))
       }
@@ -293,9 +301,16 @@ object FPComplex {
           cmplx_reorder.is_neg := false.B
         }
         if(add_reg){
-          val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
-          result := cmplx_reorder.out
-          io.out_s := result
+          val result = RegInit(VecInit.fill(regdpth)(0.U.asTypeOf(new ComplexNum(bw))))
+          for(i <- 0 until regdpth){
+            if(i == 0){
+              result(0) := cmplx_reorder.out
+            }else{
+              result(i) := result(i-1)
+            }
+          }
+          //result := cmplx_reorder.out
+          io.out_s := result(regdpth-1)
         }else {
           io.out_s := cmplx_reorder.out
         }
@@ -326,9 +341,16 @@ object FPComplex {
           cmplx_reorder.is_neg := false.B
         }
         if(add_reg){
-          val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
-          result := cmplx_reorder.out
-          io.out_s := result
+          val result = RegInit(VecInit.fill(regdpth)(0.U.asTypeOf(new ComplexNum(bw))))
+          for(i <- 0 until regdpth){
+            if(i == 0){
+              result(0) := cmplx_reorder.out
+            }else{
+              result(i) := result(i-1)
+            }
+          }
+          //result := cmplx_reorder.out
+          io.out_s := result(regdpth-1)
         }else {
           io.out_s := cmplx_reorder.out
         }
@@ -363,6 +385,11 @@ object FPComplex {
       val c2 = isReducable(sIm.abs)
       println(c1._1, sRe)
       println(c2._1, sIm)
+      val new_sign = Wire(Vec(4, UInt(1.W)))
+      new_sign(0) := sign(0) ^ io.in_b.Re(bw-1)
+      new_sign(1) := sign(0) ^ io.in_b.Im(bw-1)
+      new_sign(2) := sign(1) ^ io.in_b.Im(bw-1)
+      new_sign(3) := sign(1) ^ io.in_b.Re(bw-1)
       println(isReducable(0.5)._1)
       when(c1._1.B) {
         when(exp(0) =/= 0.U) {
@@ -395,8 +422,8 @@ object FPComplex {
       if (c1._1) {
         val regs1 = RegInit(VecInit.fill(2)(0.U(bw.W)))
         //val regs1 = Reg(Vec(2, UInt(bw.W)))
-        regs1(0) := sign(0) ## new_exp1(0) ## frac(0)
-        regs1(1) := sign(1) ## new_exp1(1) ## frac(1)
+        regs1(0) := new_sign(0) ## new_exp1(0) ## frac(0)
+        regs1(1) := new_sign(3) ## new_exp1(1) ## frac(1)
         mult_results(0) := regs1(0)
         mult_results(3) := regs1(1)
       } else {
@@ -414,8 +441,8 @@ object FPComplex {
       if (c2._1) {
         val regs2 = RegInit(VecInit.fill(2)(0.U(bw.W)))
         //val regs2 = Reg(Vec(2, UInt(bw.W)))
-        regs2(0) := sign(0) ## new_exp1(0) ## frac(0)
-        regs2(1) := sign(1) ## new_exp1(1) ## frac(1)
+        regs2(0) := new_sign(1) ## new_exp1(0) ## frac(0)
+        regs2(1) := new_sign(2) ## new_exp1(1) ## frac(1)
         mult_results(2) := regs2(0)
         mult_results(1) := regs2(1)
       } else {

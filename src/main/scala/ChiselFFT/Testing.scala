@@ -20,16 +20,124 @@ import scala.collection.mutable
 
 object Testing {
   def main(args: Array[String]): Unit = {
-    val N = 9
-    val r = 3
-    val base_r = 3
-    val w = 9
+    val N = 8
+    val r = 2
+    val base_r = 2
+    val w = 4
     val ptype = 1
     val bw = 32
     val l2c = (log2Ceil((N/w)))
-    val pw3 = new PrintWriter("FFT_sr_v2.v")
-    pw3.println(getVerilogString(new FFT_sr_v2(9,3,9,32)))
-    pw3.close()
+//    val pw3 = new PrintWriter("FFT_sr_v2_streaming.v")
+//    pw3.println(getVerilogString(new FFT_sr_v2_streaming(4,2,2,bw)))
+//    pw3.close()
+//    test(new doeswork(bw)){c=>
+//      c.io.in(0).poke(true.B)
+//      c.io.in(1).poke(true.B)
+//      c.io.in(2).poke(true.B)
+//      c.io.in(3).poke(true.B)
+//      println(s"outputdoeswork: ${c.io.out.peek().litValue}")
+//      println("--------------s---s--s--------------")
+//    }
+    test(new FFT_sr_v2_streaming(9,3,3,32)){c=>
+      c.io.in_ready.poke(true.B)
+      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
+      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
+      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.clock.step(1)
+      c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
+      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.clock.step(1)
+      c.io.in(0).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
+      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.io.in(1).Re.poke(convert_string_to_IEEE_754("5.0", 32).U)
+      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.io.in(2).Re.poke(convert_string_to_IEEE_754("6.0", 32).U)
+      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.clock.step(1)
+//      c.clock.step(1)
+      c.io.in(0).Re.poke(convert_string_to_IEEE_754("7.0", 32).U)
+      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.io.in(1).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
+      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      c.io.in(2).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
+      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+      for(i <- 0 until 50){
+        c.clock.step(1)
+        println(s"Clock Cycle: ${3+i}")
+        c.io.in_ready.poke(false.B)
+        println(s"validated Output: ${c.io.out_validate.peek().litValue}")
+        c.io.in(0).Re.poke(convert_string_to_IEEE_754("0.0", 32).U)
+        c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+        c.io.in(1).Re.poke(convert_string_to_IEEE_754("0.0", 32).U)
+        c.io.in(1).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+        println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+        println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
+        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
+        println("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out_test(0).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out_test(0).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out_test(1).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out_test(1).Im.peek().litValue, 32)}")
+//        println("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ")
+//        println("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- ")
+
+      }
+    }
+//    test(new TwiddleFactorsStreamed(4,2,2,0,bw)){c=>
+//      c.io.in_en.poke(true.B)
+//      //c.clock.step(1)
+//      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0",bw).U)
+//      c.io.in(0).Im.poke(convert_string_to_IEEE_754("2.0",bw).U)
+//      c.io.in(1).Re.poke(convert_string_to_IEEE_754("3.0",bw).U)
+//      c.io.in(1).Im.poke(convert_string_to_IEEE_754("4.0",bw).U)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//      c.clock.step(2)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//      c.clock.step(1)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//      println("________________________________________________")
+//      c.clock.step(1)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//      println("________________________________________________")
+//      c.clock.step(1)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//      println("________________________________________________")
+//      c.clock.step(1)
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, bw)}")
+//      println(s"outputRe: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, bw)}")
+//      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
+//      println("________________________________________________")
+//    }
+//    val pw4 = new PrintWriter("FFT_mr_basic.v")
+//    pw4.println(getVerilogString(new FFT_mr_basic(24,3,8,3,2,24,bw)))
+//    pw4.close()
 //    val pw = new PrintWriter("DFT_r.v")
 //    pw.println(getVerilogString(new DFT_r(2,32)))
 //    pw.close()
@@ -54,28 +162,33 @@ object Testing {
 //    println(isReducable(1.0))
 //    test(new PermutationsWithStreaming(N,r,base_r,w,ptype,bw)) { c =>
 //      c.io.in_en.poke(true.B)
-//      c.clock.step(1)
-//      for (j <- 0 until N / w) {
-//        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
-//        for (i <- 0 until w) {
-//          c.io.in(i).Re.poke(convert_string_to_IEEE_754((j * w +i).toDouble.toString, 32).U)
-//          c.io.in(i).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      //c.clock.step(1)
+//      for(i <- 0 until 4) {
+//        for (j <- 0 until N / w) {
+//          for (i <- 0 until w) {
+//            c.io.in(i).Re.poke(convert_string_to_IEEE_754((j * w + i).toDouble.toString, 32).U)
+//            c.io.in(i).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//          }
+//          c.clock.step(1)
+//          println(s"clock: ${c.io.out_t.peek().litValue}")
 //        }
-//        c.clock.step(1)
-//      }
-//      println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
-//      for(i <- 0 until N/w){
-//        c.clock.step(1)
-//        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
-//      }
+//        c.io.in_en.poke(false.B)
+//        c.io.in_en.poke(true.B)
+//        //println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
+//        for (i <- 0 until N / w) {
+//          c.clock.step(1)
+//          println(s"clock: ${c.io.out_t.peek().litValue}")
+//        }
 //
-//      for(j <- 0 until N/w) {
-//        for(i <- 0 until w){
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(i).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(i).Im.peek().litValue, 32)}")
+//        for (j <- 0 until N / w) {
+//          for (i <- 0 until w) {
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(i).Re.peek().litValue, 32)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(i).Im.peek().litValue, 32)}")
+//          }
+//          println("________________________________________________")
+//          c.clock.step(1)
+//          println(s"clock: ${c.io.out_t.peek().litValue}")
 //        }
-//        c.clock.step(1)
-//        println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
 //      }
 //    }
 ////    test(new Streaming_Permute_Config(8,2,2,1,2)){c=>
@@ -134,119 +247,119 @@ object Testing {
 //      println(s"Imaginary Output: ${convert_long_to_float(c.io.out.Im.peek().litValue, 32)}")
 //    }
     println("--------")
-    test(new DFT_r_v2_rv(2, 32)){c=>
-      val CMultLatency = 2
-      val CAddLatency = 1
-      val DFT_latency = CMultLatency + ((Math.log10(3)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(3)/Math.log10(2)).floor.toInt)yield{(3/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
-      println(DFT_latency)
-      for(i <- 0 until 1) {
-        c.io.in_ready.poke(true.B)
-        c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
-        c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-        c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
-        c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+//    test(new DFT_r_v2_rv(3, 32)){c=>
+//      val CMultLatency = 2
+//      val CAddLatency = 1
+//      val DFT_latency = CMultLatency + ((Math.log10(3)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(3)/Math.log10(2)).floor.toInt)yield{(3/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
+//      println(DFT_latency)
+//      for(i <- 0 until 1) {
+//        c.io.in_ready.poke(true.B)
+//        c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
+//        c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+//        c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
+//        c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
 //        c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
 //        c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
-//        c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(4).Re.poke(convert_string_to_IEEE_754("5.0", 32).U)
-//        c.io.in(4).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(5).Re.poke(convert_string_to_IEEE_754("6.0", 32).U)
-//        c.io.in(5).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(6).Re.poke(convert_string_to_IEEE_754("7.0", 32).U)
-//        c.io.in(6).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(7).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
-//        c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(8).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
-//        c.io.in(8).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        //c.io.in_ready.poke(true.B)
-//        c.io.in(9).Re.poke(convert_string_to_IEEE_754("10.0", 32).U)
-//        c.io.in(9).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(10).Re.poke(convert_string_to_IEEE_754("11.0", 32).U)
-//        c.io.in(10).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(11).Re.poke(convert_string_to_IEEE_754("12.0", 32).U)
-//        c.io.in(11).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(12).Re.poke(convert_string_to_IEEE_754("13.0", 32).U)
-//        c.io.in(12).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(13).Re.poke(convert_string_to_IEEE_754("14.0", 32).U)
-//        c.io.in(13).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//        c.io.in(8).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
-//        c.io.in(8).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-        for (i <- 0 until 20) {
-//          for(j <- 0 until 10){
-            c.clock.step(1)
-            println(s"validateoutput: ${c.io.out_validate.peek().litValue}")
-//            c.io.in_ready.poke(true.B)
-//            if(j == 0) {
-//              c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
-//              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
-//              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
-//              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
-//              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//            }else if(j == 1){
-//              c.io.in(0).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
-//              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(1).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
-//              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(2).Re.poke(convert_string_to_IEEE_754("10.0", 32).U)
-//              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(3).Re.poke(convert_string_to_IEEE_754("11.0", 32).U)
-//              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//            }else{
-//              c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.0", 32).U)
-//              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(1).Re.poke(convert_string_to_IEEE_754("13.0", 32).U)
-//              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(2).Re.poke(convert_string_to_IEEE_754("14.0", 32).U)
-//              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//              c.io.in(3).Re.poke(convert_string_to_IEEE_754("15.0", 32).U)
-//              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//            }
-            println(s"Clock cycle ${ i + 1}")
-            println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
-            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
-            println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
-            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+////        c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
+////        c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(4).Re.poke(convert_string_to_IEEE_754("5.0", 32).U)
+////        c.io.in(4).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(5).Re.poke(convert_string_to_IEEE_754("6.0", 32).U)
+////        c.io.in(5).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(6).Re.poke(convert_string_to_IEEE_754("7.0", 32).U)
+////        c.io.in(6).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(7).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
+////        c.io.in(7).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(8).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
+////        c.io.in(8).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        //c.io.in_ready.poke(true.B)
+////        c.io.in(9).Re.poke(convert_string_to_IEEE_754("10.0", 32).U)
+////        c.io.in(9).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(10).Re.poke(convert_string_to_IEEE_754("11.0", 32).U)
+////        c.io.in(10).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(11).Re.poke(convert_string_to_IEEE_754("12.0", 32).U)
+////        c.io.in(11).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(12).Re.poke(convert_string_to_IEEE_754("13.0", 32).U)
+////        c.io.in(12).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(13).Re.poke(convert_string_to_IEEE_754("14.0", 32).U)
+////        c.io.in(13).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////        c.io.in(8).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
+////        c.io.in(8).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+//        for (i <- 0 until 20) {
+////          for(j <- 0 until 10){
+//            c.clock.step(1)
+//            println(s"validateoutput: ${c.io.out_validate.peek().litValue}")
+////            c.io.in_ready.poke(true.B)
+////            if(j == 0) {
+////              c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
+////              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
+////              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
+////              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
+////              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////            }else if(j == 1){
+////              c.io.in(0).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
+////              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(1).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
+////              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(2).Re.poke(convert_string_to_IEEE_754("10.0", 32).U)
+////              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(3).Re.poke(convert_string_to_IEEE_754("11.0", 32).U)
+////              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////            }else{
+////              c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.0", 32).U)
+////              c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(1).Re.poke(convert_string_to_IEEE_754("13.0", 32).U)
+////              c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(2).Re.poke(convert_string_to_IEEE_754("14.0", 32).U)
+////              c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////              c.io.in(3).Re.poke(convert_string_to_IEEE_754("15.0", 32).U)
+////              c.io.in(3).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////            }
+//            println(s"Clock cycle ${ i + 1}")
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
 //            println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
 //            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(9).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(9).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(10).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(10).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(11).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(11).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(12).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(12).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(13).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(13).Im.peek().litValue, 32)}")
-//          println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
-//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
-//          }
-//          c.io.in_ready.poke(true.B)
-//          c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
-//          c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//          c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
-//          c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-//          c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
-//          c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
-        }
-      }
-    }
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(9).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(9).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(10).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(10).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(11).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(11).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(12).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(12).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(13).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(13).Im.peek().litValue, 32)}")
+////          println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
+////          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
+////          }
+////          c.io.in_ready.poke(true.B)
+////          c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
+////          c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////          c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
+////          c.io.in(1).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+////          c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
+////          c.io.in(2).Im.poke(convert_string_to_IEEE_754("0", 32).U)
+//        }
+//      }
+//    }
 //    println("--------")
 //    test(new TwiddleFactors(4,2,2,0,32)){c=>
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("12.3", 32).U)
@@ -331,95 +444,95 @@ object Testing {
 //
 //    val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 println("-----------------------------------------------??????????????????")
-      test(new FFT_sr_v2(9,3,9,32)){c=>
-      val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
-      var mult_count = 0
-      for(i <- 0 until r-1){
-        for(j <- 0 until r-1){
-          val n  = DFTr_Constants(i+1)(j+1)
-          val c1 = FFT.isReducable(n.re.abs)
-          val c2 = FFT.isReducable(n.im.abs)
-          if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
-            mult_count += 1
-          }
-        }
-      }
-      val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
-      var T_L = 0
-      val CMultLatency = 2
-      val CAddLatency = 1
-      for(i <- 0 until TotalStages) {
-        val twid = Permutations.T2(N, r)(i)
-        var mult_count2 = 0
-        for (i <- 0 until w){
-          val n = twid(i)
-          val c1 = FFT.isReducable(n.re.abs)
-          val c2 = FFT.isReducable(n.im.abs)
-          if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
-            mult_count2 += 1
-          }
-        }
-        var T_latency = CMultLatency
-        if (mult_count2 == 0) {
-          T_latency = 0
-        }
-        println(mult_count2 + "yay")
-        T_L += T_latency
-      }
-      val DFTs_per_stage = N/r
-      val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
-      var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
-      if(mult_count == 0){
-        DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
-      }
-      val Twid_latency = (N/w) * CMultLatency
-      val Perm_latency = 0
-      val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
-      println(Total_Latency)
-      c.io.in_ready.poke(true.B)
-      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
-      c.io.in(0).Im.poke(convert_string_to_IEEE_754("2.0", 32).U)
-      c.io.in(1).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
-      c.io.in(1).Im.poke(convert_string_to_IEEE_754("4.0", 32).U)
-      c.io.in(2).Re.poke(convert_string_to_IEEE_754("5.0", 32).U)
-      c.io.in(2).Im.poke(convert_string_to_IEEE_754("6.0", 32).U)
-      c.io.in(3).Re.poke(convert_string_to_IEEE_754("7.0", 32).U)
-      c.io.in(3).Im.poke(convert_string_to_IEEE_754("8.0", 32).U)
-      c.io.in(4).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
-      c.io.in(4).Im.poke(convert_string_to_IEEE_754("10.0", 32).U)
-      c.io.in(5).Re.poke(convert_string_to_IEEE_754("11.0", 32).U)
-      c.io.in(5).Im.poke(convert_string_to_IEEE_754("12.0", 32).U)
-      c.io.in(6).Re.poke(convert_string_to_IEEE_754("13.0", 32).U)
-      c.io.in(6).Im.poke(convert_string_to_IEEE_754("14.0", 32).U)
-      c.io.in(7).Re.poke(convert_string_to_IEEE_754("15.0", 32).U)
-      c.io.in(7).Im.poke(convert_string_to_IEEE_754("16.0", 32).U)
-        c.io.in(8).Re.poke(convert_string_to_IEEE_754("17.0", 32).U)
-        c.io.in(8).Im.poke(convert_string_to_IEEE_754("18.0", 32).U)
-      var g = false
-      for(i <- 0 until 20) {
-        c.clock.step(1)
-        println(s"valid output ; ${c.io.out_validate.peek().litValue}")
-        println(s"Clock cycle ${i+1}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
-        println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
-        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
-      }
-    }
+//      test(new FFT_sr_v2(8,2,8,32)){c=>
+//      val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+//      var mult_count = 0
+//      for(i <- 0 until r-1){
+//        for(j <- 0 until r-1){
+//          val n  = DFTr_Constants(i+1)(j+1)
+//          val c1 = FFT.isReducable(n.re.abs)
+//          val c2 = FFT.isReducable(n.im.abs)
+//          if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+//            mult_count += 1
+//          }
+//        }
+//      }
+//      val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+//      var T_L = 0
+//      val CMultLatency = 2
+//      val CAddLatency = 1
+//      for(i <- 0 until TotalStages) {
+//        val twid = Permutations.T2(N, r)(i)
+//        var mult_count2 = 0
+//        for (i <- 0 until w){
+//          val n = twid(i)
+//          val c1 = FFT.isReducable(n.re.abs)
+//          val c2 = FFT.isReducable(n.im.abs)
+//          if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+//            mult_count2 += 1
+//          }
+//        }
+//        var T_latency = CMultLatency
+//        if (mult_count2 == 0) {
+//          T_latency = 0
+//        }
+//        println(mult_count2 + "yay")
+//        T_L += T_latency
+//      }
+//      val DFTs_per_stage = N/r
+//      val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+//      var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).round.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).round.toInt)yield{(r/Math.pow(2,l)).round.toInt % 2}).reduce(_+_)) * (CAddLatency)
+//      if(mult_count == 0){
+//        DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
+//      }
+//      val Twid_latency = (N/w) * CMultLatency
+//      val Perm_latency = 0
+//      val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
+//      println(Total_Latency)
+//      c.io.in_ready.poke(true.B)
+//      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
+//      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
+//      c.io.in(1).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(2).Re.poke(convert_string_to_IEEE_754("3.0", 32).U)
+//      c.io.in(2).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(3).Re.poke(convert_string_to_IEEE_754("4.0", 32).U)
+//      c.io.in(3).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(4).Re.poke(convert_string_to_IEEE_754("5.0", 32).U)
+//      c.io.in(4).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(5).Re.poke(convert_string_to_IEEE_754("6.0", 32).U)
+//      c.io.in(5).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(6).Re.poke(convert_string_to_IEEE_754("7.0", 32).U)
+//      c.io.in(6).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      c.io.in(7).Re.poke(convert_string_to_IEEE_754("8.0", 32).U)
+//      c.io.in(7).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+////        c.io.in(8).Re.poke(convert_string_to_IEEE_754("9.0", 32).U)
+////        c.io.in(8).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//      var g = false
+//      for(i <- 0 until 20) {
+//        c.clock.step(1)
+//        println(s"valid output ; ${c.io.out_validate.peek().litValue}")
+//        println(s"Clock cycle ${i+1}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(0).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(0).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(1).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(2).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(2).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(3).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(3).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(4).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(4).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(5).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(5).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(6).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(6).Im.peek().litValue, 32)}")
+//        println(s"Real Output: ${convert_long_to_float(c.io.out(7).Re.peek().litValue, 32)}")
+//        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(7).Im.peek().litValue, 32)}")
+////        println(s"Real Output: ${convert_long_to_float(c.io.out(8).Re.peek().litValue, 32)}")
+////        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(8).Im.peek().litValue, 32)}")
+//      }
+//    }
 
   }
 }
