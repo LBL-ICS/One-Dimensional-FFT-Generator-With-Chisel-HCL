@@ -6,6 +6,7 @@ import implementation._
 import IEEEConversions.FPConvert._
 import Chisel.{MuxLookup, log2Ceil, resetToBool}
 import ComplexModules.FPComplex
+import implementation.ComplexNumbers.cmplx
 
 import scala.collection.mutable
 
@@ -2167,6 +2168,117 @@ object FFTDesigns {
       Twid_ROM.in_addr := cnt
     }
   }
+  class TwiddleFactorsStreamedIterative(N: Int, r:Int, w: Int, bw: Int) extends Module {
+    val io = IO(new Bundle() {
+      val in = Input(Vec(w, new ComplexNum(bw)))
+      //val in_en = Input(Bool())
+      val in_twid_data = Input(Vec(w, new ComplexNum(bw)))
+      val in_en = Input(Vec(2, Bool()))
+      val out = Output(Vec(w, new ComplexNum(bw)))
+      val out_cnt = Output(UInt(log2Ceil(N/w).W))
+    })
+    val list_of_twids = Permutations.T2(N,r)
+    val initial_twid = for(i <- 0 until N) yield{
+      cmplx(1,0)
+    }
+    val adjusted_rom_array = for(i <- 0 until (Math.log10(N)/Math.log10(r)).round.toInt) yield{
+      if(i == 0){
+        initial_twid.toArray
+      }else{
+        list_of_twids(i-1)
+      }
+    }
+    var mults = 0
+    for(j <- 0 until (Math.log10(N)/Math.log10(r)).round.toInt) {
+      for (i <- 0 until N) {
+        if (adjusted_rom_array(j)(i).re.abs > 0.00000001 && adjusted_rom_array(j)(i).im.abs > 0.00000001) {
+          mults += 1
+        }
+      }
+    }
+    if(mults > 0) {
+      val is_enabled = RegInit(false.B)
+      val cnt = RegInit(0.U(log2Ceil(N/w).W))
+      val multipliers = for (i <- 0 until w) yield {
+        val instance = Module(new FPComplexMult(bw)).io
+        instance
+      }
+      when(io.in_en.asUInt.orR){
+        when(cnt === ((N/w)-1).U){
+          cnt := 0.U
+        }.otherwise{
+          cnt := cnt + 1.U
+        }
+        for(i <- 0 until w){
+          multipliers(i).in_a := io.in(i)
+          multipliers(i).in_b := io.in_twid_data(i)
+        }
+      }.otherwise{
+        for(i <- 0 until w){
+          multipliers(i).in_a := 0.U.asTypeOf(new ComplexNum(bw))
+          multipliers(i).in_b := 0.U.asTypeOf(new ComplexNum(bw))
+        }
+        cnt := 0.U
+      }
+      for(i <- 0 until w){
+        io.out(i) := multipliers(i).out_s
+      }
+      io.out_cnt := cnt
+    }else{
+      val is_enabled = RegInit(false.B)
+      val cnt = RegInit(0.U(log2Ceil(N/w).W))
+      val multipliers = for (i <- 0 until w) yield {
+        val instance = Module(new cmplx_adj(bw)).io
+        instance
+      }
+      when(io.in_en.asUInt.orR){
+        when(cnt === ((N/w)-1).U){
+          cnt := 0.U
+        }.otherwise{
+          cnt := cnt + 1.U
+        }
+        for(i <- 0 until w){
+          multipliers(i).in := io.in(i)
+          multipliers(i).in_adj := 0.U
+          when(io.in_twid_data(i).Re(bw-2,0) === convert_string_to_IEEE_754("1.0", bw).U){
+            multipliers(i).is_flip := false.B
+            when(io.in_twid_data(i).Re(bw-1) === 1.U){
+              multipliers(i).is_neg := true.B
+            }.otherwise{
+              multipliers(i).is_neg := false.B
+            }
+          }.otherwise{
+            multipliers(i).is_flip := true.B
+            when(io.in_twid_data(i).Im(bw-1) === 1.U){
+              multipliers(i).is_neg := true.B
+            }.otherwise{
+              multipliers(i).is_neg := false.B
+            }
+          }
+        }
+      }.otherwise{
+        cnt := 0.U
+        for(i <- 0 until w){
+          multipliers(i).in := 0.U.asTypeOf(new ComplexNum(bw))
+          multipliers(i).in_adj := 0.U
+          multipliers(i).is_flip := false.B
+          multipliers(i).is_neg := false.B
+        }
+      }
+      io.out_cnt := cnt
+      val result_regs = RegInit(VecInit.fill(2)(VecInit.fill(w)(0.U.asTypeOf(new ComplexNum(bw)))))
+      for(j <- 0 until 2) {
+        if(j == 0) {
+          for (i <- 0 until w) {
+            result_regs(0)(i) := multipliers(i).out
+          }
+        }else{
+          result_regs(j) := result_regs(j-1)
+        }
+      }
+      io.out := result_regs(1)
+    }
+  }
 
   class TwiddleFactors(N: Int, r:Int, w: Int, stage:Int, bw: Int) extends Module {
     val io = IO(new Bundle() {
@@ -2282,6 +2394,82 @@ object FFTDesigns {
     M0_config.in_cnt := cnt
     M1_config.in_cnt := cnt
     Perm_Config.in_cnt := cnt
+    io.out_t := cnt
+  }
+
+  class PermutationsWithStreaming2(N:Int, r: Int, base_r: Int, w:Int, bw: Int) extends Module{
+    val io = IO(new Bundle() {
+      val in = Input(Vec(w, new ComplexNum(bw)))
+      val in_en = Input(Vec((N/w)*2 + 1, Bool()))
+      val in_perm = Input(Vec(w, UInt(log2Ceil(N).W)))
+      val in_M0_config = Input(Vec(w, UInt(log2Ceil(N).W)))
+      val in_M1_config = Input(Vec(w, UInt(log2Ceil(N).W)))
+      val out = Output(Vec(w, new ComplexNum(bw)))
+      val out_cnt = Output(UInt(log2Ceil(N/w).W))
+      val out_t = Output(UInt(log2Ceil(N/w).W))
+    })
+    val is_enabled = Reg(Bool())
+    val offset = (N/w).U
+    val offset_switch = Reg(UInt(1.W))
+    val M0 = (for(i <- 0 until w) yield{
+      val M0_t = Module(new RAM_Block(N,w,bw)).io
+      M0_t
+    }).toVector
+    val M1 = (for(i <- 0 until w) yield{
+      val M1_t = Module(new RAM_Block(N,w,bw)).io
+      M1_t
+    }).toVector
+    val Perm_Mod = Module(new PermutationModuleStreamed(w, bw)).io
+    val cnt = RegInit(0.U(log2Ceil(N/w).W))
+    when(io.in_en.asUInt.orR){
+      when(cnt === ((N/w)-1).U){
+        cnt := 0.U
+        offset_switch := ~offset_switch
+      }.otherwise{
+        cnt := cnt + 1.U
+        offset_switch := offset_switch
+      }
+      for(i <- 0 until w){
+        M0(i).en := true.B
+        M0(i).re := true.B
+        M0(i).wr := true.B
+        M1(i).en := true.B
+        M1(i).re := true.B
+        M1(i).wr := true.B
+        M0(i).in_raddr := io.in_M0_config(i) + (offset * ~offset_switch)
+        M0(i).in_waddr := cnt + (offset * offset_switch)
+        M0(i).in_data := io.in(i)
+        M1(i).in_raddr := cnt + (offset * ~offset_switch)
+        M1(i).in_waddr := io.in_M1_config(i) + (offset * offset_switch)
+        M1(i).in_data := Perm_Mod.out(i)
+        Perm_Mod.in_config(i) := io.in_perm(i)
+        Perm_Mod.in(i) := M0(i).out_data
+        Perm_Mod.in_en := true.B
+        io.out(i) := M1(i).out_data
+      }
+    }.otherwise{
+      for(i <- 0 until w){
+        M0(i).en := false.B
+        M0(i).re := false.B
+        M0(i).wr := false.B
+        M1(i).en := false.B
+        M1(i).re := false.B
+        M1(i).wr := false.B
+        M0(i).in_raddr := 0.U
+        M0(i).in_waddr := 0.U
+        M0(i).in_data := io.in(i)
+        M1(i).in_raddr := 0.U
+        M1(i).in_waddr := 0.U
+        M1(i).in_data := Perm_Mod.out(i)
+        Perm_Mod.in_config(i) := io.in_perm(i)
+        Perm_Mod.in(i) := M0(i).out_data
+        Perm_Mod.in_en := false.B
+        io.out(i) := M1(i).out_data
+      }
+      offset_switch := 0.U
+      cnt := 0.U
+    }
+    io.out_cnt := cnt
     io.out_t := cnt
   }
 
@@ -2899,7 +3087,10 @@ object FFTDesigns {
     val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
     val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
     val end_latency = 1
-    val DFT_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency
+    var DFT_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency
+    if(r == 2){
+      DFT_latency = 1
+    }
     println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = N/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
@@ -3071,13 +3262,178 @@ object FFTDesigns {
     }
   }
 
+  def getFFTLatency(N:Int, r: Int, w: Int, bw: Int): Int ={
+    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+    var mult_count = 0
+    for(i <- 0 until r-1){
+      for(j <- 0 until r-1){
+        val n  = DFTr_Constants(i+1)(j+1)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+          mult_count += 1
+        }
+      }
+    }
+    val inner_square_size = r-1
+    var last_ind = r-1
+    var start_ind = 1
+    val inner_inner_square_size = inner_square_size/2
+    val ind_sq = for(i <- 0 until inner_inner_square_size)yield{
+      val row = for(j <- 0 until inner_inner_square_size)yield{
+        if(((i+1)*(j+1) % r) > r/2){((i+1)*(j+1) % r) - r}else{((i+1)*(j+1) % r)}
+      }
+      row
+    }
+    ind_sq.map(x=>println(x))
+    val ind_sq_unique = mutable.ArrayBuffer[Int]()
+    val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
+    val cases = mutable.ArrayBuffer[(Int,Int)]()
+    val cases_addr = mutable.ArrayBuffer[(Int,Int)]()
+    for(i <- 0 until inner_inner_square_size){
+      for(j <- 0 until inner_inner_square_size){
+        if(!ind_sq_unique.contains(ind_sq(i)(j).abs)){
+          ind_sq_unique += ind_sq(i)(j)
+          val temp = (i,j)
+          ind_sq_unique_address += temp
+        }
+        if(!cases.contains((ind_sq(i)(j).abs, j))){
+          val temp = (ind_sq(i)(j).abs, j)
+          cases += temp
+          val temp2 = (i,j)
+          cases_addr += temp2
+        }
+      }
+    }
+    println(ind_sq_unique.zipWithIndex.toList)
+    println(ind_sq_unique_address.toList)
+    println(cases.toList)
+    println(cases_addr.toList)
+    def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
+      var returnval = (0,0)
+      for(i <- 0 until arr.length){
+        if(num == arr(i)._1){
+          returnval = ind_sq_unique_address(i)
+        }
+      }
+      returnval
+    }
+    val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
+    println(cases_addr_adjusted.toList)
+
+    def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
+      var returnval = 0
+      for(i <- 0 until arr.length){
+        if(num == arr(i)){
+          returnval = i
+        }
+      }
+      returnval
+    }
+    val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
+    new_adj_case_sq.map(x=>println(x.toList))
+    var mult_layer_count1 = 0
+    var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length) yield {
+      if (!FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re)._1 || !FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im)._1) {
+        mult_layer_count1 += 1
+      } else {
+        cases_no_mult += cases_addr_adjusted(i)
+      }
+    }
+    var subadd_layer_count1 = 0
+    var cases_no_add = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length)yield {
+      if (!(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re.abs < 0.00005) && !(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im.abs < 0.00005)) {
+        subadd_layer_count1 += 1
+      } else {
+        cases_no_add += cases_addr_adjusted(i)
+      }
+    }
+    val CMultLatency = 2
+    val CAddLatency = 1
+    val initial_Latency = 1
+    val multlayerlatency = if(mult_layer_count1>0){1}else{0}
+    val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
+    val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
+    val end_latency = 1
+    var DFT_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency
+    if(r == 2){
+      DFT_latency = 1
+    }
+    println(s"the dft latency: ${DFT_latency}")
+    val DFTs_per_stage = N/r
+    val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+    val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+    var T_L = 0
+    for(i <- 0 until TotalStages) {
+      val twid = Permutations.T2(N, r)(i)
+      var mult_count2 = 0
+      for (i <- 0 until w){
+        val n = twid(i)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+          mult_count2 += 1
+        }
+      }
+      var T_latency = CMultLatency
+      if (mult_count2 == 0) {
+        T_latency = 0
+      }
+      T_L += T_latency
+    }
+    val Twid_latency = (N/w) * CMultLatency
+    val Perm_latency = 0
+    val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
+    Total_Latency
+  }
+
   class FFT_mr_basic(N: Int, nr: Int, ns: Int, r: Int, s: Int, w: Int, bw: Int) extends Module{ // mixed radix fft, no ready and validate input/output
     val io = IO(new Bundle() {
       val in = Input(Vec(N, new ComplexNum(bw)))
-//      val in_ready = Input(Bool())
-//      val out_validate = Output(Bool())
+      val in_ready = Input(Bool())
+      val out_validate = Output(Bool())
       val out = Output(Vec(N, new ComplexNum(bw)))
     })
+    val FFT_latency1 = getFFTLatency(ns,s,ns,bw)
+    val FFT_latency2 = getFFTLatency(nr,r,nr,bw)
+    val DFTr_Constants = Permutations.T2_rs(N,ns,nr)
+    var mult_count = 0
+    val mult_ind = mutable.ArrayBuffer[Int]()
+    val mult_needs = for(i <- 0 until w) yield{
+      val n  = DFTr_Constants(i)
+      val c1 = FFT.isReducable(n.re.abs)
+      val c2 = FFT.isReducable(n.im.abs)
+      if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))){
+        mult_count += 1
+        mult_ind += (i)
+        (i, 0, false, false, true)
+      }else{
+        mult_ind += (i)
+        if((c1._1 && n.im.abs < 0.005)){
+          (i, c1._2.abs, n.re < -0.0005, false, false)
+        }else{
+          (i, c2._2.abs, n.im < -0.0005, true, false)
+        }
+      }
+    }
+    val CMultLatency = 2
+    var T_latency = CMultLatency
+    if(mult_count == 0){
+      T_latency = 0
+    }
+    val total_latency = FFT_latency1 + FFT_latency2 + T_latency
+    val regdelays = RegInit(VecInit.fill(total_latency)(false.B))
+    for(i <- 0 until total_latency){
+      if(i == 0){
+        regdelays(0) := io.in_ready
+      }else{
+        regdelays(i) := regdelays(i-1)
+      }
+    }
+    val out_regdelay = RegInit(false.B)
+
     val FFT_s_modules = for(i <- 0 until nr) yield {
       val instance = Module(new FFT_sr_v2_nrv(ns,s,ns,bw)).io
       instance
@@ -3096,9 +3452,26 @@ object FFTDesigns {
       }
     }
     val twid_factor = Module(new TwiddleFactors_mr(N,nr,ns,w,bw)).io
-    permutation_modules(0).in := io.in
+    when(io.in_ready){
+      permutation_modules(0).in := io.in
+    }.otherwise{
+      for(i <- 0  until w){
+        permutation_modules(0).in(i) := 0.U.asTypeOf(new ComplexNum(bw))
+      }
+    }
     twid_factor.in := permutation_modules(1).out
-    io.out := permutation_modules(2).out
+    val out_results = RegInit(VecInit.fill(w)(0.U.asTypeOf(new ComplexNum(bw))))
+    when(regdelays(total_latency-1)){
+      out_results := permutation_modules(2).out
+      out_regdelay := regdelays(total_latency-1)
+    }.otherwise{
+      for(i <- 0 until w){
+        out_results(i) := 0.U.asTypeOf(new ComplexNum(bw))
+      }
+      out_regdelay := false.B
+    }
+    io.out_validate := out_regdelay
+    io.out := out_results
     for(i <- 0 until nr){
       for(j <- 0 until ns){
         FFT_s_modules(i).in(j) := permutation_modules(0).out(i*ns + j)
@@ -3389,6 +3762,820 @@ object FFTDesigns {
     io.out_validate := out_regdelay
     io.out := results
     io.out_test := Perm_modules(0).out
+  }
+
+  class FFT_sr_v2_streaming_and_iterative(N:Int, r: Int, d:Int, w: Int, bw: Int) extends Module{//in progress
+    val io = IO(new Bundle() {
+      val in = Input(Vec(w, new ComplexNum(bw)))
+      val in_ready = Input(Bool())
+      val out_validate = Output(Bool())
+      val out = Output(Vec(w, new ComplexNum(bw)))
+      val out_test = Output(Vec(w, new ComplexNum(bw)))
+      val out_cnt = Output(UInt(bw.W))
+    })
+    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+    var mult_count = 0
+    for(i <- 0 until r-1){
+      for(j <- 0 until r-1){
+        val n  = DFTr_Constants(i+1)(j+1)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+          mult_count += 1
+        }
+      }
+    }
+    val inner_square_size = r-1
+    var last_ind = r-1
+    var start_ind = 1
+    val inner_inner_square_size = inner_square_size/2
+    val ind_sq = for(i <- 0 until inner_inner_square_size)yield{
+      val row = for(j <- 0 until inner_inner_square_size)yield{
+        if(((i+1)*(j+1) % r) > r/2){((i+1)*(j+1) % r) - r}else{((i+1)*(j+1) % r)}
+      }
+      row
+    }
+    ind_sq.map(x=>println(x))
+    val ind_sq_unique = mutable.ArrayBuffer[Int]()
+    val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
+    val cases = mutable.ArrayBuffer[(Int,Int)]()
+    val cases_addr = mutable.ArrayBuffer[(Int,Int)]()
+    for(i <- 0 until inner_inner_square_size){
+      for(j <- 0 until inner_inner_square_size){
+        if(!ind_sq_unique.contains(ind_sq(i)(j).abs)){
+          ind_sq_unique += ind_sq(i)(j)
+          val temp = (i,j)
+          ind_sq_unique_address += temp
+        }
+        if(!cases.contains((ind_sq(i)(j).abs, j))){
+          val temp = (ind_sq(i)(j).abs, j)
+          cases += temp
+          val temp2 = (i,j)
+          cases_addr += temp2
+        }
+      }
+    }
+    println(ind_sq_unique.zipWithIndex.toList)
+    println(ind_sq_unique_address.toList)
+    println(cases.toList)
+    println(cases_addr.toList)
+    def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
+      var returnval = (0,0)
+      for(i <- 0 until arr.length){
+        if(num == arr(i)._1){
+          returnval = ind_sq_unique_address(i)
+        }
+      }
+      returnval
+    }
+    val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
+    println(cases_addr_adjusted.toList)
+
+    def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
+      var returnval = 0
+      for(i <- 0 until arr.length){
+        if(num == arr(i)){
+          returnval = i
+        }
+      }
+      returnval
+    }
+    val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
+    new_adj_case_sq.map(x=>println(x.toList))
+    var mult_layer_count1 = 0
+    var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length) yield {
+      if (!FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re)._1 || !FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im)._1) {
+        mult_layer_count1 += 1
+      } else {
+        cases_no_mult += cases_addr_adjusted(i)
+      }
+    }
+    var subadd_layer_count1 = 0
+    var cases_no_add = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length)yield {
+      if (!(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re.abs < 0.00005) && !(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im.abs < 0.00005)) {
+        subadd_layer_count1 += 1
+      } else {
+        cases_no_add += cases_addr_adjusted(i)
+      }
+    }
+    val CMultLatency = 2
+    val CAddLatency = 1
+    val initial_Latency = 1
+    val multlayerlatency = if(mult_layer_count1>0){1}else{0}
+    val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
+    val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
+    val end_latency = 1
+    var DFT_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency
+    if(r == 2){
+      DFT_latency = 1
+    }
+    println(s"the dft latency: ${DFT_latency}")
+    val DFTs_per_stage = w/r
+    val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+    val number_of_stages_depth = d // ideally has to be a divisor of the number of stages
+    val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+    var T_L = CMultLatency
+    val Twid_latency = (TotalStages+1) * T_L
+    val Perm_latency = (N/w)*2
+    val Total_Latency = (d)*T_L + (d) * DFT_latency + (d + 1) * Perm_latency + 1 // time for first output val, then wait (N/w) - 1 cycles
+    val Latency_exclude_first = (d)*T_L + (d) * DFT_latency + (d) * Perm_latency + 1
+    var overrall_latency = 0
+    val increment_points = mutable.ArrayBuffer[Int]() // iteration cnt  - 1
+    for(i <- 0 until (number_of_stages/number_of_stages_depth)){ // the total number of iterations
+      if(i == 0){
+        increment_points += Total_Latency-1 // must be incremented by this point remember the count starts from zero
+        overrall_latency += Total_Latency-1 // some cycles to take into account the propagation
+      }else{
+        increment_points += overrall_latency + Latency_exclude_first - 1
+        overrall_latency += Latency_exclude_first - 1
+      }
+    }
+    println("increment point check")
+    increment_points.map(x=>println(x))
+    overrall_latency += 1 + (N/w) -1
+    println(s"The Overall Latency of Computation: ${overrall_latency}")
+
+    println(s"The total latency is: ${Total_Latency}")
+    println(s"${(T_L, DFT_latency, Perm_latency)}")
+    val DFT_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(DFT_latency)(false.B))) // DFT latancy
+    val Twid_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(T_L)(false.B)))
+    val Initial_Perm_regdelay = RegInit(VecInit.fill(Perm_latency)(false.B))
+    val Perm_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(Perm_latency)(false.B)))
+    val out_regdelay = RegInit(false.B)
+    val DFT_modules = for(i <- 0 until number_of_stages_depth)yield{
+      val row = for(j <- 0 until w/r)yield{
+        val instance = Module(new DFT_r_v2(r,bw)).io
+        instance
+      }
+      row
+    }
+    val initial_perm_module = Module(new PermutationsWithStreaming(N,r,r,w,1,bw)).io
+    val Perm_modules = for(i <- 0 until number_of_stages_depth)yield{
+      val instance = Module(new PermutationsWithStreaming(N,r,r,w,0,bw)).io //stride permute
+      instance
+    }
+    val Twid_Modules = for(i <- 0 until number_of_stages_depth) yield{
+      val instance = Module(new TwiddleFactorsStreamedIterative(N,r,w,bw)).io
+      instance
+    }
+    //----------------------------------------------------------------------------------------------------------------
+    val list_of_twids = Permutations.T2(N,r)
+    val initial_twid = for(i <- 0 until N) yield{
+      cmplx(1,0)
+    }
+    val adjusted_rom_array = for(i <- 0 until (Math.log10(N)/Math.log10(r)).round.toInt) yield{
+      if(i == 0){
+        initial_twid.toArray
+      }else{
+        list_of_twids(i-1)
+      }
+    }
+    val twid_sets = for(i <- 0 until number_of_stages) yield {
+      val Twid_Constants = adjusted_rom_array(i)
+      val Twid_map_2D = for (i <- 0 until N / w) yield {
+        val tm = for (j <- 0 until w) yield {
+          Twid_Constants(i * w + j)
+        }
+        tm
+      }
+      Twid_map_2D
+    }
+    twid_sets.map(x=>x.map(y=>y.map(z=>z.print_complex)))
+    val Twid_sets_vec_Re = VecInit(for(i <- 0 until number_of_stages) yield{
+      val temp = for(j <- 0 until N/w) yield{
+        val sub_temp = VecInit(twid_sets(i)(j).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U(bw.W)))
+        sub_temp
+      }
+      val temp_vec = VecInit(temp)
+      temp_vec
+    })
+    val Twid_sets_vec_Im = VecInit(for(i <- 0 until number_of_stages) yield{
+      val temp = for(j <- 0 until N/w) yield{
+        val sub_temp = VecInit(twid_sets(i)(j).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U(bw.W)))
+        sub_temp
+      }
+      val temp_vec = VecInit(temp)
+      temp_vec
+    })
+    // these are 3D vectors, 1st dim is for selecting the stage, 2nd dim is for selecting the slice, 3rd dim is for selecting the data
+//    val Twid_sets_vec_Re1 = for(i <- 0 until number_of_stages) yield{
+//      val temp = for(j <- 0 until N/w) yield{
+//        val sub_temp = twid_sets(i)(j).map(x=>x.re)
+//        sub_temp
+//      }
+//      val temp_vec = temp
+//      temp_vec
+//    }
+//    val Twid_sets_vec_Im1 = for(i <- 0 until number_of_stages) yield{
+//      val temp = for(j <- 0 until N/w) yield{
+//        val sub_temp = twid_sets(i)(j).map(x=>x.im)
+//        sub_temp
+//      }
+//      val temp_vec = temp
+//      temp_vec
+//    }
+//    println("Herewego")
+//    Twid_sets_vec_Re1.map(_.map(_.toList).toList).toList.map(_.map(x=>println(x)))
+//
+//    println("Herewego")
+//    Twid_sets_vec_Im1.map(_.map(_.toList).toList).toList.map(_.map(x=>println(x)))
+    val Perm_sets = VecInit(for(k <- 0 until 2) yield {
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 0)
+      val M1_access = (for (i <- 0 until N / w) yield {
+        val M1_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._2._2
+        }).toArray
+        M1_slice
+      }).toArray
+      M1_access.map(x => println(x.toList))
+      val M1_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M1_access(i).map(_.U((log2Ceil(w).W))))
+        V
+      }
+      val vvf = VecInit(M1_vec)
+      vvf
+    })
+    //----------------------------------------------------------------------------------------------------------------
+    val M0_config_sets = VecInit(for(k <- 0 until 2) yield{
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 0)
+      val M0_access = (for (i <- 0 until N / w) yield {
+        val M0_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._1._1
+        }).toArray
+        M0_slice
+      }).toArray
+      M0_access.map(x => println(x.toList))
+      val M0_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M0_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
+        V
+      }
+      val vvf = VecInit(M0_vec)
+      vvf
+    })
+    val M1_config_sets = VecInit(for(k <- 0 until 2) yield {
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 1)
+      val M1_access = (for (i <- 0 until N / w) yield {
+        val M1_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._2._1
+        }).toArray
+        M1_slice
+      }).toArray
+      M1_access.map(x => println(x.toList))
+      val M1_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M1_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
+        V
+      }
+      val vvf = VecInit(M1_vec)
+      vvf
+    })
+//    val Twid_ROMS = for(i <- 0 until number_of_stages) yield{
+//      val instance = Module(new TwiddleFactorROMIterative(N,r,w,i,bw)).io
+//      instance
+//    }
+    for(i <- 0 until Perm_latency){
+      if(i == 0){
+        Initial_Perm_regdelay(0) := io.in_ready
+        initial_perm_module.in_en(0) := io.in_ready
+        initial_perm_module.in := io.in
+      }else{
+        Initial_Perm_regdelay(i) := Initial_Perm_regdelay(i-1)
+        initial_perm_module.in_en(i) := Initial_Perm_regdelay(i-1)
+        if(i == Perm_latency - 1){
+          initial_perm_module.in_en((N/w)*2) := Initial_Perm_regdelay(Perm_latency-1)
+        }
+      }
+    }
+    val iteration_cnt = RegInit(0.U(log2Ceil(number_of_stages/number_of_stages_depth).W))
+    val offset = RegInit(0.U(log2Ceil(d*number_of_stages/number_of_stages_depth).W))
+    when(iteration_cnt =/= 0.U){
+      Twid_regdelays(0)(0) := Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1)
+      Twid_Modules(0).in_en(0) := Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1)
+      Twid_Modules(0).in := Perm_modules(number_of_stages_depth-1).out
+    }.otherwise{
+      Twid_regdelays(0)(0) := Initial_Perm_regdelay(Perm_latency - 1)
+      Twid_Modules(0).in_en(0) := Initial_Perm_regdelay(Perm_latency - 1)
+      Twid_Modules(0).in := initial_perm_module.out
+    }
+    val progress_cnt = RegInit(0.U(log2Ceil(overrall_latency).W))
+    when(progress_cnt === (overrall_latency-1).U){
+      progress_cnt := 0.U
+    }.otherwise{
+      progress_cnt := progress_cnt + 1.U
+    }
+    for(i <- 0 until increment_points.length){
+      if(i == increment_points.length -1){
+        when(progress_cnt === (increment_points(i)-1).U){
+          iteration_cnt := 0.U
+          offset := 0.U
+        }
+      }else {
+        when(progress_cnt === (increment_points(i)-1).U) {
+          iteration_cnt := iteration_cnt + 1.U
+          offset := offset + d.U
+        }
+      }
+    }
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until w){
+        Twid_Modules(i).in_twid_data(j).Re := Twid_sets_vec_Re(i.U + offset)(Twid_Modules(i).out_cnt)(j)
+        Twid_Modules(i).in_twid_data(j).Im := Twid_sets_vec_Im(i.U + offset)(Twid_Modules(i).out_cnt)(j)
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until T_L){
+        if(j == 0){
+          if(i != 0){
+            Twid_regdelays(i)(0) := Perm_regdelays(i-1)(Perm_latency-1)
+            Twid_Modules(i).in_en(0) := Perm_regdelays(i-1)(Perm_latency-1)
+            Twid_Modules(i).in := Perm_modules(i-1).out
+          }
+        }else{
+          Twid_regdelays(i)(j) := Twid_regdelays(i)(j-1)
+          Twid_Modules(i).in_en(j) := Twid_regdelays(i)(j-1)
+        }
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until DFT_latency){
+        if(j == 0){
+          if(i == 0){
+            DFT_regdelays(0)(0) := Twid_regdelays(0)(T_L-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                DFT_modules(0)(k).in(l) := Twid_Modules(0).out(k*r + l)
+              }
+            }
+          }else{
+            DFT_regdelays(i)(0) := Twid_regdelays(i)(T_L-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                DFT_modules(i)(k).in(l) := Twid_Modules(i).out(k*r + l)
+              }
+            }
+          }
+        }else{
+          DFT_regdelays(i)(j) := DFT_regdelays(i)(j-1)
+        }
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until Perm_latency){
+        if(j == 0){
+          if(i == 0){
+            Perm_regdelays(0)(0) := DFT_regdelays(0)(DFT_latency-1)
+            Perm_modules(0).in_en(0) := DFT_regdelays(0)(DFT_latency-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                Perm_modules(0).in(k*r + l) := DFT_modules(0)(k).out(l)
+              }
+            }
+          }else{
+            Perm_regdelays(i)(0) := DFT_regdelays(i)(DFT_latency-1)
+            Perm_modules(i).in_en(0) := DFT_regdelays(i)(DFT_latency-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                Perm_modules(i).in(k*r + l) := DFT_modules(i)(k).out(l)
+              }
+            }
+          }
+        }else{
+          Perm_regdelays(i)(j) := Perm_regdelays(i)(j-1)
+          Perm_modules(i).in_en(j) := Perm_regdelays(i)(j-1)
+          if(j == Perm_latency-1){
+            Perm_modules(i).in_en((N/w)*2) := Perm_regdelays(i)(Perm_latency-1)
+          }
+        }
+      }
+    }
+
+    val results = RegInit(VecInit.fill(w)(0.U.asTypeOf(new ComplexNum(bw))))
+    when(progress_cnt >= increment_points(increment_points.length-1).U){
+      when(Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1)){
+        out_regdelay := Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1)
+        results := Perm_modules(number_of_stages_depth-1).out
+      }.otherwise{
+        out_regdelay := Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1) // false
+        for(i <- 0 until w){
+          results(i) := 0.U.asTypeOf(new ComplexNum(bw))
+        }
+      }
+    }.otherwise{
+      out_regdelay := Perm_regdelays(number_of_stages_depth-1)(Perm_latency-1) // false
+      for(i <- 0 until w){
+        results(i) := 0.U.asTypeOf(new ComplexNum(bw))
+      }
+    }
+    io.out_validate := out_regdelay
+    io.out := results
+//    for(i <- 0 until w/r){
+//      for(j <- 0 until r){
+//        io.out_test(i*r + j) := DFT_modules(0)(i).out(j)
+//      }
+//    }
+    io.out_test := Perm_modules(0).out
+    io.out_cnt := progress_cnt
+  }
+
+  class FFT_sr_v2_streaming_and_iterative2(N:Int, r: Int, d:Int, w: Int, bw: Int) extends Module{//in progress
+    val io = IO(new Bundle() {
+      val in = Input(Vec(w, new ComplexNum(bw)))
+      val in_ready = Input(Bool())
+      val out_validate = Output(Bool())
+      val out = Output(Vec(w, new ComplexNum(bw)))
+      val out_test = Output(Vec(w, new ComplexNum(bw)))
+      val out_cnt = Output(UInt(bw.W))
+    })
+    val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
+    var mult_count = 0
+    for(i <- 0 until r-1){
+      for(j <- 0 until r-1){
+        val n  = DFTr_Constants(i+1)(j+1)
+        val c1 = FFT.isReducable(n.re.abs)
+        val c2 = FFT.isReducable(n.im.abs)
+        if(!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
+          mult_count += 1
+        }
+      }
+    }
+    val inner_square_size = r-1
+    var last_ind = r-1
+    var start_ind = 1
+    val inner_inner_square_size = inner_square_size/2
+    val ind_sq = for(i <- 0 until inner_inner_square_size)yield{
+      val row = for(j <- 0 until inner_inner_square_size)yield{
+        if(((i+1)*(j+1) % r) > r/2){((i+1)*(j+1) % r) - r}else{((i+1)*(j+1) % r)}
+      }
+      row
+    }
+    ind_sq.map(x=>println(x))
+    val ind_sq_unique = mutable.ArrayBuffer[Int]()
+    val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
+    val cases = mutable.ArrayBuffer[(Int,Int)]()
+    val cases_addr = mutable.ArrayBuffer[(Int,Int)]()
+    for(i <- 0 until inner_inner_square_size){
+      for(j <- 0 until inner_inner_square_size){
+        if(!ind_sq_unique.contains(ind_sq(i)(j).abs)){
+          ind_sq_unique += ind_sq(i)(j)
+          val temp = (i,j)
+          ind_sq_unique_address += temp
+        }
+        if(!cases.contains((ind_sq(i)(j).abs, j))){
+          val temp = (ind_sq(i)(j).abs, j)
+          cases += temp
+          val temp2 = (i,j)
+          cases_addr += temp2
+        }
+      }
+    }
+    println(ind_sq_unique.zipWithIndex.toList)
+    println(ind_sq_unique_address.toList)
+    println(cases.toList)
+    println(cases_addr.toList)
+    def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
+      var returnval = (0,0)
+      for(i <- 0 until arr.length){
+        if(num == arr(i)._1){
+          returnval = ind_sq_unique_address(i)
+        }
+      }
+      returnval
+    }
+    val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
+    println(cases_addr_adjusted.toList)
+
+    def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
+      var returnval = 0
+      for(i <- 0 until arr.length){
+        if(num == arr(i)){
+          returnval = i
+        }
+      }
+      returnval
+    }
+    val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
+    new_adj_case_sq.map(x=>println(x.toList))
+    var mult_layer_count1 = 0
+    var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length) yield {
+      if (!FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re)._1 || !FFT.isReducable(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im)._1) {
+        mult_layer_count1 += 1
+      } else {
+        cases_no_mult += cases_addr_adjusted(i)
+      }
+    }
+    var subadd_layer_count1 = 0
+    var cases_no_add = mutable.ArrayBuffer[(Int, Int)]()
+    for(i <- 0 until cases.length)yield {
+      if (!(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).re.abs < 0.00005) && !(DFTr_Constants(cases_addr_adjusted(i)._1 + 1)(cases_addr_adjusted(i)._2 + 1).im.abs < 0.00005)) {
+        subadd_layer_count1 += 1
+      } else {
+        cases_no_add += cases_addr_adjusted(i)
+      }
+    }
+    val CMultLatency = 2
+    val CAddLatency = 1
+    val initial_Latency = 1
+    val multlayerlatency = if(mult_layer_count1>0){1}else{0}
+    val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
+    val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
+    val end_latency = 1
+    var DFT_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency
+    if(r == 2){
+      DFT_latency = 1
+    }
+    println(s"the dft latency: ${DFT_latency}")
+    val DFTs_per_stage = w/r
+    val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
+    val number_of_stages_depth = d // ideally has to be a divisor of the number of stages
+    val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
+    var T_L = CMultLatency
+    val Twid_latency = (TotalStages+1) * T_L
+    val Perm_latency = (N/w)*2
+    val Total_Latency = (d)*T_L + (d) * DFT_latency + (d) * Perm_latency + 1 // time for first output val, then wait (N/w) - 1 cycles
+    val Latency_exclude_first = (d)*T_L + (d) * DFT_latency + (d) * Perm_latency + 1
+    var overrall_latency = 0
+    val increment_points = mutable.ArrayBuffer[Int]() // iteration cnt  - 1
+    for(i <- 0 until (number_of_stages/number_of_stages_depth)){ // the total number of iterations
+      if(i == 0){
+        increment_points += Latency_exclude_first-1 // must be incremented by this point remember the count starts from zero
+        overrall_latency += Latency_exclude_first-1 // some cycles to take into account the propagation
+      }else{
+        increment_points += overrall_latency + Latency_exclude_first - 1
+        overrall_latency += Latency_exclude_first - 1
+      }
+    }
+    println("increment point check")
+    increment_points.map(x=>println(x))
+    increment_points += overrall_latency + Perm_latency
+    overrall_latency += Perm_latency
+    overrall_latency += (N/w)
+    println(s"The Overall Latency of Computation: ${overrall_latency}")
+
+    println(s"The total latency is: ${Total_Latency}")
+    println(s"${(T_L, DFT_latency, Perm_latency)}")
+    val DFT_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(DFT_latency)(false.B))) // DFT latancy
+    val Twid_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(T_L)(false.B)))
+    val Perm_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(Perm_latency)(false.B)))
+    val out_regdelay = RegInit(false.B)
+    val DFT_modules = for(i <- 0 until number_of_stages_depth)yield{
+      val row = for(j <- 0 until w/r)yield{
+        val instance = Module(new DFT_r_v2(r,bw)).io
+        instance
+      }
+      row
+    }
+    val Perm_modules = for(i <- 0 until number_of_stages_depth)yield{
+      val instance = Module(new PermutationsWithStreaming2(N,r,r,w,bw)).io //stride permute
+      instance
+    }
+    val Twid_Modules = for(i <- 0 until number_of_stages_depth) yield{
+      val instance = Module(new TwiddleFactorsStreamedIterative(N,r,w,bw)).io
+      instance
+    }
+    //----------------------------------------------------------------------------------------------------------------
+    val list_of_twids = Permutations.T2(N,r)
+    val initial_twid = for(i <- 0 until N) yield{
+      cmplx(1,0)
+    }
+    val adjusted_rom_array = for(i <- 0 until (Math.log10(N)/Math.log10(r)).round.toInt) yield{
+      if(i == 0){
+        initial_twid.toArray
+      }else{
+        list_of_twids(i-1)
+      }
+    }
+    val twid_sets = for(i <- 0 until number_of_stages) yield {
+      val Twid_Constants = adjusted_rom_array(i)
+      val Twid_map_2D = for (i <- 0 until N / w) yield {
+        val tm = for (j <- 0 until w) yield {
+          Twid_Constants(i * w + j)
+        }
+        tm
+      }
+      Twid_map_2D
+    }
+    twid_sets.map(x=>x.map(y=>y.map(z=>z.print_complex)))
+    val Twid_sets_vec_Re = VecInit(for(i <- 0 until number_of_stages) yield{
+      val temp = for(j <- 0 until N/w) yield{
+        val sub_temp = VecInit(twid_sets(i)(j).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U(bw.W)))
+        sub_temp
+      }
+      val temp_vec = VecInit(temp)
+      temp_vec
+    })
+    val Twid_sets_vec_Im = VecInit(for(i <- 0 until number_of_stages) yield{
+      val temp = for(j <- 0 until N/w) yield{
+        val sub_temp = VecInit(twid_sets(i)(j).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U(bw.W)))
+        sub_temp
+      }
+      val temp_vec = VecInit(temp)
+      temp_vec
+    })
+    val Perm_sets = VecInit(for(k <- 0 until 2) yield {
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 0)
+      val M1_access = (for (i <- 0 until N / w) yield {
+        val M1_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._2._2
+        }).toArray
+        M1_slice
+      }).toArray
+      M1_access.map(x => println(x.toList))
+      val M1_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M1_access(i).map(_.U((log2Ceil(w).W))))
+        V
+      }
+      val vvf = VecInit(M1_vec)
+      vvf
+    })
+    //----------------------------------------------------------------------------------------------------------------
+    val M0_config_sets = VecInit(for(k <- 0 until 2) yield{
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 0)
+      val M0_access = (for (i <- 0 until N / w) yield {
+        val M0_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._1._1
+        }).toArray
+        M0_slice
+      }).toArray
+      M0_access.map(x => println(x.toList))
+      val M0_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M0_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
+        V
+      }
+      val vvf = VecInit(M0_vec)
+      vvf
+    })
+    val M1_config_sets = VecInit(for(k <- 0 until 2) yield {
+      var generated_address = Permutations.GenerateStreamingMapping(N, w, r, r, k)
+      generated_address = Permutations.Mapping_Sort(generated_address, 1)
+      val M1_access = (for (i <- 0 until N / w) yield {
+        val M1_slice = (for (j <- 0 until w) yield {
+          generated_address(i)(j)._2._1
+        }).toArray
+        M1_slice
+      }).toArray
+      M1_access.map(x => println(x.toList))
+      val M1_vec = for (i <- 0 until N / w) yield {
+        val V = VecInit(M1_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
+        V
+      }
+      val vvf = VecInit(M1_vec)
+      vvf
+    })
+    val iteration_cnt = RegInit(0.U(log2Ceil(number_of_stages/number_of_stages_depth).W))
+    val offset = RegInit(0.U(log2Ceil(d*number_of_stages/number_of_stages_depth).W))
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until w) {
+        Twid_Modules(i).in_twid_data(j).Re := Twid_sets_vec_Re(i.U + offset)(Twid_Modules(i).out_cnt)(j)
+        Twid_Modules(i).in_twid_data(j).Im := Twid_sets_vec_Im(i.U + offset)(Twid_Modules(i).out_cnt)(j)
+      }
+      if(i != 0){
+        Perm_modules(i).in_perm := Perm_sets(0)(Perm_modules(i).out_cnt)
+        Perm_modules(i).in_M0_config := M0_config_sets(0)(Perm_modules(i).out_cnt)
+        Perm_modules(i).in_M1_config := M1_config_sets(0)(Perm_modules(i).out_cnt)
+      }
+    }
+    when(iteration_cnt =/= 0.U){
+      Perm_regdelays(0)(0) := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
+      Perm_modules(0).in_en := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
+      for(i <- 0 until w/r){
+        for(j <- 0 until r){
+          Perm_modules(0).in(i*r + j) := DFT_modules(number_of_stages_depth)(i).out(j)
+        }
+      }
+      Perm_modules(0).in_perm := Perm_sets(0)(Perm_modules(0).out_cnt)
+      Perm_modules(0).in_M0_config := M0_config_sets(0)(Perm_modules(0).out_cnt)
+      Perm_modules(0).in_M1_config := M1_config_sets(0)(Perm_modules(0).out_cnt)
+    }.otherwise{
+      Perm_regdelays(0)(0) := io.in_ready
+      Perm_modules(0).in_en := io.in_ready
+      Perm_modules(0).in := io.in
+      Perm_modules(0).in_perm := Perm_sets(1)(Perm_modules(0).out_cnt)
+      Perm_modules(0).in_M0_config := M0_config_sets(1)(Perm_modules(0).out_cnt)
+      Perm_modules(0).in_M1_config := M1_config_sets(1)(Perm_modules(0).out_cnt)
+    }
+    val progress_cnt = RegInit(0.U(log2Ceil(overrall_latency).W))
+    when(progress_cnt === (overrall_latency-1).U){
+      progress_cnt := 0.U
+    }.otherwise{
+      progress_cnt := progress_cnt + 1.U
+    }
+    for(i <- 0 until increment_points.length){
+      if(i == increment_points.length - 1){
+        when(progress_cnt === (increment_points(i)-1).U){ // have reached increment point
+          iteration_cnt := 0.U
+          offset := 0.U
+        }
+      }else {
+        when(progress_cnt === (increment_points(i)-1).U) {
+          iteration_cnt := iteration_cnt + 1.U
+          offset := offset + d.U
+        }
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until T_L){
+        if(j == 0){
+          if(i != 0){
+            Twid_regdelays(i)(0) := Perm_regdelays(i)(Perm_latency-1)
+            Twid_Modules(i).in_en(0) := Perm_regdelays(i)(Perm_latency-1)
+            Twid_Modules(i).in := Perm_modules(i).out
+          }else{
+            Twid_regdelays(0)(0) := Perm_regdelays(0)(Perm_latency-1)
+            Twid_Modules(0).in_en(0) := Perm_regdelays(0)(Perm_latency-1)
+            Twid_Modules(0).in := Perm_modules(0).out
+          }
+        }else{
+          Twid_regdelays(i)(j) := Twid_regdelays(i)(j-1)
+          Twid_Modules(i).in_en(j) := Twid_regdelays(i)(j-1)
+        }
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until DFT_latency){
+        if(j == 0){
+          if(i == 0){
+            DFT_regdelays(0)(0) := Twid_regdelays(0)(T_L-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                DFT_modules(0)(k).in(l) := Twid_Modules(0).out(k*r + l)
+              }
+            }
+          }else{
+            DFT_regdelays(i)(0) := Twid_regdelays(i)(T_L-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                DFT_modules(i)(k).in(l) := Twid_Modules(i).out(k*r + l)
+              }
+            }
+          }
+        }else{
+          DFT_regdelays(i)(j) := DFT_regdelays(i)(j-1)
+        }
+      }
+    }
+
+    for(i <- 0 until number_of_stages_depth){
+      for(j <- 0 until Perm_latency){
+        if(j == 0){
+          if(i == 0){
+
+          }else{
+            Perm_regdelays(i)(0) := DFT_regdelays(i-1)(DFT_latency-1)
+            Perm_modules(i).in_en(0) := DFT_regdelays(i-1)(DFT_latency-1)
+            for(k <- 0 until w/r){
+              for(l <- 0 until r){
+                Perm_modules(i).in(k*r + l) := DFT_modules(i-1)(k).out(l)
+              }
+            }
+          }
+        }else{
+          Perm_regdelays(i)(j) := Perm_regdelays(i)(j-1)
+          Perm_modules(i).in_en(j) := Perm_regdelays(i)(j-1)
+          if(j == Perm_latency-1){
+            Perm_modules(i).in_en((N/w)*2) := Perm_regdelays(i)(Perm_latency-1)
+          }
+        }
+      }
+    }
+
+    val results = RegInit(VecInit.fill(w)(0.U.asTypeOf(new ComplexNum(bw))))
+    when(progress_cnt >= increment_points(increment_points.length-1).U){
+      when(Perm_regdelays(0)(Perm_latency-1)){
+        out_regdelay := Perm_regdelays(0)(Perm_latency-1)
+        results := Perm_modules(0).out
+      }.otherwise{
+        out_regdelay := Perm_regdelays(0)(Perm_latency-1) // false
+        for(i <- 0 until w){
+          results(i) := 0.U.asTypeOf(new ComplexNum(bw))
+        }
+      }
+    }.otherwise{
+      out_regdelay := Perm_regdelays(0)(Perm_latency-1) // false
+      for(i <- 0 until w){
+        results(i) := 0.U.asTypeOf(new ComplexNum(bw))
+      }
+    }
+    io.out_validate := out_regdelay
+    io.out := results
+    //    for(i <- 0 until w/r){
+    //      for(j <- 0 until r){
+    //        io.out_test(i*r + j) := DFT_modules(0)(i).out(j)
+    //      }
+    //    }
+    io.out_test := Perm_modules(0).out
+    io.out_cnt := progress_cnt
   }
 
 

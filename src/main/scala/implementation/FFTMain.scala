@@ -42,8 +42,22 @@ object FFTMain {
     soln5.map(println(_))
 
     println("-----------------------------------------------")
+    val list_of_perms = T2(8,2)
+    list_of_perms.map(x=>println(x.map(_.print_complex)))
+    val initial_perm = for(i <- 0 until 8) yield{
+      cmplx(1,0)
+    }
+    val adjusted_list = for(i <- 0 until 3) yield{
+      if(i == 0){
+        initial_perm.toArray
+      }else{
+        list_of_perms(i-1)
+      }
+    }
+
     val twids = T2(4,2)
     println("-----------------------------------------------")
+    adjusted_list.map(x=>println(x.map(_.print_complex)))
     twids(0).toList.map(x=>x.print_complex)
     println("-----------------------------------------------")
     //twids(1).toList.map(x=>x.print_complex)
