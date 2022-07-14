@@ -4303,18 +4303,18 @@ object FFTDesigns {
     val Latency_exclude_first = (d)*T_L + (d) * DFT_latency + (d) * Perm_latency + 1
     var overrall_latency = 0
     val increment_points = mutable.ArrayBuffer[Int]() // iteration cnt  - 1
-    for(i <- 0 until (number_of_stages/number_of_stages_depth)){ // the total number of iterations
+    for(i <- 0 until (number_of_stages/number_of_stages_depth)){ // the total number of iterations (number of stages depth must be a divisor of number of stages)
       if(i == 0){
-        increment_points += Latency_exclude_first-1 // must be incremented by this point remember the count starts from zero
-        overrall_latency += Latency_exclude_first-1 // some cycles to take into account the propagation
+        increment_points += Latency_exclude_first-1 + (N/w)// must be incremented by this point
+        overrall_latency += Latency_exclude_first-1 + (N/w) // some cycles to take into account the propagation
       }else{
-        increment_points += overrall_latency + Latency_exclude_first - 1
-        overrall_latency += Latency_exclude_first - 1
+        increment_points += overrall_latency + Latency_exclude_first - 1 + (N/w)
+        overrall_latency += Latency_exclude_first - 1 + (N/w)
       }
     }
     println("increment point check")
-    increment_points.map(x=>println(x))
     increment_points += overrall_latency + Perm_latency
+    increment_points.map(x=>println(x))
     overrall_latency += Perm_latency
     overrall_latency += (N/w)
     println(s"The Overall Latency of Computation: ${overrall_latency}")
@@ -4324,6 +4324,7 @@ object FFTDesigns {
     val DFT_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(DFT_latency)(false.B))) // DFT latancy
     val Twid_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(T_L)(false.B)))
     val Perm_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(Perm_latency)(false.B)))
+    val final_regdelays = RegInit(VecInit.fill(N/w)(false.B))
     val out_regdelay = RegInit(false.B)
     val DFT_modules = for(i <- 0 until number_of_stages_depth)yield{
       val row = for(j <- 0 until w/r)yield{
@@ -4431,8 +4432,22 @@ object FFTDesigns {
       val vvf = VecInit(M1_vec)
       vvf
     })
-    val iteration_cnt = RegInit(0.U(log2Ceil(number_of_stages/number_of_stages_depth).W))
-    val offset = RegInit(0.U(log2Ceil(d*number_of_stages/number_of_stages_depth).W))
+    val end_regdelay = RegInit(VecInit.fill(N/w)(VecInit.fill(w)(0.U.asTypeOf(new ComplexNum(bw)))))// to ensure that propagating inputs have enough time to move through the structure
+    for(i <- 0 until N/w){
+      if(i == 0){
+        final_regdelays(0) := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
+        for(j <- 0 until w/r){
+          for(k <- 0 until r){
+            end_regdelay(0)(j*r+k) := DFT_modules(number_of_stages_depth-1)(j).out(k)
+          }
+        }
+      }else{
+        end_regdelay(i) := end_regdelay(i-1)
+        final_regdelays(i) := final_regdelays(i-1)
+      }
+    }
+    val iteration_cnt = RegInit(0.U(log2Ceil((number_of_stages/number_of_stages_depth) + 1).W))
+    val offset = RegInit(0.U(log2Ceil(d*((number_of_stages/number_of_stages_depth)+1)).W))
     for(i <- 0 until number_of_stages_depth){
       for(j <- 0 until w) {
         Twid_Modules(i).in_twid_data(j).Re := Twid_sets_vec_Re(i.U + offset)(Twid_Modules(i).out_cnt)(j)
@@ -4445,19 +4460,22 @@ object FFTDesigns {
       }
     }
     when(iteration_cnt =/= 0.U){
-      Perm_regdelays(0)(0) := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
-      Perm_modules(0).in_en := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
-      for(i <- 0 until w/r){
-        for(j <- 0 until r){
-          Perm_modules(0).in(i*r + j) := DFT_modules(number_of_stages_depth)(i).out(j)
-        }
-      }
+//      Perm_regdelays(0)(0) := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
+      Perm_regdelays(0)(0) := final_regdelays((N/w)-1)
+//      Perm_modules(0).in_en(0) := DFT_regdelays(number_of_stages_depth-1)(DFT_latency-1)
+      Perm_modules(0).in_en(0) := final_regdelays((N/w)-1)
+//      for(i <- 0 until w/r){
+//        for(j <- 0 until r){
+//          Perm_modules(0).in(i*r + j) := DFT_modules(number_of_stages_depth-1)(i).out(j)
+//        }
+//      }
+      Perm_modules(0).in := end_regdelay((N/w)-1)
       Perm_modules(0).in_perm := Perm_sets(0)(Perm_modules(0).out_cnt)
       Perm_modules(0).in_M0_config := M0_config_sets(0)(Perm_modules(0).out_cnt)
       Perm_modules(0).in_M1_config := M1_config_sets(0)(Perm_modules(0).out_cnt)
     }.otherwise{
       Perm_regdelays(0)(0) := io.in_ready
-      Perm_modules(0).in_en := io.in_ready
+      Perm_modules(0).in_en(0) := io.in_ready
       Perm_modules(0).in := io.in
       Perm_modules(0).in_perm := Perm_sets(1)(Perm_modules(0).out_cnt)
       Perm_modules(0).in_M0_config := M0_config_sets(1)(Perm_modules(0).out_cnt)
@@ -4556,26 +4574,26 @@ object FFTDesigns {
         out_regdelay := Perm_regdelays(0)(Perm_latency-1)
         results := Perm_modules(0).out
       }.otherwise{
-        out_regdelay := Perm_regdelays(0)(Perm_latency-1) // false
+        out_regdelay := false.B
         for(i <- 0 until w){
           results(i) := 0.U.asTypeOf(new ComplexNum(bw))
         }
       }
     }.otherwise{
-      out_regdelay := Perm_regdelays(0)(Perm_latency-1) // false
+      out_regdelay := false.B
       for(i <- 0 until w){
         results(i) := 0.U.asTypeOf(new ComplexNum(bw))
       }
     }
     io.out_validate := out_regdelay
     io.out := results
-    //    for(i <- 0 until w/r){
-    //      for(j <- 0 until r){
-    //        io.out_test(i*r + j) := DFT_modules(0)(i).out(j)
-    //      }
-    //    }
+//        for(i <- 0 until w/r){
+//          for(j <- 0 until r){
+//            io.out_test(i*r + j) := DFT_modules(0)(i).out(j)
+//          }
+//        }
     io.out_test := Perm_modules(0).out
-    io.out_cnt := progress_cnt
+    io.out_cnt := Perm_regdelays(0)(0)
   }
 
 

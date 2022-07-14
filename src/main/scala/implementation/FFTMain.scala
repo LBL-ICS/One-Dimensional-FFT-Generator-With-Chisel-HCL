@@ -2,6 +2,7 @@ package implementation
 import FFT._
 import ComplexNumbers._
 import Permutations._
+import ChiselFFT.Testing._
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
@@ -60,6 +61,9 @@ object FFTMain {
     adjusted_list.map(x=>println(x.map(_.print_complex)))
     twids(0).toList.map(x=>x.print_complex)
     println("-----------------------------------------------")
+    testing_iterations(8,2,1,2,32)
+    // if it is the case that depth is equal to the number of stages, then we can simply consider the original implementation whether it be the full-sized FFT or the streaming width FFT
+    // in the case that that the streaming width is equal to the full size of N, then we can simply consider aobut implementing the full-sized FFT or the full-streaming width iterative design.
     //twids(1).toList.map(x=>x.print_complex)
 //
 //    // This part is for testing the mixed radix implementation of the DFT
