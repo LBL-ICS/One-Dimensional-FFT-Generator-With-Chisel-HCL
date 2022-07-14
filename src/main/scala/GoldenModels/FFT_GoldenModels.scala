@@ -152,7 +152,7 @@ object FFT_GoldenModels {
     val r = 3 // radix of fft if applicable(if just dft then N = r)
     val w = 9 // width of streaming (just set the same as N, the fft width implementation is not yet done)
     val bw = 32 // precision
-    val runs = 2 // number of runs for inputs/outputs to be generated
+    val runs = 100 // number of runs for inputs/outputs to be generated
     //val name = "TestInputs"
     //genRandom(N*2*runs,name, bw) // generate about twice of the total N for all runs, because we are working with complex numbes
     genDFTInOutFile(N,r,bw,runs) // for example
