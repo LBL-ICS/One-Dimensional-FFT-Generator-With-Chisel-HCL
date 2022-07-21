@@ -1,6 +1,9 @@
 package implementation
 import Permutations._
 import ComplexNumbers._
+
+import scala.collection.mutable.ArrayBuffer
+import scala.reflect.ClassTag
 import scala.util.Random
 
 object FFT {
@@ -76,6 +79,8 @@ object FFT {
     var xk = xr // copy of the inputs array
     val Twid = T2_rs(N,ns,nr) // compute the twiddle factors for the mixed radix case
     xk = L[cmplx](xk,N,nr) // permute the inputs
+    println("first_perm------------------------------")
+    xk.map(_.print_complex)
     // We are splitting DFT_N into nr DFT_ns computations initially
     // afterward, we apply twiddle factors and compute ns DFT_nr computations
     for(i <- 0 until nr){
@@ -84,8 +89,14 @@ object FFT {
         xk(i*ns+j) = temp(j)
       }
     }
+    println("first_dft------------------------------")
+    xk.map(_.print_complex)
     xk = L[cmplx](xk,N,ns) // permute the xk
+    println("second perm------------------------------")
+    xk.map(_.print_complex)
     xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)} // apply the twiddle factors
+    println("twid_fact------------------------------")
+    xk.map(_.print_complex)
     for(i <- 0 until ns){
       var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr)) // compute the FFT_r based on size nr and radix r
       for(j <- 0 until nr){ // update xk values with new values
@@ -93,6 +104,9 @@ object FFT {
       }
     }
     xk = L[cmplx](xk,N,nr) // permute the xk one last time
+    println("third perm------------------------------")
+    xk.map(_.print_complex)
+    println("end------------------------------")
     xk // return the xk array, now holding the solution
   }
   def isReducable(num:Double):(Boolean,Int) = {
@@ -103,5 +117,4 @@ object FFT {
     else
       (false, 0)
   }
-
 }

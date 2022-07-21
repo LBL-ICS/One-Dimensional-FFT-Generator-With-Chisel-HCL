@@ -288,7 +288,54 @@ object FPComplex {
       }else {
         io.out_s := 0.U.asTypeOf(new ComplexNum(bw))
       }
-    }else if(sRe.abs < 0.00005){
+    }
+    else if((sRe.abs - sIm.abs).abs < 0.000005){
+      val adder = Module(new FP_adder(bw)).io
+      val subber = Module(new FP_subber(bw)).io
+      val temp_results = Wire(Vec(2, new ComplexNum(bw)))
+      if(sRe > 0 && sIm > 0){
+        println(s"case ${0} is the case")
+        println((sRe, sIm))
+        temp_results(0).Re := io.in_a.Re
+        temp_results(0).Im := io.in_a.Im
+        temp_results(1).Re := io.in_a.Re
+        temp_results(1).Im := io.in_a.Im
+      }else if(sRe < 0 && sIm < 0){
+        println(s"case ${1} is the case")
+        println((sRe, sIm))
+        temp_results(0).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
+        temp_results(0).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
+        temp_results(1).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
+        temp_results(1).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
+      }else if(sRe < 0){
+        println(s"case ${2} is the case")
+        println((sRe, sIm))
+        temp_results(0).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
+        temp_results(0).Im := io.in_a.Im
+        temp_results(1).Re := io.in_a.Re
+        temp_results(1).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
+      }else if(sIm < 0){
+        println(s"case ${3} is the case")
+        println((sRe, sIm))
+        temp_results(0).Re := io.in_a.Re
+        temp_results(0).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
+        temp_results(1).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
+        temp_results(1).Im := io.in_a.Im
+      }
+      subber.in_a := temp_results(0).Re // 1 clock cycle
+      subber.in_b := temp_results(0).Im
+      adder.in_a := temp_results(1).Re
+      adder.in_b := temp_results(1).Im
+      val multipliers = VecInit.fill(2)(Module(new FP_multiplier(bw)).io)
+      multipliers(0).in_a := subber.out_s
+      // 1 clock cycle // no need for reg layer
+      multipliers(0).in_b := 0.U(1.W) ## io.in_b.Re(bw-2,0)
+      multipliers(1).in_a := adder.out_s
+      multipliers(1).in_b := 0.U(1.W) ## io.in_b.Re(bw-2,0)
+      io.out_s.Re := multipliers(0).out_s
+      io.out_s.Im := multipliers(1).out_s
+    }
+    else if(sRe.abs < 0.00005){
       val conds = isReducable(sIm.abs)
       val cmplx_reorder = Module(new cmplx_adj(bw)).io
       cmplx_reorder.in := io.in_a
