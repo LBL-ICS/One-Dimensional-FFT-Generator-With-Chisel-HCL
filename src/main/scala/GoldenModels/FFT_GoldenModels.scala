@@ -4,7 +4,7 @@ import ChiselFFT.FFTDesigns.FFT_sr
 import IEEEConversions.FPConvert.{convert_long_to_float, convert_string_to_IEEE_754}
 import chiseltest.RawTester.test
 import implementation.ComplexNumbers.cmplx
-import implementation.FFT.FFT_r
+import implementation.FFT.{DFT_compute, DFT_gen, FFT_r}
 import chisel3.tester.RawTester.test
 import chisel3._
 import chisel3.tester._
@@ -14,11 +14,14 @@ import java.nio.file.Files
 import scala.reflect.io
 import scala.reflect.io.{Directory, RootPath}
 import better.files._
+
 import scala.util.Random
 
 object FFT_GoldenModels {
     def FFT_r_GoldenModel(N: Int, r: Int, inputs: Array[Array[cmplx]]): Array[Array[cmplx]] = { // 2D array holding FFT results for each input group
       val solns = (for(i <- 0 until inputs.length)yield{
+//        val dft_array = DFT_gen(N)
+//        val soln  = DFT_compute(dft_array, inputs(i), N)
         val soln = FFT_r(N,r,inputs(i))
         soln
       }).toArray
