@@ -58,37 +58,37 @@ object Testing {
           println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
           println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue,bw)}")
         }
-        println("Actual Output_--_--_-_--_-_---__-----__--___--__-")
-        for(j <- 0 until w1){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test(j).Im.peek().litValue,bw)}")
-        }
-        println("Permutation Stage1------------------------------------")
-        for(j <- 0 until w1){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test1(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test1(j).Im.peek().litValue,bw)}")
-        }
-        println("FFT1------------------------------------")
-        for(j <- 0 until w2){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test2(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test2(j).Im.peek().litValue,bw)}")
-        }
-        println("Permutation Stage2------------------------------------")
-        for(j <- 0 until w2){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test3(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test3(j).Im.peek().litValue,bw)}")
-        }
-        println("Twiddle Factors------------------------------------")
-        for(j <- 0 until w2){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test4(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test4(j).Im.peek().litValue,bw)}")
-        }
-        println("FFT2------------------------------------")
-        for(j <- 0 until w1){
-          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test5(j).Re.peek().litValue, bw)}")
-          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test5(j).Im.peek().litValue,bw)}")
-        }
-        println("Permutation Stage3------------------------------------")
+        println("_--_--_-_--_-_---__-----__--___--__-")
+//        for(j <- 0 until w1){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test(j).Im.peek().litValue,bw)}")
+//        }
+//        println("Permutation Stage1------------------------------------")
+//        for(j <- 0 until w1){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test1(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test1(j).Im.peek().litValue,bw)}")
+//        }
+//        println("FFT1------------------------------------")
+//        for(j <- 0 until w2){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test2(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test2(j).Im.peek().litValue,bw)}")
+//        }
+//        println("Permutation Stage2------------------------------------")
+//        for(j <- 0 until w2){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test3(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test3(j).Im.peek().litValue,bw)}")
+//        }
+//        println("Twiddle Factors------------------------------------")
+//        for(j <- 0 until w2){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test4(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test4(j).Im.peek().litValue,bw)}")
+//        }
+//        println("FFT2------------------------------------")
+//        for(j <- 0 until w1){
+//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test5(j).Re.peek().litValue, bw)}")
+//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test5(j).Im.peek().litValue,bw)}")
+//        }
+//        println("Permutation Stage3------------------------------------")
         c.clock.step(1)
       }
     }

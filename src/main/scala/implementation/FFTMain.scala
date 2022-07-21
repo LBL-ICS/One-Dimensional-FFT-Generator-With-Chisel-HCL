@@ -399,6 +399,6 @@ object FFTMain {
 
     println("_--_--_-_--_-_---__-----__--___--__-")
 //    FFT_mr(6,3,2,3,2,(for(i <- 0 until 6)yield{cmplx(i,0)}).toArray)
-    testing_streaming_mr(48,16,3,2,3,4,32)
+    testing_streaming_mr(6,2,3,2,3,2,32)
   }
 }

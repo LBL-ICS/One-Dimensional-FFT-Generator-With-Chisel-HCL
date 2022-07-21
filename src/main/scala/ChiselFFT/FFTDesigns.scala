@@ -6215,12 +6215,12 @@ object FFTDesigns {
       val in_ready = Input(Bool())
       val out_validate = Output(Bool())
       val out = Output(Vec(w, new ComplexNum(bw)))
-      val out_test = Output(Vec(w1, new ComplexNum(bw)))
-      val out_test1 = Output(Vec(w1, new ComplexNum(bw)))
-      val out_test2 = Output(Vec(w2, new ComplexNum(bw)))
-      val out_test3 = Output(Vec(w2, new ComplexNum(bw)))
-      val out_test4 = Output(Vec(w2, new ComplexNum(bw)))
-      val out_test5 = Output(Vec(w1, new ComplexNum(bw)))
+//      val out_test = Output(Vec(w1, new ComplexNum(bw)))
+//      val out_test1 = Output(Vec(w1, new ComplexNum(bw)))
+//      val out_test2 = Output(Vec(w2, new ComplexNum(bw)))
+//      val out_test3 = Output(Vec(w2, new ComplexNum(bw)))
+//      val out_test4 = Output(Vec(w2, new ComplexNum(bw)))
+//      val out_test5 = Output(Vec(w1, new ComplexNum(bw)))
     })
     val CMultLatency = 2
     val T_L = CMultLatency
@@ -6310,12 +6310,12 @@ object FFTDesigns {
         }
       }
       io.out := results
-      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
       io.out_validate := out_regdelay // i think this is all we need for this case
     }else if(w1 < nr && w2 >=ns){
       fftlatency1 = getfftstreamedlatency(nr,r,w1,bw) // in this case the fft1 is reduced streaming width
@@ -6429,12 +6429,12 @@ object FFTDesigns {
       }
       io.out_validate := out_regdelay
       io.out := results
-      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
     }else if(w1>=nr && w2 < ns){
       fftlatency1 = getFFTLatency(nr,r,nr,bw) // the fft1 is full streaming width
       fftlatency2 = getfftstreamedlatency(ns,s,w2,bw) // the fft2 is a reduced streaming width
@@ -6547,12 +6547,12 @@ object FFTDesigns {
       }
       io.out_validate := out_regdelay
       io.out := results
-      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw))) // end of first version
-      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
-      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw))) // end of first version
+//      io.out_test1 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test2 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test3 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test4 := VecInit.fill(w2)(0.U.asTypeOf(new ComplexNum(bw)))
+//      io.out_test5 := VecInit.fill(w1)(0.U.asTypeOf(new ComplexNum(bw)))
     }else if(w1 >= nr && w2 >= ns){ // streaming width is greater than or equal to the FFTnr size (this also implies the same case for the FFTns size as well)
       fftlatency1 = getFFTLatency(nr,r,nr,bw) // this function should also give the DFT latency as well if we set the nr==r
       fftlatency2 = getFFTLatency(ns,s,ns,bw)
@@ -6686,20 +6686,20 @@ object FFTDesigns {
       }
       io.out_validate := out_regdelay
       io.out := results
-      io.out_test := Perm_module1.out// end of first version
-      for(i <- 0 until w1/nr){
-        for(j <- 0 until nr){
-          io.out_test1(i*nr + j) := FFT_modules1(i).out(j)
-        }
-      }
-      io.out_test2 := Perm_module2.out
-      io.out_test3 := Twid_Modules.out
-      for(i <- 0 until w2/ns){
-        for(j <- 0 until ns){
-          io.out_test4(i*w2 + j) := FFT_modules2(i).out(j)
-        }
-      }
-      io.out_test5 := Perm_module3.out
+//      io.out_test := Perm_module1.out// end of first version
+//      for(i <- 0 until w1/nr){
+//        for(j <- 0 until nr){
+//          io.out_test1(i*nr + j) := FFT_modules1(i).out(j)
+//        }
+//      }
+//      io.out_test2 := Perm_module2.out
+//      io.out_test3 := Twid_Modules.out
+//      for(i <- 0 until w2/ns){
+//        for(j <- 0 until ns){
+//          io.out_test4(i*w2 + j) := FFT_modules2(i).out(j)
+//        }
+//      }
+//      io.out_test5 := Perm_module3.out
     }
   }
 
