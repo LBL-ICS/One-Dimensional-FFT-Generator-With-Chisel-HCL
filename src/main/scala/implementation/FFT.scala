@@ -74,6 +74,25 @@ object FFT {
     Xk // return the results of the FFT_r computation
   }
 
+  def MDFFT(d: Int, N:Int, xi: Array[cmplx]):Array[cmplx] ={
+    var size = N
+    var results = xi.clone()
+    for(i <- 0 until d-1){
+      size *= N
+    }
+    for(i <- 0 until d){
+      results = L[cmplx](results,size,N)
+      for(j <- 0 until N){
+        val DFTs = DFT_gen(N)
+        val temp = DFT_compute(DFTs,results.slice(j*N,j*N+N),N)
+        for(k <- 0 until N){
+          results(j*N+k) = temp(k)
+        }
+      }
+    }
+    results
+  }
+
   // FFT computation for mixed radix specification (r and s)
   def FFT_mr(N: Int, nr:Int, ns: Int, r: Int, s: Int, xr:Array[cmplx]): Array[cmplx] = {
     var xk = xr // copy of the inputs array
