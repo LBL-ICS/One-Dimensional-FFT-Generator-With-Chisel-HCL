@@ -96,7 +96,7 @@ object MDTesting {
 //    println("Testing reciprocal")
 //    test(new FP_reciprocal(32)){c=>
 //      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
-//      for(i <- 0 until 10){
+//      for(i <- 0 until 20){
 //        c.clock.step(1)
 //        println(s"clock cycle:${i+1}")
 //        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
@@ -113,9 +113,9 @@ object MDTesting {
 //      }
 //    }
     println("Testing Square root")
-    test(new FP_square_root(32)){c=>
+    test(new FP_square_root2(32)){c=>
       c.io.in_a.poke(convert_string_to_IEEE_754("5.0", 32).U)
-      for(i <- 0 until 10){
+      for(i <- 0 until 30){
         c.clock.step(1)
         println(s"clock cycle:${i+1}")
         println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")

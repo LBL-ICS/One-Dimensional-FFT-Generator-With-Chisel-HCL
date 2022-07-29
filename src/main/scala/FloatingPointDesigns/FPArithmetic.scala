@@ -731,4 +731,208 @@ object FPArithmetic {
     io.out_s := reg_out_s
   }
 
+  //more accurate but much higher hardware cost // we could make them iterative
+  class FP_reciprocal2(bw: Int) extends Module{
+    require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
+    val io = IO(new Bundle() {
+      val in_a = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    })
+    var magic = scala.BigInt("0", 10)
+    var exponent = 0
+    var mantissa = 0
+    var limit = scala.BigInt("0", 10)
+    // approximation of the reciprocal using the fast inverse square root trick
+    // however has some limitations for really large numbers
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+      magic = scala.BigInt("23040", 10)
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      magic = scala.BigInt("1597463007", 10)
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      magic = scala.BigInt("6910469410427058089", 10)
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      magic = scala.BigInt("127598099150064121557322682042419249152", 10)
+    }
+    limit = (magic * 2) / 3
+
+    val number = Wire(UInt((bw).W))
+    val threehalfs = Wire(UInt(bw.W))
+    threehalfs := convert_string_to_IEEE_754("1.5", bw).U
+    when(io.in_a(bw-2, 0) > (limit*2).U){
+      number := limit.U
+    }.otherwise{
+      number := io.in_a(bw-2, 0) >> 1.U
+    }
+
+    // get the magic number
+    val magic_num = magic.U((bw).W)
+
+    //    // get the input, but exclude the sign
+    //    val Ix = io.in_a(bw-2, 0)
+    //    // we need need to right shift the input by 1 (or divide by 2)
+    //    val new_Ix = Wire(UInt((bw-1).W))
+    //    new_Ix := Ix >> 1.U
+    // calculating the fast inverse square root approximation
+    val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
+    result := magic_num - number
+    // we need to multiply the inverse square root by itself to get the reciprocal of the original input
+    val exp = Wire(UInt(exponent.W))
+    exp := io.in_a(bw-2,mantissa) - 1.U
+
+    val half_input = Wire(UInt(bw.W))
+    half_input := io.in_a(bw-1) ## exp ## io.in_a(mantissa-1, 0)
+    // applying one iteration of newtons method to improve the fast inverse square root approximation
+    val multiplier1 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier1.io.in_a := 0.U(1.W) ## result(bw-2,0)
+    multiplier1.io.in_b := 0.U(1.W) ## result(bw-2,0)
+    val multiplier2 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier2.io.in_a := multiplier1.io.out_s
+    multiplier2.io.in_b := 0.U(1.W) ## half_input(bw-2,0)
+
+    val sub = Module(new FP_subber(bw)) // once cycle
+    sub.io.in_a := threehalfs
+    sub.io.in_b := multiplier2.io.out_s
+
+    val multiplier3 = Module(new FP_multiplier(bw)) // one cycle
+    multiplier3.io.in_a := sub.io.out_s
+    multiplier3.io.in_b := 0.U(1.W) ## result(bw-2,0)
+    val exp2 = Wire(UInt(exponent.W))
+    exp2 := multiplier3.io.out_s(bw-2,mantissa) - 1.U
+    val half_input2 = Wire(UInt(bw.W))
+    half_input2 := multiplier3.io.out_s(bw-1) ## exp2 ## multiplier3.io.out_s(mantissa-1, 0)
+    val multiplier5 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier5.io.in_a := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+    multiplier5.io.in_b := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+    val multiplier6 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier6.io.in_a := multiplier5.io.out_s
+    multiplier6.io.in_b := 0.U(1.W) ## half_input(bw-2,0)
+
+    val sub2 = Module(new FP_subber(bw)) // once cycle
+    sub2.io.in_a := threehalfs
+    sub2.io.in_b := multiplier6.io.out_s
+
+    val multiplier7 = Module(new FP_multiplier(bw)) // one cycle
+    multiplier7.io.in_a := sub2.io.out_s
+    multiplier7.io.in_b := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+
+    // multiply inverse square root approximation by itself to get the reciprocal approximation
+    val multiplier4 = Module(new FP_multiplier(bw)) // one cycle
+    multiplier4.io.in_a := io.in_a(bw-1) ## multiplier7.io.out_s(bw-2,0)
+    multiplier4.io.in_b := multiplier7.io.out_s
+
+    io.out_s := io.in_a(bw-1) ## multiplier4.io.out_s(bw-2, 0) // total 5 cycles
+  }
+  class FP_inverse_square_root2(bw: Int) extends Module{
+    require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
+    val io = IO(new Bundle() {
+      val in_a = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    })
+    var magic = scala.BigInt("0", 10)
+    var exponent = 0
+    var mantissa = 0
+    var limit = scala.BigInt("0", 10)
+    // approximation of the reciprocal using the fast inverse square root trick
+    // however has some limitations for really large numbers
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+      magic = scala.BigInt("23040", 10)
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      magic = scala.BigInt("1597463007", 10)
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      magic = scala.BigInt("6910469410427058089", 10)
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      magic = scala.BigInt("127598099150064121557322682042419249152", 10)
+    }
+    limit = (magic * 2) / 3
+
+    val number = Wire(UInt((bw).W))
+    val threehalfs = Wire(UInt(bw.W))
+    threehalfs := convert_string_to_IEEE_754("1.5", bw).U
+    when(io.in_a(bw-2, 0) > (limit*2).U){
+      number := limit.U
+    }.otherwise{
+      number := io.in_a(bw-2, 0) >> 1.U
+    }
+
+    // get the magic number
+    val magic_num = magic.U((bw).W)
+
+    //    // get the input, but exclude the sign
+    //    val Ix = io.in_a(bw-2, 0)
+    //    // we need need to right shift the input by 1 (or divide by 2)
+    //    val new_Ix = Wire(UInt((bw-1).W))
+    //    new_Ix := Ix >> 1.U
+    // calculating the fast inverse square root approximation
+    val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
+    result := magic_num - number
+    // we need to multiply the inverse square root by itself to get the reciprocal of the original input
+    val exp = Wire(UInt(exponent.W))
+    exp := io.in_a(bw-2,mantissa) - 1.U
+
+    val half_input = Wire(UInt(bw.W))
+    half_input := io.in_a(bw-1) ## exp ## io.in_a(mantissa-1, 0)
+    // applying one iteration of newtons method to improve the fast inverse square root approximation
+    val multiplier1 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier1.io.in_a := 0.U(1.W) ## result(bw-2,0)
+    multiplier1.io.in_b := 0.U(1.W) ## result(bw-2,0)
+    val multiplier2 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier2.io.in_a := multiplier1.io.out_s
+    multiplier2.io.in_b := 0.U(1.W) ## half_input(bw-2,0)
+
+    val sub = Module(new FP_subber(bw)) // once cycle
+    sub.io.in_a := threehalfs
+    sub.io.in_b := multiplier2.io.out_s
+
+    val multiplier3 = Module(new FP_multiplier(bw)) // one cycle
+    multiplier3.io.in_a := sub.io.out_s
+    multiplier3.io.in_b := 0.U(1.W) ## result(bw-2,0)
+    val exp2 = Wire(UInt(exponent.W))
+    exp2 := multiplier3.io.out_s(bw-2,mantissa) - 1.U
+    val half_input2 = Wire(UInt(bw.W))
+    half_input2 := multiplier3.io.out_s(bw-1) ## exp2 ## multiplier3.io.out_s(mantissa-1, 0)
+    val multiplier5 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier5.io.in_a := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+    multiplier5.io.in_b := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+    val multiplier6 = Module(new FP_multiplier(bw)) // latency of one cycle
+    multiplier6.io.in_a := multiplier5.io.out_s
+    multiplier6.io.in_b := 0.U(1.W) ## half_input(bw-2,0)
+
+    val sub2 = Module(new FP_subber(bw)) // once cycle
+    sub2.io.in_a := threehalfs
+    sub2.io.in_b := multiplier6.io.out_s
+
+    val multiplier7 = Module(new FP_multiplier(bw)) // one cycle
+    multiplier7.io.in_a := sub2.io.out_s
+    multiplier7.io.in_b := 0.U(1.W) ## multiplier3.io.out_s(bw-2,0)
+
+
+    io.out_s := io.in_a(bw-1) ## multiplier7.io.out_s(bw-2, 0) // total 5 cycles
+  }
+  class FP_square_root2(bw: Int) extends Module{
+    val io = IO{new Bundle() {
+      val in_a = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    }}
+    val inv_sq = Module(new FP_inverse_square_root2(bw)).io // 4 cycles
+    val reciprocal = Module(new FP_reciprocal2(bw)).io // 5 cycles
+    inv_sq.in_a := io.in_a
+    reciprocal.in_a := inv_sq.out_s
+    io.out_s := reciprocal.out_s // 9 cycles
+  }
 }
