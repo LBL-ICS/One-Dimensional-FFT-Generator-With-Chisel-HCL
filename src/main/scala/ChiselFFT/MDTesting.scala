@@ -3,6 +3,7 @@ import IEEEConversions.FPConvert._
 import FloatingPointDesigns.FPArithmetic._
 import ComplexModules.FPComplex._
 import chisel3.tester.RawTester.test
+import FloatingPointDesigns.FPArithmetic._
 import chisel3._
 import chisel3.tester._
 import ChiselFFT.FFTDesigns._
@@ -55,11 +56,11 @@ object MDTesting {
 //    val x = (for(j <- 0 until 2*size by 2) yield{
 //      cmplx(file(j),file(j+1))
 //    }).toArray
-    val x = for(i <- 0 until size)yield{ // list of all the inputs
-      cmplx(i+1,0)
-    }
-    val xx = for(i <- 0 until size)yield{i+1}
-    val results = Transpose_example(d,Nd,xx.toArray)
+//    val x = for(i <- 0 until size)yield{ // list of all the inputs
+//      cmplx(i+1,0)
+//    }
+//    val xx = for(i <- 0 until size)yield{i+1}
+//    val results = Transpose_example(d,Nd,xx.toArray)
 //    val results = MDFFT(d,Nd,x.toArray) // performs the FFT
 //    results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
 //    println("-------------------------------------------------------___")
@@ -92,5 +93,33 @@ object MDTesting {
 //    val pw7 = new PrintWriter("od_fft96_32_48.v")
 //    pw7.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,32,32)))
 //    pw7.close()
+//    println("Testing reciprocal")
+//    test(new FP_reciprocal(32)){c=>
+//      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
+//      for(i <- 0 until 10){
+//        c.clock.step(1)
+//        println(s"clock cycle:${i+1}")
+//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
+//      }
+//    }
+//    println("Testing divider")
+//    test(new FP_divider(32)){c=>
+//      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
+//      c.io.in_b.poke(convert_string_to_IEEE_754("4.0",32).U)
+//      for(i <- 0 until 10){
+//        c.clock.step(1)
+//        println(s"clock cycle:${i+1}")
+//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
+//      }
+//    }
+    println("Testing Square root")
+    test(new FP_square_root(32)){c=>
+      c.io.in_a.poke(convert_string_to_IEEE_754("5.0", 32).U)
+      for(i <- 0 until 10){
+        c.clock.step(1)
+        println(s"clock cycle:${i+1}")
+        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
+      }
+    }
   }
 }
