@@ -1,7 +1,10 @@
 package implementation
 import Permutations._
 import ComplexNumbers._
+import IEEEConversions.FPConvert.convert_string_to_IEEE_754
 
+import java.io.{File, PrintWriter}
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.ClassTag
 import scala.util.Random
@@ -73,6 +76,72 @@ object FFT {
     }
     Xk // return the results of the FFT_r computation
   }
+  def Transpose_example(d: Int, N:Int, xi: Array[Int]):Array[Int] ={
+    var size = N
+    var results = xi.clone()
+    println(s"-----------------Input---------------------------")
+    for(i <- 0 until N){
+      for(j <- 0 until N){
+        for(k <- 0 until N){
+          for(l <- 0 until i){
+            print(" ")
+          }
+          print(s"${results(((N-1-i)*N*N + j + k*N))} ")
+        }
+        println()
+      }
+    }
+    for(i <- 0 until d-1){
+      size *= N
+    }
+    for(i <- 0 until d){
+      results = L[Int](results,size,N)
+      println(s"-----------------Stage${i} Trans---------------")
+      for(i <- 0 until N){
+        for(j <- 0 until N){
+          for(k <- 0 until N){
+            for(l <- 0 until i){
+              print(" ")
+            }
+            print(s"${results(((N-1-i)*N*N + j + k*N))} ")
+          }
+          println()
+        }
+      }
+      println(s"-----------------------------------------------")
+    }
+    println(s"-----------------Output--------------------------")
+
+    results
+  }
+
+  def MDFFTv3(d: Int, N:Int, xi: Array[cmplx]):Array[cmplx] ={
+    var size = N
+    var results = xi.clone()
+    println(s"-----------------Input---------------------------")
+    results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+    for(i <- 0 until d-1){
+      size *= N
+    }
+    for(i <- 0 until d){
+      for(j <- 0 until size/N){
+        val DFTs = DFT_gen(N)
+        val temp = DFT_compute(DFTs,results.slice(j*N,j*N+N),N)
+        for(k <- 0 until N){
+          results(j*N+k) = temp(k)
+        }
+      }
+      println(s"-----------------Stage${i} FFT-----------------")
+      results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+      results = L[cmplx](results,size,N)
+      println(s"-----------------Stage${i} Trans---------------")
+      results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+      println(s"-----------------------------------------------")
+    }
+    println(s"-----------------Output--------------------------")
+    results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+    results
+  }
 
   def MDFFT(d: Int, N:Int, xi: Array[cmplx]):Array[cmplx] ={
     var size = N
@@ -82,12 +151,44 @@ object FFT {
     }
     for(i <- 0 until d){
       results = L[cmplx](results,size,N)
-      for(j <- 0 until N){
+      for(j <- 0 until size/N){
         val DFTs = DFT_gen(N)
         val temp = DFT_compute(DFTs,results.slice(j*N,j*N+N),N)
         for(k <- 0 until N){
           results(j*N+k) = temp(k)
         }
+      }
+    }
+    results
+  }
+
+  // this will be used for printing out
+  def MDFFTv2(d: Int, N:Int, xi: Array[cmplx], FFT_Out_Files:IndexedSeq[(PrintWriter,PrintWriter)], Trans_Out_Files: IndexedSeq[(PrintWriter, PrintWriter)]):Array[cmplx] ={ // In this version the permutation is performed after the FFT stage // assume column inputs
+    var size = N // we are assuming that each dimension has length N
+    var results = xi.clone() // will store the results
+    for(i <- 0 until d-1){ // just getting the total size of the input
+      size *= N
+    }
+    for(i <- 0 until d){
+      for(j <- 0 until size/N){ // perform the 1D FFT on all the columns of the dimension
+        val DFTs = DFT_gen(N)
+        val temp = DFT_compute(DFTs,results.slice(j*N,j*N+N),N) // we take a slice from the set of all inputs // each slice represents a column, which faces toward one dimension
+        for(k <- 0 until N){
+          results(j*N+k) = temp(k) // we update the old values with the new ones
+        }
+      }
+      for(j <- 0 until size){
+        FFT_Out_Files(i)._2.println(results(j).re.toString)
+        FFT_Out_Files(i)._2.println(results(j).im.toString)
+        FFT_Out_Files(i)._1.println(convert_string_to_IEEE_754(results(j).re.toString, 32).toLong.toHexString)
+        FFT_Out_Files(i)._1.println(convert_string_to_IEEE_754(results(j).im.toString, 32).toLong.toHexString)
+      }
+      results = L[cmplx](results,size,N) // perform the stride permutations// which in this case is the same as a transpose
+      for(j <- 0 until size){
+        Trans_Out_Files(i)._2.println(results(j).re.toString)
+        Trans_Out_Files(i)._2.println(results(j).im.toString)
+        Trans_Out_Files(i)._1.println(convert_string_to_IEEE_754(results(j).re.toString, 32).toLong.toHexString)
+        Trans_Out_Files(i)._1.println(convert_string_to_IEEE_754(results(j).im.toString, 32).toLong.toHexString)
       }
     }
     results

@@ -43,54 +43,93 @@ object Testing {
       }
       val total_latency = perm_latency1*3 + T_L + fftlatency1 + fftlatency2 + 1
       c.io.in_ready.poke(true.B)
-      for(i <- 0 until N/w1){
-        for(j <- 0 until w1){
-          c.io.in(j).Re.poke(convert_string_to_IEEE_754((i*w1 + j + 1).toDouble.toString, bw).U)
+      for (i <- 0 until 100) {
+        println(s"Clock Cycle: ${i}")
+        for (j <- 0 until w1) {
+          c.io.in(j).Re.poke(convert_string_to_IEEE_754((((i * w1 + j )%N) + 1).toDouble.toString, bw).U)
           c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
         }
-        c.clock.step(1)
-      }
-      c.io.in_ready.poke(false.B)
-      for(i <- 0 until total_latency + (N/w1) - 1 - ((N/w1) - 1)){
-        println(s"Clock Cycle: ${(N/w1) + i}")
-        println(s"valid: ${c.io.out_validate.peek().litValue}")
-        for(j <- 0 until w1) {
+        for (j <- 0 until w1) {
           println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
-          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue,bw)}")
+          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
         }
         println("_--_--_-_--_-_---__-----__--___--__-")
-//        for(j <- 0 until w1){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test(j).Im.peek().litValue,bw)}")
-//        }
-//        println("Permutation Stage1------------------------------------")
-//        for(j <- 0 until w1){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test1(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test1(j).Im.peek().litValue,bw)}")
-//        }
-//        println("FFT1------------------------------------")
-//        for(j <- 0 until w2){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test2(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test2(j).Im.peek().litValue,bw)}")
-//        }
-//        println("Permutation Stage2------------------------------------")
-//        for(j <- 0 until w2){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test3(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test3(j).Im.peek().litValue,bw)}")
-//        }
-//        println("Twiddle Factors------------------------------------")
-//        for(j <- 0 until w2){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test4(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test4(j).Im.peek().litValue,bw)}")
-//        }
-//        println("FFT2------------------------------------")
-//        for(j <- 0 until w1){
-//          println(s"Test Real Output: ${convert_long_to_float(c.io.out_test5(j).Re.peek().litValue, bw)}")
-//          println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test5(j).Im.peek().litValue,bw)}")
-//        }
-//        println("Permutation Stage3------------------------------------")
         c.clock.step(1)
       }
+      val runs = 2
+//      for(p <- 0 until runs){
+//        c.io.in_ready.poke(true.B)
+//        for (i <- 0 until N / w1) {
+//          for (j <- 0 until w1) {
+//            c.io.in(j).Re.poke(convert_string_to_IEEE_754((i * w1 + j + 1).toDouble.toString, bw).U)
+//            c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+//          }
+//          for (j <- 0 until w1) {
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
+//          }
+//          println("_--_--_-_--_-_---__-----__--___--__-")
+//          c.clock.step(1)
+//        }
+//        for (i <- 0 until N / w1) {
+//          for (j <- 0 until w1) {
+//            c.io.in(j).Re.poke(convert_string_to_IEEE_754((i * w1 + j + 1).toDouble.toString, bw).U)
+//            c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+//          }
+//          for (j <- 0 until w1) {
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
+//          }
+//          println("_--_--_-_--_-_---__-----__--___--__-")
+//          c.clock.step(1)
+//        }
+//        c.io.in_ready.poke(true.B)
+//        for (i <- 0 until total_latency + (N / w1) - 1 - ((N / w1) - 1)) {
+//          println(s"Clock Cycle: ${2*(N / w1) + i}")
+//          println(s"valid: ${c.io.out_validate.peek().litValue}")
+////          println(s"t_valid: ${c.io.out_t_valid.peek().litValue}")
+//          for (j <- 0 until w1) {
+//            println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
+//            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
+//          }
+//          for (j <- 0 until w1) {
+//            c.io.in(j).Re.poke(convert_string_to_IEEE_754(((i * w1 + j + 1)%N).toDouble.toString, bw).U)
+//            c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+//          }
+//          println("_--_--_-_--_-_---__-----__--___--__-")
+////                  for(j <- 0 until w1){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("Permutation Stage1------------------------------------")
+////                  for(j <- 0 until w1){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test1(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test1(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("FFT1------------------------------------")
+////                  for(j <- 0 until w2){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test2(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test2(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("Permutation Stage2------------------------------------")
+////                  for(j <- 0 until w2){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test3(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test3(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("Twiddle Factors------------------------------------")
+////                  for(j <- 0 until w2){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test4(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test4(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("FFT2------------------------------------")
+////                  for(j <- 0 until w1){
+////                    println(s"Test Real Output: ${convert_long_to_float(c.io.out_test5(j).Re.peek().litValue, bw)}")
+////                    println(s"Test Imaginary Output: ${convert_long_to_float(c.io.out_test5(j).Im.peek().litValue,bw)}")
+////                  }
+////                  println("Permutation Stage3------------------------------------")
+//          c.clock.step(1)
+//        }
+//      }
     }
   }
 
@@ -402,8 +441,8 @@ object Testing {
     val N = 6
     val r = 3
     val base_r = 3
-    val w = 3
-    val ptype = 2
+    val w = 2
+    val ptype = 0
     val bw = 32
     val l2c = (log2Ceil((N/w)))
 //    val pw3 = new PrintWriter("DFT_r_v2_rv.v")
@@ -780,8 +819,7 @@ object Testing {
 //
 //      }
 //    }
-//    test(new TwiddleFactorsStreamed(4,2,2,0,bw)){c=>
-//      c.io.in_en.poke(true.B)
+//    test(new TwiddleFactorsStreamed_mr(4,2,2,0,bw)){c=>
 //      //c.clock.step(1)
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0",bw).U)
 //      c.io.in(0).Im.poke(convert_string_to_IEEE_754("2.0",bw).U)
@@ -852,9 +890,29 @@ object Testing {
     //println(s"l2c: ${l2c}")
 //    println(isReducable(1.0))
     val pN =6
-    val pr = 3
-    val pw = 3
-    val pwin = 2
+    val pr = 2
+    val pw = 2
+    val pwin = 3
+
+    test(new PermutationsWithStreaming_mr(pN,pr,pr,pw,pwin,0,32,((pN/pw) - (pN/pwin)) )){c=>
+      for(i <- 0 until (pN/pw)*2 + 1){
+        c.io.in_en(i).poke(true.B)
+      }
+
+      for(i <- 0 until 30){
+        for(j <- 0 until pwin){
+          println(s"current input ${((i*pwin + j)%6)}")
+          c.io.in(j).Re.poke(convert_string_to_IEEE_754(((i*pwin + j)%6).toDouble.toString, bw).U)
+          c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+        }
+        for(j <- 0 until pw){
+          println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
+          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
+        }
+        c.clock.step(1)
+        println("-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
+      }
+    }
 
 //    test(new PermutationsWithStreaming_mr(pN,pr,pr,pw,pwin,2,32)){c=>
 //      for(i <- 0 until (pN/pw)*2 + 1){
@@ -886,34 +944,38 @@ object Testing {
 //      }
 //    }
 
-    test(new PermutationsWithStreaming_mr(pN,pr,pr,pw,pwin,2,32)){c=>
-      for(i <- 0 until (pN/pwin)*2 + 1){
-        c.io.in_en(i).poke(true.B)
-      }
-
-      for(i <- 0 until pN/pwin) {
-        println(s"Clock cycle: ${i+1}")
-        for (j <- 0 until pw) {
-          println(s"The test output port${j}: ${c.io.out_t(j).peek().litValue}")
-        }
-        for(j <- 0 until pwin){
-          c.io.in(j).Re.poke(convert_string_to_IEEE_754((i*pwin + j).toDouble.toString, bw).U)
-          c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
-        }
-        c.clock.step(1)
-      }
-      for(i <- 0 until pN/pwin){
-        c.clock.step(1)
-      }
-      for(i <- 0 until pN/pw){
-        for(j <- 0 until pw){
-          println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
-          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
-        }
-        c.clock.step(1)
-        println("-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
-      }
-    }
+//    test(new PermutationsWithStreaming_mr(pN,pr,pr,pw,pwin,0,32)){c=>
+//      for(i <- 0 until (pN/pwin)*2 + 1){
+//        c.io.in_en(i).poke(true.B)
+//      }
+//
+//      for(i <- 0 until pN/pwin) {
+//        println(s"Clock cycle: ${i+1}")
+//        for (j <- 0 until pw) {
+//          println(s"The test output port${j}: ${c.io.out_t(j).peek().litValue}")
+//        }
+//        for(j <- 0 until pwin){
+//          c.io.in(j).Re.poke(convert_string_to_IEEE_754((i*pwin + j).toDouble.toString, bw).U)
+//          c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+//        }
+//        c.clock.step(1)
+//      }
+//      for(i <- 0 until pN/pwin){
+//        for(j <- 0 until pwin){
+//          c.io.in(j).Re.poke(convert_string_to_IEEE_754((i*pwin + j).toDouble.toString, bw).U)
+//          c.io.in(j).Im.poke(convert_string_to_IEEE_754("0.0", bw).U)
+//        }
+//        c.clock.step(1)
+//      }
+//      for(i <- 0 until pN*4/pw){
+//        for(j <- 0 until pw){
+//          println(s"Real Output: ${convert_long_to_float(c.io.out(j).Re.peek().litValue, bw)}")
+//          println(s"Imaginary Output: ${convert_long_to_float(c.io.out(j).Im.peek().litValue, bw)}")
+//        }
+//        c.clock.step(1)
+//        println("-_-_-_-_-_-_-_-_-_-_-_-_-_-_-")
+//      }
+//    }
 //    test(new PermutationsWithStreaming(N,r,base_r,w,ptype,bw)) { c =>
 //      for(i <- 0 until (N/w)*2 + 1) {
 //        c.io.in_en(i).poke(true.B)
@@ -928,19 +990,23 @@ object Testing {
 //          c.clock.step(1)
 //          println(s"clock: ${c.io.out_t.peek().litValue}")
 //        }
-//        for(i <- 0 until (N/w)*2 + 1) {
-//          c.io.in_en(i).poke(false.B)
-//        }
-//        for(i <- 0 until (N/w)*2 + 1) {
-//          c.io.in_en(i).poke(true.B)
-//        }
+////        for(i <- 0 until (N/w)*2 + 1) {
+////          c.io.in_en(i).poke(false.B)
+////        }
+////        for(i <- 0 until (N/w)*2 + 1) {
+////          c.io.in_en(i).poke(true.B)
+////        }
 //        //println(s"clock: ${convert_long_to_float(c.io.out_t.Re.peek().litValue,bw)}")
-//        for (i <- 0 until N / w) {
+//        for (j <- 0 until N / w) {
+//          for (i <- 0 until w) {
+//            c.io.in(i).Re.poke(convert_string_to_IEEE_754((j * w + i).toDouble.toString, 32).U)
+//            c.io.in(i).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
+//          }
 //          c.clock.step(1)
 //          println(s"clock: ${c.io.out_t.peek().litValue}")
 //        }
 //
-//        for (j <- 0 until N / w) {
+//        for (j <- 0 until N*2 / w) {
 //          for (i <- 0 until w) {
 //            println(s"Real Output: ${convert_long_to_float(c.io.out(i).Re.peek().litValue, 32)}")
 //            println(s"Imaginary Output: ${convert_long_to_float(c.io.out(i).Im.peek().litValue, 32)}")

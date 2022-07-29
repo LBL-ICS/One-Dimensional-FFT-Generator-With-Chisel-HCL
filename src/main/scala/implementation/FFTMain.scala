@@ -399,9 +399,9 @@ object FFTMain {
 
     println("_--_--_-_--_-_---__-----__--___--__-")
 //    FFT_mr(6,3,2,3,2,(for(i <- 0 until 6)yield{cmplx(i,0)}).toArray)
-    //testing_streaming_mr(6,2,3,2,3,2,32)
+//    testing_streaming_mr(6,2,3,2,3,2,32)
     val pw3 = new PrintWriter("FFT_mr_v2_streamingv2.v")
-    pw3.println(getVerilogString(new FFT_mr_v2_streamingv2(36,4,9,2,3,4,32)))
+    pw3.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,2,32)))
     pw3.close()
   }
 }

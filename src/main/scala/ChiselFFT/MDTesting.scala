@@ -49,16 +49,48 @@ object MDTesting {
 //      }
 //    }
 //    var file = scala.io.Source.fromFile(s"./InputOutputFilesMD/inputfile_Decimal.txt").getLines().map(x=>x.toDouble).toArray
-    val Nd = 2
-    val d = 2
-    val size = Math.pow(Nd,d).round.toInt
+    val Nd = 3 // the size of each dimension
+    val d = 3 // the dimension
+    val size = Math.pow(Nd,d).round.toInt // how many total data points are there given the N length and dimension
 //    val x = (for(j <- 0 until 2*size by 2) yield{
 //      cmplx(file(j),file(j+1))
 //    }).toArray
-    val x = for(i <- 0 until size)yield{
+    val x = for(i <- 0 until size)yield{ // list of all the inputs
       cmplx(i+1,0)
     }
-    val results = MDFFT(d,Nd,x.toArray)
-    results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+    val xx = for(i <- 0 until size)yield{i+1}
+    val results = Transpose_example(d,Nd,xx.toArray)
+//    val results = MDFFT(d,Nd,x.toArray) // performs the FFT
+//    results.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+//    println("-------------------------------------------------------___")
+//    val results2 = MDFFTv3(d,Nd,x.toArray) // performs the FFT
+//    results2.map(x=>cmplx(x.re.round,x.im.round)).map(_.print_complex)
+//    println("-------------------------------------------------------___")
+//    var flag = false
+//    for(i <- 0 until size){
+//      if(!(results(i).re.toInt == results2(i).re.toInt && results(i).im.toInt == results2(i).im.toInt)){
+//        flag = true
+//      }
+//    }
+//    if(flag)
+//      println("Incorrect Results")
+//    else
+//      println("correct results")
+//
+//    val pw3 = new PrintWriter("od_fft96_2_3.v")
+//    pw3.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,2,32)))
+//    pw3.close()
+//    val pw4 = new PrintWriter("od_fft96_4_6.v")
+//    pw4.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,4,32)))
+//    pw4.close()
+//    val pw5 = new PrintWriter("od_fft96_8_12.v")
+//    pw5.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,8,32)))
+//    pw5.close()
+//    val pw6 = new PrintWriter("od_fft96_16_24.v")
+//    pw6.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,16,32)))
+//    pw6.close()
+//    val pw7 = new PrintWriter("od_fft96_32_48.v")
+//    pw7.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,32,32)))
+//    pw7.close()
   }
 }

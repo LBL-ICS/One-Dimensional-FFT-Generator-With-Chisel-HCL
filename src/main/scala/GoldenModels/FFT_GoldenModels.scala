@@ -4,7 +4,7 @@ import ChiselFFT.FFTDesigns.FFT_sr
 import IEEEConversions.FPConvert.{convert_long_to_float, convert_string_to_IEEE_754}
 import chiseltest.RawTester.test
 import implementation.ComplexNumbers.cmplx
-import implementation.FFT.{DFT_compute, DFT_gen, FFT_r, MDFFT}
+import implementation.FFT.{DFT_compute, DFT_gen, FFT_r, MDFFT, MDFFTv2}
 import chisel3.tester.RawTester.test
 import chisel3._
 import chisel3.tester._
@@ -26,9 +26,9 @@ object FFT_GoldenModels {
       solns
     }
 
-  def FFTMD_GoldenModel(d: Int, N: Int, inputs: Array[Array[cmplx]]): Array[Array[cmplx]] = { // 2D array holding FFT results for each input group
+  def FFTMD_GoldenModel(d: Int, N: Int, inputs: Array[Array[cmplx]], FFT_Out_Files:IndexedSeq[(PrintWriter,PrintWriter)], Trans_Out_Files:IndexedSeq[(PrintWriter,PrintWriter)]): Array[Array[cmplx]] = { // 2D array holding FFT results for each input group
     val solns = (for(i <- 0 until inputs.length)yield{
-      val soln = MDFFT(d,N,inputs(i))
+      val soln = MDFFTv2(d,N,inputs(i), FFT_Out_Files, Trans_Out_Files)
       soln
     }).toArray
     solns
@@ -39,11 +39,11 @@ object FFT_GoldenModels {
       val newfile1 = new File("./InputOutputFiles/" +  name+"_Decimal.txt")
       val pw = new PrintWriter(newfile1)
       val pw2 = new PrintWriter(newfile2)
-      val start = -500000000000000.0.toLong
-      val end = 500000000000000.0.toLong
+      val start = -5000000000.0.toLong
+      val end = 5000000000.0.toLong
       val rnd = new Random()
       for (i <- 0 until n) {
-        val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001
+        val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001 + 0.01
         if (i == n - 1) {
           pw.print(temp)
           pw2.print(convert_string_to_IEEE_754(temp.toString, bw).toLong.toHexString)
@@ -60,11 +60,11 @@ object FFT_GoldenModels {
     val newfile1 = new File("./InputOutputFiles_SingleInput/" +  name+"_Decimal.txt")
     val pw = new PrintWriter(newfile1)
     val pw2 = new PrintWriter(newfile2)
-    val start = -500000000000000.0.toLong
-    val end = 500000000000000.0.toLong
+    val start = -5000000000.0.toLong
+    val end = 5000000000.0.toLong
     val rnd = new Random()
     for (i <- 0 until n) {
-      val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001
+      val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001 +0.01
       if (i == n - 1) {
         pw.print(temp)
         pw2.print(convert_string_to_IEEE_754(temp.toString, bw).toLong.toHexString)
@@ -81,11 +81,11 @@ object FFT_GoldenModels {
     val newfile1 = new File("./InputOutputFilesMD/" +  name+"_Decimal.txt")
     val pw = new PrintWriter(newfile1)
     val pw2 = new PrintWriter(newfile2)
-    val start = -500000000000000.0.toLong
-    val end = 500000000000000.0.toLong
+    val start = -5000000000.0.toLong
+    val end = 5000000000.0.toLong
     val rnd = new Random()
     for (i <- 0 until n) {
-      val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001
+      val temp = (start + rnd.nextLong((end - start) + 1)) * 0.000000001 +0.01
       if (i == n - 1) {
         pw.print(temp)
         pw2.print(convert_string_to_IEEE_754(temp.toString, bw).toLong.toHexString)
@@ -179,6 +179,20 @@ object FFT_GoldenModels {
   def genDFTInOutFile_MD(d:Int, N: Int, bw: Int, runs: Int): Unit ={ // use this to generate the dft/fft input output files
     val subdirectory = file"./InputOutputFilesMD"
     subdirectory.clear()
+    val FFT_Out_Files = for(i <- 0 until d)yield{
+      val newfile = new File("./InputOutputFilesMD/" +  s"FFT_stage${i}_outputfile.txt")
+      val newfile2 = new File("./InputOutputFilesMD/" +  s"FFT_stage${i}_outputfile_Decimal.txt")
+      val pw = new PrintWriter(newfile)
+      val pw2 = new PrintWriter(newfile2)
+      (pw,pw2)
+    }
+    val Trans_Out_Files = for(i <- 0 until d)yield{
+      val newfile = new File("./InputOutputFilesMD/" +  s"Trans_stage${i}_outputfile.txt")
+      val newfile2 = new File("./InputOutputFilesMD/" +  s"Trans_stage${i}_outputfile_Decimal.txt")
+      val pw = new PrintWriter(newfile)
+      val pw2 = new PrintWriter(newfile2)
+      (pw,pw2)
+    }
     val size = Math.pow(N,d).round.toInt
     genRandom3(size*2*runs,s"inputfile",bw)
     var file = scala.io.Source.fromFile(s"./InputOutputFilesMD/inputfile_Decimal.txt").getLines().map(x=>x.toDouble).toArray
@@ -192,7 +206,7 @@ object FFT_GoldenModels {
         cmplxFiles(i)(j)
       }).toArray
     }).toArray
-    val goldenModelOutputs = FFTMD_GoldenModel(d,N,cmplxInput)
+    val goldenModelOutputs = FFTMD_GoldenModel(d,N,cmplxInput, FFT_Out_Files, Trans_Out_Files)
     val newfile1 = new File("./InputOutputFilesMD/" +  "outputfile.txt")
     val newfile2 = new File("./InputOutputFilesMD/" +  "outputfile_Decimal.txt")
     val pw1 = new PrintWriter(newfile1) // will have the hex IEEE 754 representations
@@ -207,20 +221,26 @@ object FFT_GoldenModels {
     }
     pw1.close()
     pw2.close()
+    for(i <- 0 until d){
+      FFT_Out_Files(i)._1.close()
+      FFT_Out_Files(i)._2.close()
+      Trans_Out_Files(i)._1.close()
+      Trans_Out_Files(i)._2.close()
+    }
   }
 
   // Just an example
   def main(args: Array[String]): Unit = {
     val N = 96 // size of dft/fft
-    val r = 3 // radix of fft if applicable(if just dft then N = r)
+    val r = 96 // radix of fft if applicable(if just dft then N = r)
     val w = 9 // width of streaming (just set the same as N, the fft width implementation is not yet done)
     val bw = 32 // precision
-    val runs = 100 // number of runs for inputs/outputs to be generated
+    val runs = 1 // number of runs for inputs/outputs to be generated
     //val name = "TestInputs"
     //genRandom(N*2*runs,name, bw) // generate about twice of the total N for all runs, because we are working with complex numbes
 //    genDFTInOutFile(N,r,bw,runs) // for example
 //    genDFTInOutFile_single_input_file(N,r,bw,runs) // for single input file
-    val d = 2
+    val d = 3
     genDFTInOutFile_MD(d,N,bw, runs)
 //    val DFTs_per_stage = N/r
 //    val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
