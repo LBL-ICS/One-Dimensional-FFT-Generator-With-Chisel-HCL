@@ -94,32 +94,32 @@ object MDTesting {
 //    pw7.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,32,32)))
 //    pw7.close()
 //    println("Testing reciprocal")
-//    test(new FP_reciprocal(32)){c=>
-//      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
-//      for(i <- 0 until 20){
-//        c.clock.step(1)
-//        println(s"clock cycle:${i+1}")
-//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
-//      }
-//    }
-//    println("Testing divider")
-//    test(new FP_divider(32)){c=>
-//      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
-//      c.io.in_b.poke(convert_string_to_IEEE_754("4.0",32).U)
-//      for(i <- 0 until 10){
-//        c.clock.step(1)
-//        println(s"clock cycle:${i+1}")
-//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
-//      }
-//    }
-    println("Testing Square root")
-    test(new FP_square_root2(32)){c=>
-      c.io.in_a.poke(convert_string_to_IEEE_754("5.0", 32).U)
+    test(new FP_reciprocal_iterative(32,2)){c=>
+      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
       for(i <- 0 until 30){
         c.clock.step(1)
         println(s"clock cycle:${i+1}")
         println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
       }
     }
+//    println("Testing divider")
+//    test(new FP_divider2(32)){c=>
+//      c.io.in_a.poke(convert_string_to_IEEE_754("2.0", 32).U)
+//      c.io.in_b.poke(convert_string_to_IEEE_754("0.1",32).U)
+//      for(i <- 0 until 20){
+//        c.clock.step(1)
+//        println(s"clock cycle:${i+1}")
+//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
+//      }
+//    }
+//    println("Testing Square root")
+//    test(new FP_square_root2(32)){c=>
+//      c.io.in_a.poke(convert_string_to_IEEE_754("5.0", 32).U)
+//      for(i <- 0 until 30){
+//        c.clock.step(1)
+//        println(s"clock cycle:${i+1}")
+//        println(s"Output: ${convert_long_to_float(c.io.out_s.peek().litValue, 32)}")
+//      }
+//    }
   }
 }
