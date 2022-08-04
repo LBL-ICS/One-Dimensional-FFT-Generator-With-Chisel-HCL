@@ -231,24 +231,6 @@ object Permutations {
                 }
                 keep_looping = flag2
               }
-//              if(flag2){
-//                for(v <-0  until used_indices.length){
-//                  if(used_indices(v) == temp2(0)._2._2 && v != i){
-//                    println(s"index2: ${v}")
-//                    index_switch = v
-//                  }
-//                }
-//                temp2 = (for (j <- l until vertical_length) yield {
-//                  m(index_switch)(0)(j-l)
-//                }).toArray
-//                println(temp2.toList)
-//                while(temp2(0)._2._2 != temp_missing(0)){
-//                  temp2 = circular_shift[((Int, Int), (Int, Int))](temp2, 1)
-//                }
-//                for(j <- l until vertical_length){
-//                  m(index_switch)(0)(j-l) = temp2(j-l)
-//                }
-//              }
             }
             println(temp.toList)
             m2.clear()
@@ -474,8 +456,6 @@ object Permutations {
         for(i <- 0 until generated_mappings2.length){
           if(generated_mappings2(i) > w1 && (N.toDouble/generated_mappings2(i).toDouble).isWhole){
             flag = true
-            //println("The answer")
-            //println(generated_mappings2(i))
           }
         }
         if(!flag) {
