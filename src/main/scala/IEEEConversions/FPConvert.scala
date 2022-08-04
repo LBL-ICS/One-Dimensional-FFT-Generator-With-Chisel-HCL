@@ -4,7 +4,8 @@ import scala.collection.{mutable}
 import scala.math.Ordering
 import scala.util.control.Breaks.break
 
-object FPConvert { // not related to the Chisel language, just used for making some conversions
+object FPConvert { // converting between IEEE 754 and decimal
+  // convert IEEE BigInt to BigDecimal representation
   def convert_long_to_float(num: BigInt, bw: Int): BigDecimal = {
     var exponent = 0
     var mantissa = 0
@@ -72,6 +73,7 @@ object FPConvert { // not related to the Chisel language, just used for making s
     sum + 1.0
   }
 
+  // convert any string into the IEEE 754 BigInt representation
   def convert_string_to_IEEE_754 (str: String, bw: Int):BigInt = {
     var exponent = 0
     var mantissa = 0
@@ -105,39 +107,6 @@ object FPConvert { // not related to the Chisel language, just used for making s
       sign = '1'
       num = str.slice(1,str.length)
     }
-//    if(num.contains('E')){
-//      var split = num.split('E')
-//      var whole_frac = split(0).split('.')
-//      var full_num = split(0).split('.').reduce(_+_)
-//      if(split(1).toInt < 0){
-//        full_num = full_num.reverse
-//        for(i <- 0 until split(1).toInt.abs.toInt - 1){
-//          full_num += '0'
-//        }
-//        full_num += ".0"
-//        full_num = full_num.reverse
-//        num = full_num
-//      }else if(split(1).toInt > 0){
-//        var new_frac = ""
-//        for(i <- 0 until split(1).toInt){
-//          if(i < whole_frac(1).length){
-//            new_frac += whole_frac(1)(i)
-//          }else{
-//            new_frac += '0'
-//          }
-//        }
-//        new_frac += '.'
-//        if(whole_frac(1).length > split(1).toInt){
-//          for(i <- split(1).toInt until whole_frac(1).length){
-//            new_frac += whole_frac(1)(i)
-//          }
-//        }else{
-//          new_frac += '0'
-//        }
-//        num = whole_frac(0) ++ new_frac
-//      }
-//      println(num)
-//    }
     if(num.contains('E')){
       num = convert_E(num)
       //println(num)
@@ -175,9 +144,6 @@ object FPConvert { // not related to the Chisel language, just used for making s
     }
 
     var new_exp = (whole_str.length - 1 + Math.pow(2, exponent - 1) - 1).toInt
-//    if(new_exp > Math.pow(2, exponent) - 2){
-//      new_exp = (Math.pow(2, exponent) - 2).toInt
-//    }
     var list2 = mutable.ArrayBuffer[String]()
     for(i <- 0 until mantissa){
       frac = frac * 2

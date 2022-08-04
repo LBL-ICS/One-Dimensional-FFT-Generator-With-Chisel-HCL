@@ -2,19 +2,22 @@ package ComplexModules
 import Chisel.log2Ceil
 import chisel3._
 import FloatingPointDesigns.FPArithmetic._
-import implementation.FFT._
+import SWFFT.FFT._
 import ChiselFFT.FFTDesigns._
 
-object FPComplex {
+object FPComplex { // these are the complex FP modules
+
   class ComplexNum(bw: Int) extends Bundle{
     val Re = UInt(bw.W)
     val Im = UInt(bw.W)
   }
+
   class ComplexIO(bw: Int) extends Bundle{
     val in_a = Input(new ComplexNum(bw))
     val in_b = Input(new ComplexNum(bw))
     val out_s = Output(new ComplexNum(bw))
   }
+
   class FPComplexAdder(bw: Int) extends Module{
     val io = IO(new ComplexIO(bw))
     val FP_adders = (for(i <- 0 until 2)yield{
@@ -28,9 +31,11 @@ object FPComplex {
     io.out_s.Re := FP_adders(0).out_s
     io.out_s.Im := FP_adders(1).out_s
   }
-  class FPComplexAdder_reducable(bw: Int, sRe:Double, sIm:Double, add_reg: Boolean) extends Module{
+
+  // adder with reducable hardware cost based on parameters
+  class FPComplexAdder_reducable(bw: Int, sRe:Double, sIm:Double, add_reg: Boolean) extends Module{ //can reduce the adder count
     val io = IO(new ComplexIO(bw))
-    if(sRe.abs < 0.00005){
+    if(sRe.abs < 0.00005){ // check if the sRe value is approximately 0 (may need to find a better way of doing this)
       if(add_reg){
         val result = RegInit(0.U.asTypeOf(new ComplexNum(bw)))
         result := io.in_b
@@ -59,7 +64,9 @@ object FPComplex {
       io.out_s.Im := FP_adders(1).out_s
     }
   }
-  class FPComplexAdder_nonregout(bw: Int) extends Module{
+
+  // adder without register outputs
+  class FPComplexAdder_nonregout(bw: Int) extends Module{ // complex adders without an output register
     val io = IO(new ComplexIO(bw))
     val FP_adders = (for(i <- 0 until 2)yield{
       val fpadd = Module(new FP_adder_nonregout(bw)).io
@@ -72,6 +79,7 @@ object FPComplex {
     io.out_s.Re := FP_adders(0).out_s
     io.out_s.Im := FP_adders(1).out_s
   }
+
   class FPComplexSub(bw: Int) extends Module{
     val io = IO(new ComplexIO(bw))
     val FP_subbers = (for(i <- 0 until 2)yield{
@@ -85,6 +93,7 @@ object FPComplex {
     io.out_s.Re := FP_subbers(0).out_s
     io.out_s.Im := FP_subbers(1).out_s
   }
+
   class FPComplexSub_reducable(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean) extends Module{
     val io = IO(new ComplexIO(bw))
     if(sRe.abs < 0.00005){
@@ -118,6 +127,7 @@ object FPComplex {
       io.out_s.Im := FP_subbers(1).out_s
     }
   }
+
   class FPComplexMult(bw: Int) extends Module{
     val io = IO(new ComplexIO(bw))
     val FP_sub = Module(new FP_subber(bw)).io
@@ -141,7 +151,9 @@ object FPComplex {
     io.out_s.Re := FP_sub.out_s
     io.out_s.Im := FP_add.out_s
   }
-  class FPComplexMult_reducable(bw: Int, sRe: Double, sIm: Double) extends Module{
+
+  // multiplier with reducable hardware cost based on parameters
+  class FPComplexMult_reducable_SimpleCases(bw: Int, sRe: Double, sIm: Double) extends Module{
     var exponent = 0
     var mantissa = 0
     if (bw == 16){
@@ -254,7 +266,8 @@ object FPComplex {
     io.out_s.Re := FP_sub.out_s
     io.out_s.Im := FP_add.out_s
   }
-  class FPComplexMult_reducable_v2(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean, special_mult: Boolean) extends Module{
+
+  class FPComplexMult_reducable_forSymmetric(bw: Int, sRe: Double, sIm: Double, add_reg: Boolean, special_mult: Boolean) extends Module{
     var exponent = 0
     var mantissa = 0
     if (bw == 16){
@@ -337,7 +350,7 @@ object FPComplex {
     }
     else if(sRe.abs < 0.00005){
       val conds = isReducable(sIm.abs)
-      val cmplx_reorder = Module(new cmplx_adj(bw)).io
+      val cmplx_reorder = Module(new ComplexNum_AdjustOrder(bw)).io
       cmplx_reorder.in := io.in_a
       cmplx_reorder.is_flip := true.B
       if(conds._1) {
@@ -377,7 +390,7 @@ object FPComplex {
       }
     }else if(sIm.abs < 0.00005){
       val conds = isReducable(sRe.abs)
-      val cmplx_reorder = Module(new cmplx_adj(bw)).io
+      val cmplx_reorder = Module(new ComplexNum_AdjustOrder(bw)).io
       cmplx_reorder.in := io.in_a
       cmplx_reorder.is_flip := false.B
       if(conds._1) {
@@ -512,6 +525,8 @@ object FPComplex {
       io.out_s.Im := FP_add.out_s
     }
   }
+
+  // generate the structure for summing up many results using a non-iterative architecture
   class FPComplexMultiAdder(n: Int,bw: Int) extends Module{
     val io = IO(new Bundle() {
       val in = Input(Vec(n, new ComplexNum(bw)))
@@ -644,6 +659,7 @@ object FPComplex {
     }
   }
 
+  // the adder at the end of the stage does not have the register for output
   class FPComplexMultiAdder_nonregout(n: Int,bw: Int) extends Module{
     val io = IO(new Bundle() {
       val in = Input(Vec(n, new ComplexNum(bw)))
@@ -735,4 +751,67 @@ object FPComplex {
       io.out := final_adder.out_s
     }
   }
+
+  class ComplexNum_AdjustOrder(bw: Int) extends Module{
+    var exponent = 0
+    var mantissa = 0
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+    }
+    val bias = Math.pow(2, exponent-1) - 1
+    val io = IO(new Bundle() {
+      val in = Input(new ComplexNum(bw))
+      val in_adj = Input(UInt(exponent.W))
+      val is_neg = Input(Bool())
+      val is_flip = Input(Bool())
+      val out = Output(new ComplexNum(bw))
+    })
+    val sign = Wire(Vec(2, UInt(1.W)))
+    sign(0) := io.in.Re(bw-1)
+    sign(1) := io.in.Im(bw-1)
+    val exp = Wire(Vec(2, UInt(exponent.W)))
+    exp(0) := io.in.Re(bw-2, mantissa)
+    exp(1) := io.in.Im(bw-2, mantissa)
+    val frac = Wire(Vec(2, UInt(mantissa.W)))
+    frac(0) := io.in.Re(mantissa-1,0)
+    frac(1) := io.in.Im(mantissa-1,0)
+    val new_sign = Wire(Vec(2, UInt(1.W)))
+    when(io.is_neg){
+      new_sign(0) := ~sign(0)
+      new_sign(1) := ~sign(1)
+    }.otherwise{
+      new_sign(0) := sign(0)
+      new_sign(1) := sign(1)
+    }
+    val new_exp = Wire(Vec(2, UInt(exponent.W)))
+    when(exp(0) =/= 0.U){
+      new_exp(0) := exp(0) - io.in_adj
+    }.otherwise{
+      new_exp(0) := exp(0)
+    }
+    when(exp(1) =/= 0.U) {
+      new_exp(1) := exp(1) - io.in_adj
+    }.otherwise{
+      new_exp(1) := exp(1)
+    }
+
+    when(io.is_flip){
+      io.out.Re := (~new_sign(1)) ## new_exp(1) ## frac(1)
+      io.out.Im := (new_sign(0)) ## new_exp(0) ## frac(0)
+    }.otherwise{
+      io.out.Re := (new_sign(0)) ## new_exp(0) ## frac(0)
+      io.out.Im := (new_sign(1)) ## new_exp(1) ## frac(1)
+    }
+  }
+
 }

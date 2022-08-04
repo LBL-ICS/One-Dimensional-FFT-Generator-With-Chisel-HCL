@@ -4,8 +4,8 @@ import BasicDesigns.Arithmetic._
 import Chisel.log2Ceil
 import IEEEConversions.FPConvert._
 
-object FPArithmetic {
-  // parameterizable floating point adder
+object FPArithmetic { // you might see errors from the IDE in the FP_adders, but you can ignore them
+  // parameterizable floating point adder has a register at output
   class FP_adder(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -206,6 +206,7 @@ object FPArithmetic {
     io.out_s := reg_out_s
   }
 
+  // FP adder without a register at output
   class FP_adder_nonregout(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -403,6 +404,7 @@ object FPArithmetic {
     io.out_s := new_s ## new_out_exp ## new_out_frac
   }
 
+  // reciprocal (approximate design)
   class FP_reciprocal(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -484,6 +486,7 @@ object FPArithmetic {
     io.out_s := io.in_a(bw-1) ## multiplier4.io.out_s(bw-2, 0) // total 5 cycles
   }
 
+  // iterative reciprocal design
   class FP_reciprocal_iterative(bw: Int, nmiter: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -612,6 +615,7 @@ object FPArithmetic {
     io.out_s := io.in_a(bw-1) ## multiplier4.io.out_s(bw-2, 0) // total 5 cycles
   }
 
+  // reciprocal and multiplier based divider
   class FP_divider(bw: Int) extends Module{
     val io = IO(new Bundle() {
       val in_a = Input(UInt(bw.W))
@@ -626,6 +630,7 @@ object FPArithmetic {
     io.out_s := multiplier.out_s // should have latency of 6 cycles
   }
 
+  // inverse square root approximation
   class FP_inverse_square_root(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -702,6 +707,7 @@ object FPArithmetic {
     io.out_s := io.in_a(bw-1) ## multiplier3.io.out_s(bw-2, 0) // total 5 cycles
   }
 
+  // inv. sqrt and reciprocal based sqrt approximation
   class FP_square_root(bw: Int) extends Module{
     val io = IO{new Bundle() {
       val in_a = Input(UInt(bw.W))
@@ -732,6 +738,7 @@ object FPArithmetic {
     io.out_s := FP_adder.io.out_s
   }
 
+  // multiplier
   class FP_multiplier(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
     val io = IO(new Bundle() {
@@ -858,6 +865,355 @@ object FPArithmetic {
       reg_out_s := new_s ## new_exp ## new_mant
     }
     io.out_s := reg_out_s
+  }
+
+  // exponential (Approximate design)
+  class FP_exponential(bw: Int) extends Module {
+    val io = IO(new Bundle{
+      val in_a = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+      //val test = Output(UInt(bw.W))
+    })
+    var exponent = 0
+    var mantissa = 0
+    var bias = 0
+    var highest_useful_value = 0.0
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+      bias = 15
+      highest_useful_value = 12.0
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      bias = 127
+      highest_useful_value = 90.0
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      bias = 1023
+      highest_useful_value = 712.0
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      bias = 16383
+      highest_useful_value = 11360.0
+    }
+    val max_val = convert_string_to_IEEE_754(highest_useful_value.toString, bw).U(bw.W)
+    val inputvalue = Wire(UInt(bw.W))
+    inputvalue := 0.U
+    when(io.in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+      val ne = Wire(UInt(exponent.W))
+      val nf = Wire(UInt(mantissa.W))
+      ne := BigInt(2).pow(exponent).U - 2.U
+      nf := BigInt(2).pow(mantissa).U - 1.U
+      inputvalue := io.in_a(bw-1) ## ne ## nf
+    }.otherwise{
+      inputvalue := io.in_a
+    }
+    val comparator =  Module(new FP_comparator(bw)).io
+    comparator.in_a := max_val
+    comparator.in_b := 0.U(1.W) ## inputvalue(bw-2,0)
+    val inputvalue2 = Wire(UInt(bw.W))
+    inputvalue2 := 0.U
+    when(comparator.out_s =/= max_val){
+      inputvalue2 := max_val
+    }.otherwise{
+      inputvalue2 := inputvalue
+    }
+    val LN2 = convert_string_to_IEEE_754(Math.log(2).toString, bw).U(bw.W)
+    val lN2_inverse = convert_string_to_IEEE_754((1/Math.log(2)).toString, bw).U(bw.W)
+    val exp2 = convert_string_to_IEEE_754("1.0", bw).U(bw.W)
+    val multiplier1 = Module(new FP_multiplier(bw)).io
+    multiplier1.in_a := lN2_inverse
+    multiplier1.in_b := 0.U(1.W) ## inputvalue2(bw-2,0)
+    val get_whole_frac = Module(new FP_extract(bw)).io
+    get_whole_frac.in_a := multiplier1.out_s
+
+    val multiplier2 = Module(new FP_multiplier(bw)).io
+    multiplier2.in_a := LN2
+    multiplier2.in_b := get_whole_frac.out_frac
+    val taylor_exp = Module(new FP_exponential2(bw)).io
+    taylor_exp.in_a := multiplier2.out_s
+    val multiplier3 = Module(new FP_multiplier(bw)).io
+    val check_exp = Wire(UInt(bw.W))
+    check_exp := (exp2(bw-2, mantissa)+get_whole_frac.out)
+    val new_exp = Wire(UInt(exponent.W))
+    new_exp := 0.U
+    val new_frac = Wire(UInt(mantissa.W))
+    new_frac := 0.U
+    when(check_exp > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+      new_exp := BigInt(2).pow(exponent).U - 2.U
+      new_frac := BigInt(2).pow(mantissa).U - 1.U
+    }.otherwise{
+      new_exp := check_exp
+      new_frac := exp2(mantissa-1, 0)
+    }
+    multiplier3.in_a := exp2(bw-1) ## new_exp ## new_frac
+    multiplier3.in_b := taylor_exp.out_s
+
+
+    val result = Wire(UInt(bw.W))
+    result := multiplier3.out_s
+
+    val recip = Module(new FP_reciprocal(bw)).io
+    recip.in_a := result
+
+    when(io.in_a(bw-1) === 1.U){
+      io.out_s := recip.out_s
+    }.otherwise{
+      io.out_s := result
+    }
+    //io.test := inputvalue
+
+  }
+
+  // another exponential design, but it is solely based on the taylor series approximation with first 6 terms
+  // you can use it by itself, but wont be as accurate as the above exponential
+  class FP_exponential2(bw: Int) extends Module{
+    //require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
+    val io = IO(new Bundle() {
+      val in_a = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    })
+    var magic = scala.BigInt("0", 10)
+    var exponent = 0
+    var mantissa = 0
+    var factorial_constants:Array[BigInt] = Array(scala.BigInt("15360", 10), scala.BigInt("15360", 10), scala.BigInt("14336", 10), scala.BigInt("12624", 10), scala.BigInt("10560", 10), scala.BigInt("8192", 10))
+    // based on the taylor series approximation for e^x
+    // im just using the first 6 terms of the series for now
+
+    // some constants for each precision size
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      factorial_constants(0) = scala.BigInt("1065353216", 10) // 1/0!
+      factorial_constants(1) = scala.BigInt("1065353216", 10) // 1/1!
+      factorial_constants(2) = scala.BigInt("1056964608", 10) // 1/2!
+      factorial_constants(3) = scala.BigInt("1042983616", 10) // 1/3!
+      factorial_constants(4) = scala.BigInt("1026206368", 10) // 1/4!
+      factorial_constants(5) = scala.BigInt("1007191808", 10) // 1/5!
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      factorial_constants(0) = scala.BigInt("4607182418800017458", 10)
+      factorial_constants(1) = scala.BigInt("4607182418800017458", 10)
+      factorial_constants(2) = scala.BigInt("4602678819172646962", 10)
+      factorial_constants(3) = scala.BigInt("4595172831803295138", 10)
+      factorial_constants(4) = scala.BigInt("4586165625342794738", 10)
+      factorial_constants(5) = scala.BigInt("4575957269229997874", 10)
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      factorial_constants(0) = scala.BigInt("85065399433376083102600000000000000000", 10)
+      factorial_constants(1) = scala.BigInt("85065399433376083102600000000000000000", 10)
+      factorial_constants(2) = scala.BigInt("85060207136517548275000000000000000000", 10)
+      factorial_constants(3) = scala.BigInt("85051553322266115185296344079871440000", 10)
+      factorial_constants(4) = scala.BigInt("85041168720241370556640618099810700000", 10)
+      factorial_constants(5) = scala.BigInt("85029399286952242334358719431136460000", 10)
+    }
+
+    // get the inverse factorial values
+    val inverse_factorials = Wire(Vec(6, UInt(bw.W)))
+    inverse_factorials(0) := factorial_constants(0).U
+    inverse_factorials(1) := factorial_constants(1).U
+    inverse_factorials(2) := factorial_constants(2).U
+    inverse_factorials(3) := factorial_constants(3).U
+    inverse_factorials(4) := factorial_constants(4).U
+    inverse_factorials(5) := factorial_constants(5).U
+
+    val multiplier0 = Module(new FP_multiplier(bw))
+    multiplier0.io.in_a := inverse_factorials(5)
+    multiplier0.io.in_b := 0.U(1.W) ## io.in_a(bw-2,0)
+
+    val adder0 = Module(new FP_adder(bw))
+    adder0.io.in_a := inverse_factorials(4)
+    adder0.io.in_b := multiplier0.io.out_s
+    val multiplier1 = Module(new FP_multiplier(bw))
+    multiplier1.io.in_a := adder0.io.out_s
+    multiplier1.io.in_b := 0.U(1.W) ## io.in_a(bw-2,0)
+
+    val adder1 = Module(new FP_adder(bw))
+    adder1.io.in_a := inverse_factorials(3)
+    adder1.io.in_b := multiplier1.io.out_s
+    val multiplier2 = Module(new FP_multiplier(bw))
+    multiplier2.io.in_a := adder1.io.out_s
+    multiplier2.io.in_b := 0.U(1.W) ## io.in_a(bw-2,0)
+
+    val adder2 = Module(new FP_adder(bw))
+    adder2.io.in_a := inverse_factorials(2)
+    adder2.io.in_b := multiplier2.io.out_s
+    val multiplier3 = Module(new FP_multiplier(bw))
+    multiplier3.io.in_a := adder2.io.out_s
+    multiplier3.io.in_b := 0.U(1.W) ## io.in_a(bw-2,0)
+
+    val adder3 = Module(new FP_adder(bw))
+    adder3.io.in_a := inverse_factorials(1)
+    adder3.io.in_b := multiplier3.io.out_s
+    val multiplier4 = Module(new FP_multiplier(bw))
+    multiplier4.io.in_a := adder3.io.out_s
+    multiplier4.io.in_b := 0.U(1.W) ## io.in_a(bw-2,0)
+
+    val adder4 = Module(new FP_adder(bw))
+    adder4.io.in_a := inverse_factorials(0)
+    adder4.io.in_b := multiplier4.io.out_s
+
+    val result = Wire(UInt(bw.W))
+    result := adder4.io.out_s
+
+    val recip = Module(new FP_reciprocal(bw))
+    recip.io.in_a := adder4.io.out_s
+
+    when(io.in_a(bw-1) === 1.U){ // if the sign of the input was negative, then just take the reciprocal
+      result := recip.io.out_s
+    }
+
+    io.out_s := result
+  }
+
+  // this module is used for separating the whole part from the fractional part of the floating point number
+  class FP_extract(bw:Int) extends Module{
+    val io = IO(new Bundle{
+      val in_a = Input(UInt(bw.W))
+      val out_frac = Output(UInt(bw.W))
+      val out = Output(UInt(bw.W))
+    })
+    var exponent = 0
+    var mantissa = 0
+    var bias = 0
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+      bias = 15
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      bias = 127
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      bias = 1023
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      bias = 16383
+    }
+    val result_frac = Wire(UInt(bw.W))
+    val expr = Wire(UInt(bw.W))
+    expr := 0.U
+    val exp = Wire(UInt(exponent.W))
+    exp := io.in_a(bw-2, mantissa)
+    val mant = Wire(UInt(mantissa.W))
+    mant := io.in_a(mantissa-1, 0)
+    val whole_mant = Wire(UInt((mantissa+1).W))
+    whole_mant := 1.U(1.W) ## io.in_a(mantissa-1,0)
+    result_frac := io.in_a
+    val leadingOne = Module(new leadingOneDetector(mantissa))
+    leadingOne.io.in := mant
+    when(exp > bias.U) {
+      val subres = Wire(UInt(exponent.W))
+      subres := exp - bias.U
+      expr := whole_mant >> (mantissa.U - subres)
+      val firstshiftf = Wire(UInt(mantissa.W))
+      firstshiftf := mant << (subres)
+      leadingOne.io.in := firstshiftf
+      val new_exp = Wire(UInt(exponent.W))
+      new_exp := bias.U - (mantissa.U - leadingOne.io.out + 1.U)
+      val new_mant = Wire(UInt(mantissa.W))
+      new_mant := firstshiftf << (mantissa.U - leadingOne.io.out + 1.U)
+      result_frac := io.in_a(bw-1) ## new_exp ## new_mant
+    }.elsewhen(exp < bias.U){
+      result_frac := io.in_a
+    }.otherwise{
+      expr := 1.U
+      val new_exp = Wire(UInt(exponent.W))
+      new_exp := exp - (mantissa.U - leadingOne.io.out + 1.U)
+      val new_mant = Wire(UInt(mantissa.W))
+      new_mant := mant << (mantissa.U - leadingOne.io.out + 1.U)
+      result_frac := io.in_a(bw-1) ## new_exp ## new_mant
+    }
+    io.out_frac := result_frac
+    io.out := expr
+  }
+
+  // this module is used for comparing a pair of numbers (determines which one is larger)
+  class FP_comparator(bw: Int) extends Module{
+    val io = IO(new Bundle{
+      val in_a = Input(UInt(bw.W))
+      val in_b = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    })
+    var exponent = 0
+    var mantissa = 0
+    var bias = 0
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+      bias = 15
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+      bias = 127
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+      bias = 1023
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+      bias = 16383
+    }
+    val sign = Wire(Vec(2, UInt(1.W)))
+    sign(0) := io.in_a(bw-1)
+    sign(1) := io.in_b(bw-1)
+
+    // exponent part of ieee number
+    val exp = Wire(Vec(2, UInt(exponent.W)))
+    when(io.in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+      exp(0) := BigInt(2).pow(exponent).U - 2.U
+    }.otherwise{
+      exp(0) := io.in_a(bw-2, mantissa)
+    }
+    when(io.in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
+      exp(1) := BigInt(2).pow(exponent).U - 2.U
+    }.otherwise{
+      exp(1) := io.in_b(bw-2, mantissa)
+    }
+
+    //fractional part of ieee number
+    val frac = Wire(Vec(2, UInt(mantissa.W)))
+    frac(0) := io.in_a(mantissa-1,0)
+    frac(1) := io.in_b(mantissa-1,0)
+
+    // 1.0 + fractional part
+    val whole_frac = Wire(Vec(2, UInt((mantissa+1).W)))
+    whole_frac(0) := 1.U ## frac(0)
+    whole_frac(1) := 1.U ## frac(1)
+
+    val subber = Module(new full_subber(exponent)).io
+    subber.in_a := exp(0)
+    subber.in_b := exp(1)
+    subber.in_c := 0.U
+
+    val subber2 = Module(new full_subber(mantissa)).io
+    subber2.in_a := frac(0)
+    subber2.in_b := frac(1)
+    subber2.in_c := 0.U
+
+    when(subber.out_c === 1.U){
+      io.out_s := io.in_b
+    }.elsewhen(subber.out_s > 0.U){
+      io.out_s := io.in_a
+    }.otherwise{
+      when(subber2.out_c === 1.U){
+        io.out_s := io.in_b
+      }.otherwise{
+        io.out_s := io.in_a
+      }
+    }
   }
 
   //more accurate but much higher hardware cost // we could make them iterative
