@@ -1,4 +1,4 @@
-package implementation
+package SWFFT
 import ComplexNumbers._
 
 import scala.collection.mutable
@@ -6,7 +6,7 @@ import scala.reflect.ClassTag
 import scala.util.control.Breaks.break
 
 object Permutations {
-  // Perform the L permutation
+  // Perform the L permutation (Stride permutation)
   def L[T:ClassTag]( l: Array[T], n: Int, m: Int): Array[T] = {
     var new_l = l.toArray //create array to store the new result
     var copy_l = l.toArray //create array to hold copy of input array
@@ -21,7 +21,8 @@ object Permutations {
     }
     new_l
   }
-  // Perform the R permutation (is obtained from repeated use of L)
+
+  // Perform the R permutation (bit reversal -- is obtained from repeated use of L)
   def R[T:ClassTag](l: Array[T], n: Int, m:Int): Array[T] = {
     val t_val = (Math.log10(n)/Math.log10(m)).round.toInt //number of stages
     var new_l = l //create copy of input array. Will also hold the final results
@@ -33,6 +34,7 @@ object Permutations {
     }
     new_l // return the permuted results
   }
+
   // this function is not used at the moment
   def T(N: Int, r:Int): Array[Array[cmplx]] = {
     val t = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -103,6 +105,7 @@ object Permutations {
     grouped_xi_t.map(_.toArray).toArray
   }
 
+  // GenerateStreamingMapping is the old design, use v2 instead
   // used for generating the read and store addresses and ports for the permutation streaming datapaths
   // at the momeent it only works for w that is divisor of N
   // N is size
@@ -379,6 +382,7 @@ object Permutations {
     }
   }
 
+  // circular shift on any list
   def circular_shift[T:ClassTag](xi: Array[T], amnt: Int): Array[T] = {
     val cpy = xi // hold first element
     for(i <- 0 until amnt){
@@ -419,6 +423,7 @@ object Permutations {
     }
     xi
   }
+
   def generate_streaming_possibilities(N: Int, r: Int): Array[Int] ={
     val lists = mutable.ArrayBuffer[Int]()
     for(i <- r until N by r){
@@ -495,6 +500,7 @@ object Permutations {
     w2
   }
 
+  // more general way for generating streaming mapping
   def GenerateStreamingMappingV2(N: Int, w: Int, r: Int, base_r: Int, t:Int) = { // This is even more general than the first function
     val base_indices = (for(i <- 0 until N)yield{i}).toArray // generate all the indices corresponding to the N elements
     val non_permuted = StreamingGroup[Int](base_indices, N, w) // group indices into streaming groups

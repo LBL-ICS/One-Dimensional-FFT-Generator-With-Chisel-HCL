@@ -7,9 +7,9 @@ import FloatingPointDesigns.FPArithmetic._
 import chisel3._
 import chisel3.tester._
 import ChiselFFT.FFTDesigns._
-import implementation.FFT._
-import implementation.ComplexNumbers._
-import implementation._
+import SWFFT.FFT._
+import SWFFT.ComplexNumbers._
+import SWFFT._
 import GoldenModels.FFT_GoldenModels._
 
 import java.io.PrintWriter
@@ -104,16 +104,16 @@ object MDTesting {
     pw3.println(getVerilogString(new FFT3D(N,win,nr,ns,r,s,bw)))
     pw3.close()
     //    val pw4 = new PrintWriter("od_fft96_4_6.v")
-    //    pw4.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,4,32)))
+    //    pw4.println(getVerilogString(new FFT_MixedRadix_Streaming(96,32,3,2,3,4,32)))
     //    pw4.close()
     //    val pw5 = new PrintWriter("od_fft96_8_12.v")
-    //    pw5.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,8,32)))
+    //    pw5.println(getVerilogString(new FFT_MixedRadix_Streaming(96,32,3,2,3,8,32)))
     //    pw5.close()
     //    val pw6 = new PrintWriter("od_fft96_16_24.v")
-    //    pw6.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,16,32)))
+    //    pw6.println(getVerilogString(new FFT_MixedRadix_Streaming(96,32,3,2,3,16,32)))
     //    pw6.close()
     //    val pw7 = new PrintWriter("od_fft96_32_48.v")
-    //    pw7.println(getVerilogString(new FFT_mr_v2_streamingv2(96,32,3,2,3,32,32)))
+    //    pw7.println(getVerilogString(new FFT_MixedRadix_Streaming(96,32,3,2,3,32,32)))
     //    pw7.close()
     //    println("Testing reciprocal")
     //    test(new FP_reciprocal_iterative(32,2)){c=>

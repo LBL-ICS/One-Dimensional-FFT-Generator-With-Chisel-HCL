@@ -6,9 +6,9 @@ import chisel3.tester.RawTester.test
 import chisel3._
 import chisel3.tester._
 import ChiselFFT.FFTDesigns._
-import implementation.FFT._
-import implementation.ComplexNumbers._
-import implementation._
+import SWFFT.FFT._
+import SWFFT.ComplexNumbers._
+import SWFFT._
 import GoldenModels.FFT_GoldenModels._
 
 import java.io.PrintWriter
@@ -20,7 +20,7 @@ import scala.collection.mutable
 
 object Testing {
   def testing_streaming_mr(N: Int, nr: Int, ns: Int, r: Int, s: Int, w: Int, bw: Int): Unit ={
-    test(new FFT_mr_v2_streamingv2(N,nr,ns,r,s, w, bw)){c=>
+    test(new FFT_MixedRadix_Streaming(N,nr,ns,r,s, w, bw)){ c=>
       val w1 = w // this will be the input and output width
       var w2 = Permutations.getw2(w1,N,nr,ns,s)
       val CMultLatency = 2
@@ -38,7 +38,7 @@ object Testing {
         fftlatency1 = getFFTLatency(nr,r,nr,bw) // the fft1 is full streaming width
         fftlatency2 = getfftstreamedlatency(ns,s,w2,bw)
       }else if(w1 >= nr && w2 >= ns){
-        fftlatency1 = getFFTLatency(nr,r,nr,bw) // this function should also give the DFT latency as well if we set the nr==r
+        fftlatency1 = getFFTLatency(nr,r,nr,bw) // this function should also give the DFT_NRV latency as well if we set the nr==r
         fftlatency2 = getFFTLatency(ns,s,ns,bw)
       }
       val total_latency = perm_latency1*3 + T_L + fftlatency1 + fftlatency2 + 1
@@ -134,7 +134,7 @@ object Testing {
   }
 
   def testing_iterations(N: Int, r: Int, depth: Int, width: Int, bw: Int ): Unit = {
-    test(new FFT_sr_v2_streaming_and_iterative2(N,r,depth,width,bw)){c=>
+    test(new FFT_SingleRadix_Streaming_and_Iterative(N,r,depth,width,bw)){ c=>
       val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
       var mult_count = 0
       for(i <- 0 until r-1){
@@ -266,7 +266,7 @@ object Testing {
     }
   }
   def testing_iterations2(N: Int, r: Int, depth: Int, width: Int, bw: Int ): Unit = {
-    test(new FFT_sr_v2_iterative2(N,r,depth,width,bw)){c=>
+    test(new FFT_SingleRadix_Iterative(N,r,depth,width,bw)){ c=>
       val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
       var mult_count = 0
       for(i <- 0 until r-1){
@@ -407,7 +407,7 @@ object Testing {
     }
   }
   def testing_streaming(N: Int, r:Int, w: Int,bw: Int): Unit = {
-    test(new FFT_sr_v2_streaming(N,r,w,bw)){c=>
+    test(new FFT_SingleRadix_Streaming(N,r,w,bw)){ c=>
       val DFTs_per_stage = w/r
       val DFT_latency = if(r==2){1}else{4}
       val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
@@ -445,16 +445,16 @@ object Testing {
     val ptype = 0
     val bw = 32
     val l2c = (log2Ceil((N/w)))
-//    val pw3 = new PrintWriter("DFT_r_v2_rv.v")
-//    pw3.println(getVerilogString(new DFT_r_v2_rv(2,bw)))
+//    val pw3 = new PrintWriter("DFT_Symmetric.v")
+//    pw3.println(getVerilogString(new DFT_Symmetric(2,bw)))
 //    pw3.close()
-//    val pw3 = new PrintWriter("FFT_sr_v2_streaming.v")
-//    pw3.println(getVerilogString(new FFT_sr_v2_streaming(4,2,2,bw)))
+//    val pw3 = new PrintWriter("FFT_SingleRadix_Streaming.v")
+//    pw3.println(getVerilogString(new FFT_SingleRadix_Streaming(4,2,2,bw)))
 //    pw3.close()
-//    val pw3 = new PrintWriter("FFT_sr_v2_streaming_and_iterative.v")
-//    pw3.println(getVerilogString(new FFT_sr_v2_streaming_and_iterative(9,3,1,3,bw)))
+//    val pw3 = new PrintWriter("FFT_SingleRadix_Streaming_and_Iterative.v")
+//    pw3.println(getVerilogString(new FFT_SingleRadix_Streaming_and_Iterative(9,3,1,3,bw)))
 //    pw3.close()
-//    test(new FFT_mr_basic(6,2,3,2,3,6,bw)){c=>
+//    test(new FFT_MixedRadix(6,2,3,2,3,6,bw)){c=>
 //      c.io.in_ready.poke(true.B)
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
 //      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
@@ -524,7 +524,7 @@ object Testing {
 ////        println(s"Imaginary Output: ${convert_long_to_float(c.io.out(11).Im.peek().litValue, 32)}")
 //      }
 //    }
-//    test(new FFT_sr_v2_iterative2(4,2,1,4,32)){c=> // for now, do not set streaming-width equal to the N-width, also the streaming width must be a multiple of the radx and a divisor of the N. The iterative depth must be a divisor of the total number of stages required for the computation of the fft
+//    test(new FFT_SingleRadix_Iterative(4,2,1,4,32)){c=> // for now, do not set streaming-width equal to the N-width, also the streaming width must be a multiple of the radx and a divisor of the N. The iterative depth must be a divisor of the total number of stages required for the computation of the fft
 //      c.io.in_ready.poke(true.B)
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
 //      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
@@ -663,7 +663,7 @@ object Testing {
 //    }
 
 
-//    test(new FFT_sr_v2_streaming_and_iterative2(27,3,1,3,32)){c=> // for now, do not set streaming-width equal to the N-width, also the streaming width must be a multiple of the radx and a divisor of the N. The iterative depth must be a divisor of the total number of stages required for the computation of the fft
+//    test(new FFT_SingleRadix_Streaming_and_Iterative(27,3,1,3,32)){c=> // for now, do not set streaming-width equal to the N-width, also the streaming width must be a multiple of the radx and a divisor of the N. The iterative depth must be a divisor of the total number of stages required for the computation of the fft
 //      c.io.in_ready.poke(true.B)
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
 //      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0.0", 32).U)
@@ -864,14 +864,14 @@ object Testing {
 //      println(s"outputIm: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, bw)}")
 //      println("________________________________________________")
 //    }
-//    val pw4 = new PrintWriter("FFT_mr_basic.v")
-//    pw4.println(getVerilogString(new FFT_mr_basic(24,3,8,3,2,24,bw)))
+//    val pw4 = new PrintWriter("FFT_MixedRadix.v")
+//    pw4.println(getVerilogString(new FFT_MixedRadix(24,3,8,3,2,24,bw)))
 //    pw4.close()
-//    val pw = new PrintWriter("DFT_r.v")
-//    pw.println(getVerilogString(new DFT_r(2,32)))
+//    val pw = new PrintWriter("DFT.v")
+//    pw.println(getVerilogString(new DFT(2,32)))
 //    pw.close()
-//    val pw2 = new PrintWriter("FFT_sr.v")
-//    pw2.println(getVerilogString(new FFT_sr(8,2,8,bw/*bit width precision*/)))
+//    val pw2 = new PrintWriter("FFT_SingleRadix_ReadyValidate.v")
+//    pw2.println(getVerilogString(new FFT_SingleRadix_ReadyValidate(8,2,8,bw/*bit width precision*/)))
 //    pw2.close()
 //    genDFTInOutFile(N = 27,r = 3,bw = 32, runs = 100) // this is how to generate input/output files for testing
 
@@ -1073,7 +1073,7 @@ object Testing {
 //      println(s"Imaginary Output: ${convert_long_to_float(c.io.out.Im.peek().litValue, 32)}")
 //    }
     println("--------")
-//    test(new DFT_r_v2_rv(3, 32)){c=>
+//    test(new DFT_Symmetric(3, 32)){c=>
 //      val CMultLatency = 2
 //      val CAddLatency = 1
 //      val DFT_latency = CMultLatency + ((Math.log10(3)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(3)/Math.log10(2)).floor.toInt)yield{(3/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
@@ -1208,7 +1208,7 @@ object Testing {
 //      println(s"Imaginary Output: ${convert_long_to_float(c.io.out(1).Im.peek().litValue, 32)}")
 //    }
 //    println("--------")
-//    test(new PermutationsBasic(8,2,1,32)){c=>
+//    test(new PermutationsSimple(8,2,1,32)){c=>
 //      c.io.in(0).Re.poke(convert_string_to_IEEE_754("1.0", 32).U)
 //      c.io.in(0).Im.poke(convert_string_to_IEEE_754("0", 32).U)
 //      c.io.in(1).Re.poke(convert_string_to_IEEE_754("2.0", 32).U)
@@ -1270,7 +1270,7 @@ object Testing {
 //
 //    val sw_model = FFT_r_GoldenModel(N, r, cmplx_inputs)
 println("-----------------------------------------------??????????????????")
-//      test(new FFT_sr_v2(8,2,8,32)){c=>
+//      test(new FFT_SingleRadix(8,2,8,32)){c=>
 //      val DFTr_Constants = FFT.DFT_gen(r).map(_.toVector).toVector
 //      var mult_count = 0
 //      for(i <- 0 until r-1){
