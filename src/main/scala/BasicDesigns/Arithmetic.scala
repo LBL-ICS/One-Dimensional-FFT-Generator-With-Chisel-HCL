@@ -2,12 +2,11 @@ package BasicDesigns
 import chisel3._
 import chisel3.util._
 
-// this is just a collection of typical circuits like the full adder, full subtract, full multiply, shift, and more
+// this is just a collection of simple parameterizable binary modules like the full adder, full subtract,  multiply, shift, and more
 object Arithmetic {
 
-  // for detecting the most significant 1. I use this for my FP_adder for determining shift amounts
+  // detecting the msb which is one
   class leadingOneDetector(bw: Int) extends Module{
-    //require(bw == 11 || bw == 24 || bw == 53 || bw ==113) // size of the mantissa + 1
     val io = IO(new Bundle() { // one input, one output
       val in = Input(UInt(bw.W))
       val out = Output(UInt((log2Floor(bw) + 1).W))

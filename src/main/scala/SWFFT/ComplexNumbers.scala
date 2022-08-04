@@ -1,4 +1,4 @@
-package implementation
+package SWFFT
 
 object ComplexNumbers {
   class complex {
@@ -36,7 +36,7 @@ object ComplexNumbers {
     in1
   }
 
-  type Wnk = cmplx // creating Wnk type for generating complex exponential used in DFT
+  type Wnk = cmplx // creating Wnk type for generating complex exponential used in DFT_NRV
   def Wnk(N: Double, nk: Double): cmplx = {
     var rads = (-1 * (2*Math.PI) / N)*nk
     cmplx(Math.cos(rads), Math.sin(rads))
