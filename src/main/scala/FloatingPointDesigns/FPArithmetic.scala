@@ -229,12 +229,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
       exponent = 15
       mantissa = 112
     }
-
-    //    val reg_in_a = Reg(UInt(bw.W))
-    //    val reg_in_b = Reg(UInt(bw.W))
-    //    reg_in_a := io.in_a
-    //    reg_in_b := io.in_b
-
     // sign part of ieee number
     val sign = Wire(Vec(2, UInt(1.W)))
     sign(0) := io.in_a(bw-1)
@@ -448,11 +442,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     // get the magic number
     val magic_num = magic.U((bw).W)
 
-    //    // get the input, but exclude the sign
-    //    val Ix = io.in_a(bw-2, 0)
-    //    // we need need to right shift the input by 1 (or divide by 2)
-    //    val new_Ix = Wire(UInt((bw-1).W))
-    //    new_Ix := Ix >> 1.U
     // calculating the fast inverse square root approximation
     val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
     result := magic_num - number
@@ -530,11 +519,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     // get the magic number
     val magic_num = magic.U((bw).W)
 
-    //    // get the input, but exclude the sign
-    //    val Ix = io.in_a(bw-2, 0)
-    //    // we need need to right shift the input by 1 (or divide by 2)
-    //    val new_Ix = Wire(UInt((bw-1).W))
-    //    new_Ix := Ix >> 1.U
     // calculating the fast inverse square root approximation
     val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
     result := magic_num - number
@@ -674,11 +658,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     // get the magic number
     val magic_num = magic.U((bw).W)
 
-    //    // get the input, but exclude the sign
-    //    val Ix = io.in_a(bw-2, 0)
-    //    // we need need to right shift the input by 1 (or divide by 2)
-    //    val new_Ix = Wire(UInt((bw-1).W))
-    //    new_Ix := Ix >> 1.U
     // calculating the fast inverse square root approximation
     val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
     result := magic_num - number
@@ -762,11 +741,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
       exponent = 15
       mantissa = 112
     }
-//    val reg_in_a = Reg(UInt(bw.W))
-//    val reg_in_b = Reg(UInt(bw.W))
-//    reg_in_a := io.in_a
-//    reg_in_b := io.in_b
-
     // get the sign bit of the two inptus
     val s = Wire(Vec(2, UInt(1.W)))
     s(0) := io.in_a(bw-1)
@@ -1260,11 +1234,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     // get the magic number
     val magic_num = magic.U((bw).W)
 
-    //    // get the input, but exclude the sign
-    //    val Ix = io.in_a(bw-2, 0)
-    //    // we need need to right shift the input by 1 (or divide by 2)
-    //    val new_Ix = Wire(UInt((bw-1).W))
-    //    new_Ix := Ix >> 1.U
     // calculating the fast inverse square root approximation
     val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
     result := magic_num - number
@@ -1357,11 +1326,6 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     // get the magic number
     val magic_num = magic.U((bw).W)
 
-    //    // get the input, but exclude the sign
-    //    val Ix = io.in_a(bw-2, 0)
-    //    // we need need to right shift the input by 1 (or divide by 2)
-    //    val new_Ix = Wire(UInt((bw-1).W))
-    //    new_Ix := Ix >> 1.U
     // calculating the fast inverse square root approximation
     val result = Wire(UInt(bw.W)) // subtract the adjusted input from the magic number and we have the inverse square root immediately (although an approximation)
     result := magic_num - number

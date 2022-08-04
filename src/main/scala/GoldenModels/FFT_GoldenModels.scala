@@ -111,15 +111,7 @@ object FFT_GoldenModels {
       subdirectory.clear()
     }
     genRandom(N*2*runs,directoryName, "inputfile",bw)
-    //    for(i <- 0 until N){
-    //      genRandom(2*runs,s"inputfile${i}",bw)
-    //    }
     var file = scala.io.Source.fromFile(directoryName + s"/inputfile_Decimal.txt").getLines().map(x=>x.toDouble).toArray
-    //file.toArray
-    //    val getFiles = (for(i <- 0 until N) yield{
-    //      val file = scala.io.Source.fromFile(s"./InputOutputFiles_SingleInput/inputfile${i}_Decimal.txt").getLines().map(x=>x.toDouble)
-    //      file.toArray
-    //    }).toArray
     val cmplxFiles = (for(i <- 0 until runs) yield{
       (for(j <- 0 until 2*N by 2) yield{
         cmplx(file(i*2*N + j),file(i*2*N + j+1))
