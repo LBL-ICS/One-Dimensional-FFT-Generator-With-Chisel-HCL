@@ -6,7 +6,7 @@ import chisel3.tester.RawTester.test
 import FloatingPointDesigns.FPArithmetic._
 import chisel3._
 import chisel3.tester._
-import ChiselFFT.FFTDesigns._
+import ChiselFFT.FFTSRDesigns._
 import SWFFT.FFT._
 import SWFFT.ComplexNumbers._
 import SWFFT._

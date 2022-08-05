@@ -5,7 +5,11 @@ import ComplexModules.FPComplex._
 import chisel3.tester.RawTester.test
 import chisel3._
 import chisel3.tester._
-import ChiselFFT.FFTDesigns._
+import FFTSRDesigns._
+import FFTMRDesigns._
+import DFTDesigns._
+import TwidFactorDesigns._
+import PermutationDesigns._
 import SWFFT.FFT._
 import SWFFT.ComplexNumbers._
 import SWFFT._

@@ -1,5 +1,9 @@
 package ChiselFFT
-import FFTDesigns._
+import FFTSRDesigns._
+import FFTMRDesigns._
+import DFTDesigns._
+import TwidFactorDesigns._
+import PermutationDesigns._
 import chisel3._
 import chisel3.util._
 import ComplexModules.FPComplex._
