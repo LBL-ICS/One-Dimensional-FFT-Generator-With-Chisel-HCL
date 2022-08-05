@@ -3,7 +3,6 @@ import Chisel.log2Ceil
 import chisel3._
 import FloatingPointDesigns.FPArithmetic._
 import SWFFT.FFT._
-import ChiselFFT.FFTDesigns._
 
 object FPComplex { // these are the complex FP modules
 

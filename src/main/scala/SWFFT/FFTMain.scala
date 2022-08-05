@@ -1,7 +1,7 @@
 package SWFFT
 import Permutations._
 import ChiselFFT.Testing._
-import ChiselFFT.FFTDesigns._
+import ChiselFFT.FFTSRDesigns._
 import better.files.StringInterpolations
 import chisel3.getVerilogString
 
