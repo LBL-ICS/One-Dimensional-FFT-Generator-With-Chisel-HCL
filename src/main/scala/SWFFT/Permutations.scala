@@ -15,6 +15,7 @@ object Permutations {
     for(o <-  0 until t) { // for each stage
       for (i <- 0 until m) {
         for (j <- 0 until nn) {
+          // incrementing in strides of m
           new_l(i * nn + j + o * n) = copy_l(j * m + i + o * n) // notice switch between i and j, and nn and m
         }
       }
@@ -24,12 +25,12 @@ object Permutations {
 
   // Perform the R permutation (bit reversal -- is obtained from repeated use of L)
   def R[T:ClassTag](l: Array[T], n: Int, m:Int): Array[T] = {
-    val t_val = (Math.log10(n)/Math.log10(m)).round.toInt //number of stages
+    val t_val = (Math.log10(n)/Math.log10(m)).round.toInt // number of stages
     var new_l = l //create copy of input array. Will also hold the final results
     for(i <- 0 until t_val){ // for each stage
       // compute L
-      val L_n = Math.pow(m, t_val - i).toInt // L_n decreases each cycle
-      val L_m = m // m stays constant
+      val L_n = Math.pow(m, t_val - i).toInt // L_n decreases each cycle (the size)
+      val L_m = m // m stays constant (the stride)
       new_l = L[T](new_l, L_n, L_m) // compute the L permutation and store
     }
     new_l // return the permuted results
@@ -547,6 +548,7 @@ object Permutations {
         }
       }
     }
-    unorganized_memory_addr
+    val organized_memory_addr = unorganized_memory_addr
+    organized_memory_addr
   }
 }

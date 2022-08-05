@@ -19,6 +19,11 @@ import Chisel.{isPow2, log2Ceil}
 import MDFFTDesigns._
 
 import scala.collection.mutable
+import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
+import firrtl.options.TargetDirAnnotation
+import better.files.StringInterpolations
+
+import scala.reflect.ClassTag
 
 object MDTesting {
   def main(args: Array[String]):Unit = {
@@ -71,5 +76,49 @@ object MDTesting {
     //        println("_-_-_-_-_-_-_-_-_-_-_-_")
     //      }
     //    }
+    def adjust_verilog_file(file_name: String, dir: String): Unit ={
+      val lines = scala.io.Source.fromFile(dir + "/" + file_name).getLines().toArray
+      for(i <- 0 until lines.length){
+        if(lines(i).contains("module") && !lines(i).contains("endmodule")){
+          var cnt = 7
+          var name = new String()
+          while(!lines(i)(cnt).equals('(')){
+            name += lines(i)(cnt)
+            cnt += 1
+          }
+          val new_file = name
+          val pw = new PrintWriter(dir + "/" + new_file + ".v")
+          var j = 0
+          while(!lines(i+j).contains("endmodule")){
+            pw.println(lines(i+j))
+            j += 1
+            if(lines(i+j).contains("endmodule")){
+              pw.println((lines(i+j)))
+            }
+          }
+          pw.close()
+        }
+      }
+    }
+    test(new FP_adder_mc(bw)){c=>
+      for(i <- 0 until 5000){
+        c.io.in_a.poke(convert_string_to_IEEE_754(s"${i*40}.0",bw).U)
+        c.io.in_b.poke(convert_string_to_IEEE_754(s"-${(i+1)*300}.0",bw).U)
+        println(s"Clock Cycle: ${i}\t|\tOutput: ${convert_long_to_float(c.io.out_s.peek().litValue,bw)}")
+        c.clock.step(1)
+        if(i > 6){
+          c.io.out_s.expect(convert_string_to_IEEE_754((40*(i-6) - 300*(i-6+1)).toDouble.toString,bw).U)
+        }
+      }
+      println("correct")
+    }
+    val dir = file"./fpadder32"
+    dir.createDirectoryIfNotExists()
+    dir.clear()
+    val file_name = "FP_Adder.v"
+    val pw = new PrintWriter(dir.name + "/" + file_name)
+    pw.println(getVerilogString(new FP_adder_mc(bw)))
+    pw.close
+//    adjust_verilog_file(file_name, dir.name)
   }
 }

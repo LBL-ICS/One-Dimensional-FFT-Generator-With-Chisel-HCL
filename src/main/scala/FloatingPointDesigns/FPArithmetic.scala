@@ -206,6 +206,367 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
     io.out_s := reg_out_s
   }
 
+  // 7 cycle adder
+  class FP_adder_mc(bw: Int) extends Module{
+    require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
+    val io = IO(new Bundle() {
+      val in_a = Input(UInt(bw.W))
+      val in_b = Input(UInt(bw.W))
+      val out_s = Output(UInt(bw.W))
+    })
+    var exponent = 0
+    var mantissa = 0
+    if (bw == 16){
+      exponent = 5
+      mantissa = 10
+    }else if (bw == 32){
+      exponent = 8
+      mantissa = 23
+    }else if(bw == 64){
+      exponent = 11
+      mantissa = 52
+    }else if(bw == 128){
+      exponent = 15
+      mantissa = 112
+    }
+
+    //    val reg_in_a = Reg(UInt(bw.W))
+    //    val reg_in_b = Reg(UInt(bw.W))
+    //    reg_in_a := io.in_a
+    //    reg_in_b := io.in_b
+
+    // sign part of ieee number
+    val sign = Wire(Vec(2, UInt(1.W)))
+    sign(0) := io.in_a(bw-1)
+    sign(1) := io.in_b(bw-1)
+
+    // exponent part of ieee number
+    val exp = Wire(Vec(2, UInt(exponent.W)))
+    when(io.in_a(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){ // there is a maximum number according to IEEE 754 standards
+      exp(0) := BigInt(2).pow(exponent).U - 2.U
+    }.otherwise{
+      exp(0) := io.in_a(bw-2, mantissa)
+    }
+    when(io.in_b(bw-2, mantissa) > BigInt(2).pow(exponent).U - 2.U){
+      exp(1) := BigInt(2).pow(exponent).U - 2.U
+    }.otherwise{
+      exp(1) := io.in_b(bw-2, mantissa)
+    }
+
+    //fractional part of ieee number
+    val frac = Wire(Vec(2, UInt(mantissa.W)))
+    frac(0) := io.in_a(mantissa-1,0)
+    frac(1) := io.in_b(mantissa-1,0)
+
+    // 1.0 + fractional part
+    val whole_frac = Wire(Vec(2, UInt((mantissa+1).W)))
+    whole_frac(0) := 1.U ## frac(0)
+    whole_frac(1) := 1.U ## frac(1)
+
+
+    val out_s = RegInit(0.U(1.W)) // sign of the larger input
+    val out_frac = RegInit(0.U(mantissa.W)) // mantissa/fractional part of larger input
+    val out_exp = RegInit(0.U(exponent.W)) // exponent of larger inpui
+    val sub_exp = RegInit(0.U(exponent.W)) // temporarily holds the result of exp(0) - exp(1) (difference in exponents)
+
+    // subtracts the exponent of second input from the first input
+    val subber = Module(new full_subber(exponent))
+    subber.io.in_a := exp(0)
+    subber.io.in_b := exp(1)
+    subber.io.in_c := 0.U
+
+    // in case the exponent difference is negative, take the twos complement of subtraction result
+    val exp_diff_c = RegInit(0.U(1.W)) // 1st clock cycle
+    exp_diff_c := subber.io.out_c
+    val complement = Module(new twoscomplement(exponent))
+    when(subber.io.out_c === 1.U){
+      complement.io.in := subber.io.out_s
+      sub_exp := complement.io.out
+    }.otherwise{
+      complement.io.in := 0.U
+      sub_exp := subber.io.out_s
+    }
+
+    // add the fractional/mantissa parts of the ieee numbers together
+    // these instantiations of twoscomplement are when there are negative number inputs
+
+    // before we add the mantissa parts together, we need to align the exponents by shifting by the exponent difference
+    val shifter = Module(new shifter(mantissa + 1))
+    val temp_wf = RegInit(VecInit.fill(2)(0.U((mantissa+1).W)))
+    temp_wf := whole_frac
+    // if the exponent difference resulted in a borrow, then the second input has a larger exponent than the first
+    val temp_sign = RegInit(VecInit.fill(2)(0.U(1.W))) // part of first cycle
+    temp_sign := sign
+    val temp_exp = RegInit(VecInit.fill(2)(0.U(exponent.W)))
+    temp_exp := exp
+    val temp_frac = RegInit(VecInit.fill(2)(0.U(mantissa.W)))
+    temp_frac := frac
+
+    val inps = RegInit(VecInit.fill(2)(0.U(bw.W)))
+    inps(0) := io.in_a
+    inps(1) := io.in_b
+
+    // end of 1 cc
+    val out_s2 = RegInit(0.U(1.W)) // sign of the larger input
+    val out_frac2 = RegInit(0.U(mantissa.W)) // mantissa/fractional part of larger input
+    val out_exp2 = RegInit(0.U(exponent.W)) // exponent of larger inpui
+    val sub_exp2 = RegInit(0.U(exponent.W))
+    sub_exp2 := sub_exp
+    val adder = Module(new full_adder(mantissa+1))
+    adder.io.in_c := 0.U
+    val complementN_0 = Module(new twoscomplement(mantissa + 1))
+    val complementN_1 = Module(new twoscomplement(mantissa + 1))
+    when(exp_diff_c === 1.U){
+      out_exp2 := temp_exp(1) // reference exponent // second clockcycle
+      out_s2 := temp_sign(1) // reference sign
+      out_frac2 := temp_frac(1) // reference frac
+      // part of the same cycle
+      shifter.io.in_a := temp_wf(0) // shift the smaller exponent input to the right for aligning
+      shifter.io.in_b := sub_exp
+      shifter.io.in_c := 1.U
+      complementN_0.io.in := shifter.io.out_s
+      complementN_1.io.in := temp_wf(1)
+      // if first input is negative, take twos complement
+      when(temp_sign(0) === 1.U && temp_sign(1) === 0.U){
+        adder.io.in_a := complementN_0.io.out
+        adder.io.in_b := temp_wf(1)
+      }.elsewhen(temp_sign(1) === 1.U && temp_sign(0) === 0.U){
+        adder.io.in_a := shifter.io.out_s
+        adder.io.in_b := complementN_1.io.out
+      }.otherwise{
+        adder.io.in_a := shifter.io.out_s // now we can add the two aligned mantissa/fractional parts
+        adder.io.in_b := temp_wf(1)
+      }
+    }.otherwise { // otherwise the first input has a larger exponent or the same as the second input
+      out_exp2 := temp_exp(0) // reference exp
+      out_s2 := temp_sign(0) // reference sign
+      out_frac2 := temp_frac(0) // reference frac
+      // part of the same cycle
+      shifter.io.in_a := temp_wf(1) // shift the smaller exponent input to the right for aligning
+      shifter.io.in_b := sub_exp
+      shifter.io.in_c := 1.U
+      complementN_0.io.in := temp_wf(0)
+      complementN_1.io.in := shifter.io.out_s
+      when(temp_sign(0) === 1.U && temp_sign(1) === 0.U){
+        adder.io.in_a := complementN_0.io.out
+        adder.io.in_b := shifter.io.out_s
+      }.elsewhen(temp_sign(1) === 1.U && temp_sign(0) === 0.U){
+        adder.io.in_a := temp_wf(0)
+        adder.io.in_b := complementN_1.io.out
+      }.otherwise{
+        adder.io.in_a := temp_wf(0) // now we can add the two aligned mantissa/fractional parts
+        adder.io.in_b := shifter.io.out_s
+      }
+    }
+    val inps2 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+    inps2 := inps
+
+
+    val temp_wf2 = RegInit(VecInit.fill(2)(0.U((mantissa+1).W)))
+    temp_wf2 := temp_wf
+    val temp_sign2 = RegInit(VecInit.fill(2)(0.U(1.W)))
+    temp_sign2 := temp_sign
+    val temp_exp2 = RegInit(VecInit.fill(2)(0.U(exponent.W)))
+    temp_exp2 := temp_exp
+    val temp_frac2 = RegInit(VecInit.fill(2)(0.U(mantissa.W)))
+    temp_frac2 := temp_frac
+
+    val adder_frac_results = RegInit(0.U((mantissa + 1).W))
+    adder_frac_results := adder.io.out_s
+    val adder_frac_results_c = RegInit(0.U(1.W))
+    adder_frac_results_c := adder.io.out_c
+    // end of 2 clock cycle
+
+    //start of 3 clock cycle
+    val new_s = RegInit(0.U(1.W)) // will hold the final sign result
+    val new_out_frac = RegInit(0.U(mantissa.W)) // will hold the final mantissa result
+    val new_out_exp = RegInit(0.U(exponent.W)) // will hold the final exponent result
+    new_s := (~adder_frac_results_c & temp_sign2(0)) | (temp_sign2(0) & temp_sign2(1)) | (~adder_frac_results_c & temp_sign2(1)) // this binary equation gives the new sign of the sum
+    new_out_frac := 0.U // just temporarily setting to 0
+    new_out_exp := 0.U
+
+    val out_s3 = RegInit(0.U(1.W)) // sign of the larger input
+    val out_frac3 = RegInit(0.U(mantissa.W)) // mantissa/fractional part of larger input
+    val out_exp3 = RegInit(0.U(exponent.W)) // exponent of larger inpui
+    val sub_exp3 = RegInit(0.U(exponent.W))
+    out_s3 := out_s2
+    out_frac3 := out_frac2
+    out_exp3 := out_exp2
+    sub_exp3 := sub_exp2
+
+    val temp_wf3 = RegInit(VecInit.fill(2)(0.U((mantissa+1).W)))
+    temp_wf3 := temp_wf2
+    val temp_sign3 = RegInit(VecInit.fill(2)(0.U(1.W)))
+    temp_sign3 := temp_sign2
+    val temp_exp3 = RegInit(VecInit.fill(2)(0.U(exponent.W)))
+    temp_exp3 := temp_exp2
+    val temp_frac3 = RegInit(VecInit.fill(2)(0.U(mantissa.W)))
+    temp_frac3 := temp_frac2
+
+    val adder_frac_results2 = RegInit(0.U((mantissa + 1).W))
+    adder_frac_results2 := adder_frac_results
+    val adder_frac_results_c2 = RegInit(0.U(1.W))
+    adder_frac_results_c2 := adder_frac_results_c
+
+    val inps3 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+    inps3 := inps2
+    // end of 3 clock cycle
+
+    // start of 4 clock cycle
+    val adder_result = RegInit(0.U((mantissa+1).W))
+    val adder_result_c = RegInit(0.U(1.W))
+    adder_result_c := adder_frac_results_c2
+    val complementN_2 = Module(new twoscomplement(mantissa + 1))
+
+    when(new_s === 1.U && temp_sign3(0) =/= temp_sign3(1)){ // if the new sign of the sum is negative, then take the twos complement of the mantissa sum
+      complementN_2.io.in := adder_frac_results2
+      adder_result := complementN_2.io.out
+    }.otherwise{
+      complementN_2.io.in := 0.U
+      adder_result := adder_frac_results2
+    }
+
+    val out_s4 = RegInit(0.U(1.W)) // sign of the larger input
+    val out_frac4 = RegInit(0.U(mantissa.W)) // mantissa/fractional part of larger input
+    val out_exp4 = RegInit(0.U(exponent.W)) // exponent of larger inpui
+    val sub_exp4 = RegInit(0.U(exponent.W))
+    out_s4 := out_s3
+    out_frac4 := out_frac3
+    out_exp4 := out_exp3
+    sub_exp4 := sub_exp3
+
+    val temp_wf4 = RegInit(VecInit.fill(2)(0.U((mantissa+1).W)))
+    temp_wf4 := temp_wf3
+    val temp_sign4 = RegInit(VecInit.fill(2)(0.U(1.W)))
+    temp_sign4 := temp_sign3
+    val temp_exp4 = RegInit(VecInit.fill(2)(0.U(exponent.W)))
+    temp_exp4 := temp_exp3
+    val temp_frac4 = RegInit(VecInit.fill(2)(0.U(mantissa.W)))
+    temp_frac4 := temp_frac3
+
+    val adder_frac_results3 = RegInit(0.U((mantissa + 1).W))
+    adder_frac_results3 := adder_frac_results2
+    val adder_frac_results_c3 = RegInit(0.U(1.W))
+    adder_frac_results_c3 := adder_frac_results_c2
+
+    val new_s2 = RegInit(0.U(1.W)) // will hold the final sign result
+    val new_out_frac2 = RegInit(0.U(mantissa.W)) // will hold the final mantissa result
+    val new_out_exp2 = RegInit(0.U(exponent.W)) // will hold the final exponent result
+    new_s2 := new_s
+    new_out_frac2 := new_out_frac
+    new_out_exp2 := new_out_exp
+
+    val inps4 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+    inps4 := inps3
+    // end of 4 clock cycle
+
+    // start clock cycle 5
+    val D = RegInit(0.U(1.W))  // will indicate in which direction the mantissa sum will have to be shifted to be correct. (D = 0 indicates current exponent needs to be increased, D= 1 indicates that the current exponent needs to be decreased)
+    val E = RegInit(0.U(1.W))  // will indicate if there is no need for adjusting the mantissa sum and we can leave it as it is.
+
+    // equation for describing the conditions in which the mantissa sum will need to be shifted
+    D := (~adder_frac_results_c3) | (temp_sign4(0) ^ temp_sign4(1))
+
+    // equation for the conditions in which the manstissa sum does not need to be shifted. This has higher priority than D
+    E := (~adder_frac_results_c3 & ~adder_frac_results3(mantissa)) | (~adder_frac_results_c3 & ~(temp_sign4(0) ^ temp_sign4(1))) | (adder_frac_results_c3 & adder_frac_results3(mantissa) & (temp_sign4(0) ^ temp_sign4(1)))
+
+    val adder_result2 = RegInit(0.U((mantissa+1).W))
+    val adder_result_c2 = RegInit(0.U(1.W))
+    adder_result2 := adder_result
+    adder_result_c2 := adder_result_c
+
+    val out_s5 = RegInit(0.U(1.W)) // sign of the larger input
+    val out_frac5 = RegInit(0.U(mantissa.W)) // mantissa/fractional part of larger input
+    val out_exp5 = RegInit(0.U(exponent.W)) // exponent of larger inpui
+    val sub_exp5 = RegInit(0.U(exponent.W))
+    out_s5 := out_s4
+    out_frac5 := out_frac4
+    out_exp5 := out_exp4
+    sub_exp5 := sub_exp4
+
+    val temp_wf5 = RegInit(VecInit.fill(2)(0.U((mantissa+1).W)))
+    temp_wf5 := temp_wf4
+    val temp_sign5 = RegInit(VecInit.fill(2)(0.U(1.W)))
+    temp_sign5 := temp_sign4
+    val temp_exp5 = RegInit(VecInit.fill(2)(0.U(exponent.W)))
+    temp_exp5 := temp_exp4
+    val temp_frac5 = RegInit(VecInit.fill(2)(0.U(mantissa.W)))
+    temp_frac5 := temp_frac4
+
+    val adder_frac_results4 = RegInit(0.U((mantissa + 1).W))
+    adder_frac_results4 := adder_frac_results3
+    val adder_frac_results_c4 = RegInit(0.U(1.W))
+    adder_frac_results_c4 := adder_frac_results_c3
+
+    val new_s3 = RegInit(0.U(1.W)) // will hold the final sign result
+    val new_out_frac3 = RegInit(0.U(mantissa.W)) // will hold the final mantissa result
+    val new_out_exp3 = RegInit(0.U(exponent.W)) // will hold the final exponent result
+    new_s3 := new_s2
+    new_out_frac3 := new_out_frac2
+    new_out_exp3 := new_out_exp2
+
+    val inps5 = RegInit(VecInit.fill(2)(0.U(bw.W)))
+    inps5 := inps4
+    // end of cycle 5
+
+    // this twoscomplement is here to take the two complement of the mantissa sum in case the new sign of the sum is negative
+
+    // 6 clock cycle
+    // module finds the most significant 1 in the mantissa sum. This is used when E = 0, and D = 1, indicating a left shift
+    val leadingOneFinder = Module(new leadingOneDetector(mantissa + 1))
+    leadingOneFinder.io.in := adder_result2
+    val subber2 = Module(new full_subber(exponent))
+    subber2.io.in_a := out_exp5
+    subber2.io.in_b := ((mantissa + 1).U - leadingOneFinder.io.out)
+    subber2.io.in_c := 0.U
+
+    val new_s4 = RegInit(0.U(1.W)) // will hold the final sign result
+    val new_out_frac4 = RegInit(0.U(mantissa.W)) // will hold the final mantissa result
+    val new_out_exp4 = RegInit(0.U(exponent.W))
+
+    when(inps5(0)(bw-2,0) === 0.U && inps5(1)(bw-2, 0) === 0.U){
+      new_s4 := 0.U
+      new_out_exp4 := 0.U
+      new_out_frac4 := 0.U
+    }.elsewhen( sub_exp5 >= mantissa.U){// if the difference between the exponents is too large, larger than mantissa size.
+      new_s4 := out_s5
+      new_out_frac4 := out_frac5
+      new_out_exp4 := out_exp5
+    }.elsewhen(E === 1.U){ // if the exponent should stay the same size as the largest exponent
+      new_s4 := new_s3
+      new_out_exp4 := out_exp5
+      new_out_frac4 := adder_result2(mantissa-1,0)
+    }.elsewhen(D === 0.U){ // if exponent needs to be increased by 1
+      new_s4 := new_s3
+      when(out_exp5 === BigInt(2).pow(exponent).U - 2.U){
+        new_out_exp4 := BigInt(2).pow(exponent).U - 2.U
+        new_out_frac4 := BigInt(2).pow(mantissa).U - 1.U
+      }.otherwise{
+        new_out_exp4 := out_exp5 + 1.U
+        new_out_frac4 := adder_result2(mantissa,1)
+      }
+    }.elsewhen(D === 1.U){ // if exponent needs to be decreased by 1 or more
+      new_s4 := new_s3
+      when(leadingOneFinder.io.out === 1.U && adder_result2 === 0.U && ((1.U === (temp_sign5(0) ^ temp_sign5(1)) && inps5(0)(bw-2, 0)===inps5(1)(bw-2,0)))){
+        new_out_exp4 := 0.U
+      }.otherwise{
+        when(subber2.io.out_c === 1.U){
+          new_out_exp4 := 1.U(exponent.W)
+          new_out_frac4 := BigInt(2).pow(mantissa-1).U(mantissa.W)
+        }.otherwise {
+          new_out_exp4 := subber2.io.out_s
+          new_out_frac4 := adder_result2(mantissa - 1, 0) << ((mantissa + 1).U - leadingOneFinder.io.out)
+        }
+      }
+    }
+    // 7 clock cycle
+    val reg_out_s = RegInit(0.U(bw.W))
+    //val reg_out_s = Reg(UInt(bw.W))
+    reg_out_s := new_s4 ## new_out_exp4 ## new_out_frac4
+    // combine all of the final results
+    io.out_s := reg_out_s
+  }
+
   // FP adder without a register at output
   class FP_adder_nonregout(bw: Int) extends Module{
     require(bw == 16 || bw == 32 || bw == 64 || bw == 128)
@@ -842,6 +1203,16 @@ object FPArithmetic { // you might see errors from the IDE in the FP_adders, but
   }
 
   // exponential (Approximate design)
+  // it works by separating the whole part from the fractional part
+  // first convert the form e^(x) into 2^(x/ln(2))
+  // let y = x/ln(2)
+  // then 2^(y) = 2^(y_whole_part)*2^(y_frac_part)
+  // Performing 2^(y_whole_part) is easy since we can just increment or decrement the exponent part of IEEE 754 number
+  // for 2^(y_frac_part), it is not as simple, so we convert it back to e^(y_frac_part*ln(2))
+  // since y_frac_part is already below 1, and we are multiplying it by ln(2), which is also below 1,then we end up with an even smaller number
+  // so this is convenient to apply the Taylor series approximation for e^(y_frac_part*ln(2)).
+  // the results are multiplied together at the end
+  // 2^(y_whole_part) * e^(y_frac_part*ln(2)) = e^(x)
   class FP_exponential(bw: Int) extends Module {
     val io = IO(new Bundle{
       val in_a = Input(UInt(bw.W))
