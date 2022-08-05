@@ -97,7 +97,6 @@ object FPConvert { // converting between IEEE 754 and decimal
     }
     val max_val = (BigDecimal(2) - BigDecimal(2).pow(-1 * mantissa)) * BigDecimal(2).pow(bias)
     val min_val = BigDecimal(2).pow(-1*(bias-1))
-    //println(min_val)
     if (str.equals("0.0") || str.equals('0')){
       return scala.BigInt(0)
     }
@@ -109,7 +108,6 @@ object FPConvert { // converting between IEEE 754 and decimal
     }
     if(num.contains('E')){
       num = convert_E(num)
-      //println(num)
     }
     var new_val = BigDecimal(num)
     if( new_val.abs > max_val){

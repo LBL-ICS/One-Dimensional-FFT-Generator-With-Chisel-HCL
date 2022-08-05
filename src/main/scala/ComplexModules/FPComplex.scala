@@ -184,9 +184,6 @@ object FPComplex { // these are the complex FP modules
     val new_exp1 = Wire(Vec(2, UInt(exponent.W)))
     val c1 = isReducable(sRe.abs)
     val c2 = isReducable(sIm.abs)
-    println(c1._1, sRe)
-    println(c2._1, sIm)
-    println(isReducable(0.5)._1)
     val new_sign = Wire(Vec(4, UInt(1.W)))
     new_sign(0) := sign(0) ^ io.in_b.Re(bw-1)
     new_sign(1) := sign(0) ^ io.in_b.Im(bw-1)
@@ -306,29 +303,21 @@ object FPComplex { // these are the complex FP modules
       val subber = Module(new FP_subber(bw)).io
       val temp_results = Wire(Vec(2, new ComplexNum(bw)))
       if(sRe > 0 && sIm > 0){
-        println(s"case ${0} is the case")
-        println((sRe, sIm))
         temp_results(0).Re := io.in_a.Re
         temp_results(0).Im := io.in_a.Im
         temp_results(1).Re := io.in_a.Re
         temp_results(1).Im := io.in_a.Im
       }else if(sRe < 0 && sIm < 0){
-        println(s"case ${1} is the case")
-        println((sRe, sIm))
         temp_results(0).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
         temp_results(0).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
         temp_results(1).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
         temp_results(1).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
       }else if(sRe < 0){
-        println(s"case ${2} is the case")
-        println((sRe, sIm))
         temp_results(0).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
         temp_results(0).Im := io.in_a.Im
         temp_results(1).Re := io.in_a.Re
         temp_results(1).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
       }else if(sIm < 0){
-        println(s"case ${3} is the case")
-        println((sRe, sIm))
         temp_results(0).Re := io.in_a.Re
         temp_results(0).Im := (~io.in_a.Im(bw-1)) ## io.in_a.Im(bw-2,0)
         temp_results(1).Re := (~io.in_a.Re(bw-1)) ## io.in_a.Re(bw-2,0)
@@ -442,14 +431,11 @@ object FPComplex { // these are the complex FP modules
       val new_exp1 = Wire(Vec(2, UInt(exponent.W)))
       val c1 = isReducable(sRe.abs)
       val c2 = isReducable(sIm.abs)
-      println(c1._1, sRe)
-      println(c2._1, sIm)
       val new_sign = Wire(Vec(4, UInt(1.W)))
       new_sign(0) := sign(0) ^ io.in_b.Re(bw-1)
       new_sign(1) := sign(0) ^ io.in_b.Im(bw-1)
       new_sign(2) := sign(1) ^ io.in_b.Im(bw-1)
       new_sign(3) := sign(1) ^ io.in_b.Re(bw-1)
-      println(isReducable(0.5)._1)
       when(c1._1.B) {
         when(exp(0) =/= 0.U) {
           new_exp1(0) := exp(0) - c1._2.abs.U

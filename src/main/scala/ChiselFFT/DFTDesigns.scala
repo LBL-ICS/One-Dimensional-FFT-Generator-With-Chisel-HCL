@@ -38,7 +38,6 @@ object DFTDesigns {
         }
         row
       }
-      ind_sq.map(x=>println(x))
       val ind_sq_unique = mutable.ArrayBuffer[Int]()
       val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
       val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -58,10 +57,6 @@ object DFTDesigns {
           }
         }
       }
-      println(ind_sq_unique.zipWithIndex.toList)
-      println(ind_sq_unique_address.toList)
-      println(cases.toList)
-      println(cases_addr.toList)
       def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
         var returnval = (0,0)
         for(i <- 0 until arr.length){
@@ -72,7 +67,6 @@ object DFTDesigns {
         returnval
       }
       val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-      println(cases_addr_adjusted.toList)
 
       def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
         var returnval = 0
@@ -84,7 +78,6 @@ object DFTDesigns {
         returnval
       }
       val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-      new_adj_case_sq.map(x=>println(x.toList))
       var mult_layer_count1 = 0
       var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
       for(i <- 0 until cases.length) yield {
@@ -247,7 +240,6 @@ object DFTDesigns {
         }
         row
       }
-      ind_sq.map(x=>println(x))
       val ind_sq_unique = mutable.ArrayBuffer[Int]()
       val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
       val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -267,10 +259,6 @@ object DFTDesigns {
           }
         }
       }
-      println(ind_sq_unique.zipWithIndex.toList)
-      println(ind_sq_unique_address.toList)
-      println(cases.toList)
-      println(cases_addr.toList)
       def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
         var returnval = (0,0)
         for(i <- 0 until arr.length){
@@ -281,7 +269,6 @@ object DFTDesigns {
         returnval
       }
       val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-      println(cases_addr_adjusted.toList)
 
       def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
         var returnval = 0
@@ -293,7 +280,6 @@ object DFTDesigns {
         returnval
       }
       val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-      new_adj_case_sq.map(x=>println(x.toList))
       var mult_layer_count1 = 0
       var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
       for(i <- 0 until cases.length) yield {
@@ -317,7 +303,6 @@ object DFTDesigns {
       val multlayerlatency = if(mult_layer_count1>0){1}else{0}
       val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
       val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
-      println(s"mulltaddlatency: ${multlayerlatency}")
       val end_latency = 1
       val initial_adds_subs = for(i <- 0 until inner_inner_square_size)yield{
         val ias = for(j <- 0 until 2)yield{
@@ -346,7 +331,6 @@ object DFTDesigns {
       val initial_layer_out = if(subaddlayerlatency + multlayerlatency > 0){RegInit(VecInit.fill(subaddlayerlatency + multlayerlatency)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}else{WireInit(VecInit.fill(2)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}
       val initial_layer_out_mid = if(subaddlayerlatency + multlayerlatency > 0){RegInit(VecInit.fill(subaddlayerlatency + multlayerlatency)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}else{WireInit(VecInit.fill(2)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}
       val slctlncy = if(subaddlayerlatency + multlayerlatency > 0){subaddlayerlatency + multlayerlatency}else{2}
-      println(s"slctltncy ${slctlncy}")
       for(i <- 0 until subaddlayerlatency + multlayerlatency){
         if(i == 0){
           for(j <- 0 until inner_inner_square_size){
@@ -512,7 +496,6 @@ object DFTDesigns {
         }
         row
       }
-      ind_sq.map(x=>println(x))
       val ind_sq_unique = mutable.ArrayBuffer[Int]()
       val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
       val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -532,10 +515,6 @@ object DFTDesigns {
           }
         }
       }
-      println(ind_sq_unique.zipWithIndex.toList)
-      println(ind_sq_unique_address.toList)
-      println(cases.toList)
-      println(cases_addr.toList)
       def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
         var returnval = (0,0)
         for(i <- 0 until arr.length){
@@ -546,7 +525,6 @@ object DFTDesigns {
         returnval
       }
       val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-      println(cases_addr_adjusted.toList)
 
       def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
         var returnval = 0
@@ -558,7 +536,6 @@ object DFTDesigns {
         returnval
       }
       val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-      new_adj_case_sq.map(x=>println(x.toList))
       var mult_layer_count1 = 0
       var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
       for(i <- 0 until cases.length) yield {
@@ -760,7 +737,6 @@ object DFTDesigns {
         }
         row
       }
-      ind_sq.map(x=>println(x))
       val ind_sq_unique = mutable.ArrayBuffer[Int]()
       val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
       val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -780,10 +756,6 @@ object DFTDesigns {
           }
         }
       }
-      println(ind_sq_unique.zipWithIndex.toList)
-      println(ind_sq_unique_address.toList)
-      println(cases.toList)
-      println(cases_addr.toList)
       def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
         var returnval = (0,0)
         for(i <- 0 until arr.length){
@@ -794,7 +766,6 @@ object DFTDesigns {
         returnval
       }
       val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-      println(cases_addr_adjusted.toList)
 
       def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
         var returnval = 0
@@ -806,7 +777,6 @@ object DFTDesigns {
         returnval
       }
       val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-      new_adj_case_sq.map(x=>println(x.toList))
       var mult_layer_count1 = 0
       var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
       for(i <- 0 until cases.length) yield {
@@ -830,7 +800,6 @@ object DFTDesigns {
       val multlayerlatency = if(mult_layer_count1>0){1}else{0}
       val subaddlayerlatency = if(subadd_layer_count1 > 0){1}else{0}
       val multadd_latency = if(inner_inner_square_size>1){((Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(inner_inner_square_size)/Math.log10(2)).floor.toInt)yield{(inner_inner_square_size/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)}else{0}
-      println(s"mulltaddlatency: ${multlayerlatency}")
       val end_latency = 1
       val total_latency = initial_Latency + multlayerlatency + subaddlayerlatency + multadd_latency + end_latency + 1
       val regdelays = RegInit(VecInit.fill(total_latency)(false.B))
@@ -880,7 +849,6 @@ object DFTDesigns {
       val initial_layer_out = if(subaddlayerlatency + multlayerlatency > 0){RegInit(VecInit.fill(subaddlayerlatency + multlayerlatency)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}else{WireInit(VecInit.fill(2)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}
       val initial_layer_out_mid = if(subaddlayerlatency + multlayerlatency > 0){RegInit(VecInit.fill(subaddlayerlatency + multlayerlatency)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}else{WireInit(VecInit.fill(2)(VecInit.fill(inner_inner_square_size)(0.U.asTypeOf(new ComplexNum(bw)))))}
       val slctlncy = if(subaddlayerlatency + multlayerlatency > 0){subaddlayerlatency + multlayerlatency}else{2}
-      println(s"slctltncy ${slctlncy}")
       for(i <- 0 until subaddlayerlatency + multlayerlatency){
         if(i == 0){
           for(j <- 0 until inner_inner_square_size){
@@ -1069,14 +1037,12 @@ object DFTDesigns {
       }
       multiplier_ind.toIndexedSeq
     }
-    mult_needs.map(x=>println(x.toList))
     val CMultLatency = 2
     val CAddLatency = 1
     var DFT_latency = CMultLatency + ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{((r/Math.pow(2,l)).floor.toInt) % 2}).reduce(_+_)) * (CAddLatency) + 1
     if(mult_count == 0){
       DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency) + 1
     }
-    println(s"Teh DFT_NRV Latencyt : ${DFT_latency}")
     val regDelays = RegInit(VecInit.fill(DFT_latency)(false.B)/*(DFT_latency, Bool())*/)
     for(i <- 0 until DFT_latency){
       if(i == 0){
@@ -1251,7 +1217,6 @@ object DFTDesigns {
     if(mult_count == 0){
       DFT_latency = ((Math.log10(r)/Math.log10(2)).floor.toInt + (for(l <- 0 until (Math.log10(r)/Math.log10(2)).floor.toInt)yield{(r/Math.pow(2,l)).floor.toInt % 2}).reduce(_+_)) * (CAddLatency)
     }
-    println(s"Teh DFT_NRV Latencyt : ${DFT_latency}")
     val adj = mutable.ArrayBuffer[(Int, Int, Int, Boolean, Boolean, Boolean)]()
     val mult_ind_adj = mutable.ArrayBuffer[Int]()
     val adj_non_mult = mutable.ArrayBuffer[(Int, Int, Int, Boolean, Boolean, Boolean)]()

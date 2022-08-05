@@ -46,7 +46,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -66,10 +65,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -80,7 +75,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -92,7 +86,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -122,7 +115,6 @@ object FFTSRDesigns {
     if(r==2){
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = N/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -158,7 +150,6 @@ object FFTSRDesigns {
     val valid_signal = Wire(Bool())
     valid_signal := regDelays(Total_Latency-1)
     io.out_validate := valid_signal
-    println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
     val DFT_instances = (for(i <- 0 until number_of_stages) yield{
       val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
         val DFT_instance = Module(new DFT_Symmetric_NRV(r, bw)).io
@@ -241,7 +232,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -261,10 +251,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -275,7 +261,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -287,7 +272,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -317,7 +301,6 @@ object FFTSRDesigns {
     if(r == 2){
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = N/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -342,7 +325,6 @@ object FFTSRDesigns {
     val Twid_latency = (N/w) * CMultLatency
     val Perm_latency = 0
     val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
-    println(s"Total Latency: ${(Total_Latency, DFT_latency, Twid_latency, Perm_latency)}")
     val DFT_instances = (for(i <- 0 until number_of_stages) yield{
       val DFT_instnace_row = (for(j <- 0 until DFTs_per_stage) yield{
         val DFT_instance = Module(new DFT_Symmetric_NRV(r, bw)).io
@@ -414,7 +396,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -434,10 +415,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -448,7 +425,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -460,7 +436,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -490,7 +465,6 @@ object FFTSRDesigns {
     if(r == 2){
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = w/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -498,8 +472,6 @@ object FFTSRDesigns {
     val Twid_latency = TotalStages * T_L
     val Perm_latency = (N/w)*2
     val Total_Latency = Twid_latency + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
-    println(s"The total latency is: ${Total_Latency}")
-    println(s"${(T_L, DFT_latency, Perm_latency)}")
     val DFT_regdelays = RegInit(VecInit.fill(number_of_stages)(VecInit.fill(DFT_latency)(false.B)))
     val Twid_regdelays = RegInit(VecInit.fill(number_of_stages-1)(VecInit.fill(T_L)(false.B)))
     val Perm_regdelays = RegInit(VecInit.fill(number_of_stages+1)(VecInit.fill(Perm_latency)(false.B)))
@@ -638,7 +610,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -658,10 +629,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -672,7 +639,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -684,7 +650,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -714,7 +679,6 @@ object FFTSRDesigns {
     if(r == 2){
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = w/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -722,8 +686,6 @@ object FFTSRDesigns {
     val Twid_latency = TotalStages * T_L
     val Perm_latency = (N/w)*2
     val Total_Latency = Twid_latency + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency + 1
-    println(s"The total latency is: ${Total_Latency}")
-    println(s"${(T_L, DFT_latency, Perm_latency)}")
     val DFT_regdelays = RegInit(VecInit.fill(number_of_stages)(VecInit.fill(DFT_latency)(false.B)))
     val Twid_regdelays = RegInit(VecInit.fill(number_of_stages-1)(VecInit.fill(T_L)(false.B)))
     val Perm_regdelays = RegInit(VecInit.fill(number_of_stages+1)(VecInit.fill(Perm_latency)(false.B)))
@@ -852,7 +814,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -872,10 +833,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -886,7 +843,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -898,7 +854,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -928,7 +883,6 @@ object FFTSRDesigns {
     if(r == 2){
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = w/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val number_of_stages_depth = d // ideally has to be a divisor of the number of stages
@@ -949,15 +903,10 @@ object FFTSRDesigns {
         overrall_latency += Latency_exclude_first - 1 + (N/w)
       }
     }
-    println("increment point check")
     increment_points += overrall_latency + Perm_latency
-    increment_points.map(x=>println(x))
     overrall_latency += Perm_latency
     overrall_latency += (N/w)
-    println(s"The Overall Latency of Computation: ${overrall_latency}")
 
-    println(s"The total latency is: ${Total_Latency}")
-    println(s"${(T_L, DFT_latency, Perm_latency)}")
     val DFT_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(DFT_latency)(false.B))) // DFT_NRV latancy
     val Twid_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(T_L)(false.B)))
     val Perm_regdelays = RegInit(VecInit.fill(number_of_stages_depth)(VecInit.fill(Perm_latency)(false.B)))
@@ -999,7 +948,6 @@ object FFTSRDesigns {
       }
       Twid_map_2D
     }
-    twid_sets.map(x=>x.map(y=>y.map(z=>z.print_complex)))
     val Twid_sets_vec_Re = VecInit(for(i <- 0 until number_of_stages) yield{
       val temp = for(j <- 0 until N/w) yield{
         val sub_temp = VecInit(twid_sets(i)(j).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U(bw.W)))
@@ -1025,7 +973,6 @@ object FFTSRDesigns {
         }).toArray
         M1_slice
       }).toArray
-      M1_access.map(x => println(x.toList))
       val M1_vec = for (i <- 0 until N / w) yield {
         val V = VecInit(M1_access(i).map(_.U((log2Ceil(w).W))))
         V
@@ -1042,7 +989,6 @@ object FFTSRDesigns {
         }).toArray
         M0_slice
       }).toArray
-      M0_access.map(x => println(x.toList))
       val M0_vec = for (i <- 0 until N / w) yield {
         val V = VecInit(M0_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
         V
@@ -1059,7 +1005,6 @@ object FFTSRDesigns {
         }).toArray
         M1_slice
       }).toArray
-      M1_access.map(x => println(x.toList))
       val M1_vec = for (i <- 0 until N / w) yield {
         val V = VecInit(M1_access(i).map(_.U((log2Ceil((N / w) * 2)).W)))
         V
@@ -1246,7 +1191,6 @@ object FFTSRDesigns {
       }
       row
     }
-    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -1266,10 +1210,6 @@ object FFTSRDesigns {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -1280,7 +1220,6 @@ object FFTSRDesigns {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -1292,7 +1231,6 @@ object FFTSRDesigns {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -1338,10 +1276,7 @@ object FFTSRDesigns {
       }
     }
     increment_points += overrall_latency + Perm_latency
-    println("Here are the icnrement points:")
-    increment_points.map(x=>println(x))
     overrall_latency += Perm_latency + 1
-    println(s"The overrall Latency is: ${overrall_latency}")
     val progress_cnt = RegInit(0.U(log2Ceil(overrall_latency).W))
     val list_of_twids = Permutations.T2(N,r)
     val initial_twid = for(i <- 0 until N) yield{

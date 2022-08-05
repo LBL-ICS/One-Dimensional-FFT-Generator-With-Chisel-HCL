@@ -151,12 +151,7 @@ object PermutationDesigns {
         }
       }
       val M0_access_addr = modded_list3.map(x => x.map(y => y._1))
-      println("Hello")
-      M0_access_addr.map(x => println(x.toList))
-      println()
       val M0_access_port = modded_list3.map(x => x.map(y => y._2))
-      M0_access_port.map(x => println(x.toList))
-      println()
       val M0_vec_addr = for (i <- 0 until N/win) yield {
         val V = VecInit(M0_access_addr(i).map(_.U((log2Ceil((N/win) * 2)).W)))
         V
@@ -304,14 +299,6 @@ object PermutationDesigns {
         mem_input_pass += temp_inp1.toArray
       }
 
-      modded_list4.map(x=>println(x.toList))
-      println()
-      modded_list6.map(x=>println(x.toList))
-      println("_--_--_-_--_-_---__-----__--___--__-")
-      for(i <- 0 until w) {
-        println()
-        mem_enables(i).map(x => println(x.toList))
-      }
 
       val M0_mem_wen = VecInit(mem_enables.map(y=>VecInit(y.map(z=>VecInit(z.map(_.B))))).toArray) // this table contains all the write enables for each port
       val M0_addr = VecInit(mem_addr_adj.map(y=>VecInit(y.map(z=>VecInit(z.map(_.U(log2Ceil(N/w).W)))))).toArray)
@@ -519,7 +506,6 @@ object PermutationDesigns {
       }).toArray
       M0_slice
     }).toArray
-    M0_access.map(x=> println(x.toList))
     val M0_vec = for(i <- 0 until N/w) yield{
       val V = VecInit(M0_access(i).map(_.U((log2Ceil((N/w) * 2)).W)))
       V
@@ -543,7 +529,6 @@ object PermutationDesigns {
       }).toArray
       M1_slice
     }).toArray
-    M1_access.map(x=> println(x.toList))
     val M1_vec = for(i <- 0 until N/w) yield{
       val V = VecInit(M1_access(i).map(_.U((log2Ceil((N/w) * 2)).W)))
       V
@@ -567,7 +552,6 @@ object PermutationDesigns {
       }).toArray
       M1_slice
     }).toArray
-    M1_access.map(x=> println(x.toList))
     val M1_vec = for(i <- 0 until N/w) yield{
       val V = VecInit(M1_access(i).map(_.U((log2Ceil(w).W))))
       V

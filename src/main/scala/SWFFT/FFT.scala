@@ -194,8 +194,6 @@ object FFT {
     var xk = xr // copy of the inputs array
     val Twid = T2_rs(N,ns,nr) // compute the twiddle factors for the mixed radix case
     xk = L[cmplx](xk,N,nr) // permute the inputs
-//    println("first_perm------------------------------")
-//    xk.map(_.print_complex)
     // We are splitting DFT_N into nr DFT_ns computations initially
     // afterward, we apply twiddle factors and compute ns DFT_nr computations
     for(i <- 0 until nr){
@@ -204,14 +202,10 @@ object FFT {
         xk(i*ns+j) = temp(j)
       }
     }
-//    println("first_dft------------------------------")
-//    xk.map(_.print_complex)
+
     xk = L[cmplx](xk,N,ns) // permute the xk
-//    println("second perm------------------------------")
-//    xk.map(_.print_complex)
+
     xk = xk.zip(Twid).map{case (a,b) => complex_mult(a,b)} // apply the twiddle factors
-//    println("twid_fact------------------------------")
-//    xk.map(_.print_complex)
     for(i <- 0 until ns){
       var temp = FFT_r(nr,r,xk.slice(i*nr, i*nr+nr)) // compute the FFT_r based on size nr and radix r
       for(j <- 0 until nr){ // update xk values with new values
@@ -219,9 +213,6 @@ object FFT {
       }
     }
     xk = L[cmplx](xk,N,nr) // permute the xk one last time
-//    println("third perm------------------------------")
-//    xk.map(_.print_complex)
-//    println("end------------------------------")
     xk // return the xk array, now holding the solution
   }
 
@@ -252,7 +243,6 @@ object FFT {
       }
       row
     }
-    ind_sq.map(x => println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int, Int)]()
@@ -272,10 +262,6 @@ object FFT {
         }
       }
     }
-    println(ind_sq_unique.zipWithIndex.toList)
-    println(ind_sq_unique_address.toList)
-    println(cases.toList)
-    println(cases_addr.toList)
 
     def returnMapping2(num: Int, arr: Array[(Int, Int)]): (Int, Int) = { //for multiply access values
       var returnval = (0, 0)
@@ -288,7 +274,6 @@ object FFT {
     }
 
     val cases_addr_adjusted = cases.map(x => returnMapping2(x._1.abs, ind_sq_unique.zipWithIndex.toArray))
-    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int, Int)]): Int = {
       var returnval = 0
@@ -301,7 +286,6 @@ object FFT {
     }
 
     val new_adj_case_sq = ind_sq.map(x => x.zipWithIndex.map(y => (returnMapping3((y._1.abs, y._2), cases.toArray), y._1 < 0)))
-    new_adj_case_sq.map(x => println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for (i <- 0 until cases.length) yield {
@@ -345,7 +329,6 @@ object FFT {
     if (r == 2) {
       DFT_latency = 1
     }
-    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = w / r
     val number_of_stages = (Math.log10(N) / Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -379,7 +362,6 @@ object FFT {
       }
       row
     }
-    //    ind_sq.map(x=>println(x))
     val ind_sq_unique = mutable.ArrayBuffer[Int]()
     val ind_sq_unique_address = mutable.ArrayBuffer[(Int, Int)]()
     val cases = mutable.ArrayBuffer[(Int,Int)]()
@@ -399,10 +381,6 @@ object FFT {
         }
       }
     }
-    //    println(ind_sq_unique.zipWithIndex.toList)
-    //    println(ind_sq_unique_address.toList)
-    //    println(cases.toList)
-    //    println(cases_addr.toList)
     def returnMapping2(num: Int, arr: Array[(Int,Int)]):(Int,Int)={//for multiply access values
       var returnval = (0,0)
       for(i <- 0 until arr.length){
@@ -413,7 +391,6 @@ object FFT {
       returnval
     }
     val cases_addr_adjusted = cases.map(x=>returnMapping2(x._1.abs,ind_sq_unique.zipWithIndex.toArray))
-    //    println(cases_addr_adjusted.toList)
 
     def returnMapping3(num: (Int, Int), arr: Array[(Int,Int)]):Int={
       var returnval = 0
@@ -425,7 +402,6 @@ object FFT {
       returnval
     }
     val new_adj_case_sq = ind_sq.map(x=>x.zipWithIndex.map(y=>(returnMapping3((y._1.abs,y._2), cases.toArray),y._1 < 0)))
-    //    new_adj_case_sq.map(x=>println(x.toList))
     var mult_layer_count1 = 0
     var cases_no_mult = mutable.ArrayBuffer[(Int, Int)]()
     for(i <- 0 until cases.length) yield {
@@ -455,7 +431,6 @@ object FFT {
     if(r == 2){
       DFT_latency = 1
     }
-    //    println(s"the dft latency: ${DFT_latency}")
     val DFTs_per_stage = N/r
     val number_of_stages = (Math.log10(N)/Math.log10(r)).round.toInt
     val TotalStages = ((Math.log10(N) / Math.log10(r)).round - 1).toInt
@@ -472,8 +447,6 @@ object FFT {
         if (!((c1._1 && n.im.abs < 0.005) || (c2._1 && n.re.abs < 0.005))) {
           mult_count2 += 1
         }else if((c1._1 && n.im.abs > 0.005 && n.re.abs > 0.005) || (c2._1 && n.re.abs > 0.005 && n.im.abs > 0.005) ){ // two multipliers eliminated// but adders are maintained
-          //          println(n.re.abs)
-          //          println(n.im.abs)
           subtract_mults += 1
         }
       }
@@ -485,13 +458,10 @@ object FFT {
       T_L += T_latency
     }
     var total_mults = if(r==2){0}else{4}
-    //    println(s"subtract_mults: ${subtract_mults}")
     total_mults += mult_cnt_twid*4 - (subtract_mults*2)
     val twid_adders = mult_cnt_twid * 2
     var total_add = if(r==2){number_of_stages*(N/r)*4}else{number_of_stages*(N/r)*14}
     total_add += twid_adders
-    //    println(s"The total adders are: ${total_add}")
-    //    println(s"The total mults are: ${total_mults}")
     val Twid_latency = (N/w) * CMultLatency
     val Perm_latency = 0
     val Total_Latency = T_L + (number_of_stages) * DFT_latency + (number_of_stages + 1) * Perm_latency
@@ -501,8 +471,6 @@ object FFT {
   def getFFTLatencymr(N:Int, nr: Int, ns:Int, r: Int, s: Int, w: Int, bw: Int): Int = {
     val FFT_latency1 = getFFTLatency(ns, s, ns, bw)
     val FFT_latency2 = getFFTLatency(nr, r, nr, bw)
-    println(s"FFT_latency1: ${FFT_latency1}")
-    println(s"FFT_latency2: ${FFT_latency2}")
     val DFTr_Constants = Permutations.T2_rs(N, ns, nr)
     var mult_count = 0
     val mult_ind = mutable.ArrayBuffer[Int]()
@@ -563,7 +531,6 @@ object FFT {
   // not-related to FFT, but its used for multiplier/adder hardware reduction (dont know why I have it here)
   def isReducable(num:Double):(Boolean,Int) = {
     val pow = (Math.log10(num)/Math.log10(2)).round
-    //println(s"Pows: ${pow}")
     if((num - Math.pow(2,pow)).abs <= 0.000001)
       (true, pow.toInt)
     else

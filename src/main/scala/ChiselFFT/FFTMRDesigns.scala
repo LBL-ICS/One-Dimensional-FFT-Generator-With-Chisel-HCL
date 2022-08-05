@@ -113,7 +113,6 @@ object FFTMRDesigns {
   class FFT_MixedRadix_Streaming(N:Int, nr: Int, ns: Int, r: Int, s: Int, w: Int, bw: Int) extends Module{ // streaming single radix fft, still in progress
     val w1 = w // this will be the input and output width
     var w2 = Permutations.getw2(w1,N,nr,ns,s)
-    println(s"The w2 is : ${w2}")
     val io = IO(new Bundle() {
       val in = Input(Vec(w, new ComplexNum(bw)))
       val in_ready = Input(Bool())
@@ -133,7 +132,6 @@ object FFTMRDesigns {
     // 3. the w1>=nr, w2<ns // not done yet
     // 4. the w1>=nr, w2>=ns // already did
     if(w1 < nr && w2 < ns){ //streaming width is less the a single FFTnr size - will have to be streamed as well \\ additionally this can only be the case if nr is greater than fundamental dft2 and 3 sizes
-      println("case 1")
       fftlatency1 = getfftstreamedlatency(nr,r,w1,bw)
       fftlatency2 = getfftstreamedlatency(ns,s,w2,bw)
       val FFT_modules1 = Module(new FFT_SingleRadix_Streaming_NRO(nr,r,w1,bw)).io
@@ -213,7 +211,6 @@ object FFTMRDesigns {
       io.out := results
       io.out_validate := out_regdelay // i think this is all we need for this case
     }else if(w1 < nr && w2 >=ns){
-      println("case 2")
       fftlatency1 = getfftstreamedlatency(nr,r,w1,bw) // in this case the fft1 is reduced streaming width
       fftlatency2 = getFFTLatency(ns,s,ns,bw) // the fft2 is full streaming width
       val FFT_modules1 = Module(new FFT_SingleRadix_Streaming_NRO(nr,r,w1,bw)).io
@@ -326,7 +323,6 @@ object FFTMRDesigns {
       io.out_validate := out_regdelay
       io.out := results
     }else if(w1>=nr && w2 < ns){
-      println("case 3")
       fftlatency1 = getFFTLatency(nr,r,nr,bw) // the fft1 is full streaming width
       fftlatency2 = getfftstreamedlatency(ns,s,w2,bw) // the fft2 is a reduced streaming width
       val FFT_modules1 = if(nr == r){ // if this this the case then we just need to instantiate dft modules
@@ -439,7 +435,6 @@ object FFTMRDesigns {
       io.out_validate := out_regdelay
       io.out := results
     }else if(w1 >= nr && w2 >= ns){ // streaming width is greater than or equal to the FFTnr size (this also implies the same case for the FFTns size as well)
-      println("case 4")
       fftlatency1 = getFFTLatency(nr,r,nr,bw) // this function should also give the DFT_NRV latency as well if we set the nr==r
       fftlatency2 = getFFTLatency(ns,s,ns,bw)
       val FFT_modules1 = if(nr == r){ // if this this the case then we just need to instantiate dft modules
@@ -490,7 +485,6 @@ object FFTMRDesigns {
               Perm_module1.in_en(0) := io.in_ready
               Perm_module1.in := io.in
             }else if(i==1){
-              println(fftlatency1)
               Perm_regdelays1(1)(0) := DFT_regdelays1(fftlatency1-1)
               Perm_module2.in_en(0) := DFT_regdelays1(fftlatency1-1)
               for(k <- 0 until w1/nr){

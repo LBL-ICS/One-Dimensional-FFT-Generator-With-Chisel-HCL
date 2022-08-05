@@ -117,10 +117,6 @@ object Permutations {
     val base_indices = (for(i <- 0 until N)yield{i}).toArray // generate all the indices corresponding to the N elements
     val non_permuted = StreamingGroup[Int](base_indices, N, w) // group indices into streaming groups
     val permuted = StreamingGroup[Int](if(t == 0 || t==2){L[Int](base_indices,N, r)}else{R[Int](base_indices,N,r)},N,w) // group permuted indices into streaming groups
-    non_permuted.map(x => println(x.toList))
-    println()
-    permuted.map(x => println(x.toList))
-    println()
     var unorganized_memory_addr = (for(i <- 0 until N/w) yield{ //find the mappings for each element ((read_address, read_port), (write_address, write_port))
       (for(j <- 0 until w) yield{
         var temp = ((0,0),(0,0))
@@ -148,24 +144,9 @@ object Permutations {
       }
     }
     if(t == 2) { // I think the t == 2 case might be the better solution for the permutations
-      for(i <- 0 until N/w){
-        for(j <- 0 until w){
-          print(s"${unorganized_memory_addr(i)(j)}\t")
-        }
-        println()
-      }
-      println()
       val horizontal_length = unorganized_memory_addr(0).length
       val vertical_length = unorganized_memory_addr.length
       for(l <- 0 until vertical_length-1) {
-        println(s"start")
-        for (i <- 0 until vertical_length) {
-          for (j <- 0 until horizontal_length) {
-            print(s"${unorganized_memory_addr(i)(j)._2._2}\t")
-          }
-          println()
-        }
-        println(s"iteration: ${l+1} out of ${vertical_length-1}")
         val used_indices = mutable.ArrayBuffer[Int]()
         used_indices += unorganized_memory_addr(l)(0)._2._2
         val m = mutable.ArrayBuffer[Array[Array[((Int, Int), (Int, Int))]]]()
@@ -174,10 +155,8 @@ object Permutations {
           unorganized_memory_addr(i)(0)
         }).toArray
         m2 += ta
-        m2.map(x => println(x.toList))
         m += m2.toArray
         m2.clear()
-        m2.map(x => println(x.toList))
         for (i <- 1 until horizontal_length) {
           var temp = (for (j <- l until vertical_length) yield {
             unorganized_memory_addr(j)(i)
@@ -199,14 +178,11 @@ object Permutations {
               }
               var keep_looping = true
 
-              println("The missing numbers are")
-              println(temp_missing.toList)
               // want to make this into a function
               var temp2 = temp.clone()
               while(keep_looping) {
                 for (v <- 0 until used_indices.length) {
                   if (used_indices(v) == temp2(0)._2._2 && v != i) {
-                    println(s"index: ${v} ${used_indices(v)}") // this gets the location where the current number was last seen // can't be the same spot as current
                     index_switch = v
                   }
                 }
@@ -217,7 +193,6 @@ object Permutations {
 
                 var cnt2 = 0 + l
                 var flag2 = false
-                println(temp2.toList)
                 while (temp2(0)._2._2 != temp_missing(0) && !flag2) { // now checking to see if the missing number is here
                   if (cnt2 == vertical_length - 1) { // if we have not found it
                     flag2 = true
@@ -232,7 +207,6 @@ object Permutations {
                 keep_looping = flag2
               }
             }
-            println(temp.toList)
             m2.clear()
             m2 += temp
             if(cnt == vertical_length-1) {
@@ -240,7 +214,6 @@ object Permutations {
             }else{
               cnt += 1
             }
-            println(cnt,i)
           }
           if(flag){
             val temp_missing = mutable.ArrayBuffer[Int]()
@@ -256,13 +229,10 @@ object Permutations {
             m += m2.toArray
             m2.clear()
             used_indices += unorganized_memory_addr(cnt)(i)._2._2
-            println(s"Used indices: ${used_indices.toList}")
           }
         }
-        m.map(_.map(x => println(x.toList)))
         val organ = (for (i <- l until vertical_length) yield {
           (for (j <- 0 until horizontal_length) yield {
-            println((j,i))
             m(j)(0)(i-l)
           }).toArray
         }).toArray
@@ -272,13 +242,6 @@ object Permutations {
           }
         }
 
-        println("testt")
-        for (i <- 0 until vertical_length) {
-          for (j <- 0 until horizontal_length) {
-            print(s"${unorganized_memory_addr(i)(j)._2._2}\t")
-          }
-          println()
-        }
 
       }
       unorganized_memory_addr
@@ -356,10 +319,6 @@ object Permutations {
           }
         }
       }
-      unorganized_memory_addr.map(x => println(x.toList))
-      println("pairs of read, store (address, port). Horizontal terms are the w inputs/outputs per cycle")
-      organized_into_unique_mem_stores.map(x => println(x.toList))
-      println()
       organized_into_unique_mem_stores
     }
   }
@@ -428,7 +387,6 @@ object Permutations {
         if(ns != s) {
           val generated_mappings = Permutations.generate_streaming_possibilities(ns, s)
           var counter = 0
-          println(generated_mappings.toList)
           var flag = false
           while (generated_mappings(counter) < w1 && !flag) {
             if(counter == generated_mappings.length-1){
@@ -469,11 +427,9 @@ object Permutations {
           val generated_mappings = Permutations.generate_streaming_possibilities(ns, s)
           var counter = 0
           while (generated_mappings(counter) < w1 || !(N.toDouble/generated_mappings(counter).toDouble).isWhole) {
-            //println(w1)
             counter += 1
           }
           w2 = generated_mappings(counter)
-          //println(generated_mappings(0))
         }
       }
     }
@@ -545,7 +501,6 @@ object Permutations {
               var cnt2 = 0 + l // similar counter procedure is trying to determine if the missing number can be found within the column corresponding to the row index
               var flag2 = false // flag2 indicates if the missing number was not found and we need to search more
               while (temp2(0)._2._2 != temp_missing(0) && !flag2) { // now checking to see if the missing number is here
-                println("where u stuck")
                 if (cnt2 == vertical_length - 1) { // if we are not able to find, we will have to search elsewhere
                   flag2 = true
                 } else {
@@ -591,29 +546,6 @@ object Permutations {
           unorganized_memory_addr(i)(j) = organ(i-l)(j)
         }
       }
-    }
-    for(i <- 0 until vertical_length){
-      for(j <- 0 until horizontal_length){
-        print(s"${unorganized_memory_addr(i)(j)} ")
-      }
-      println()
-    }
-    println()
-    var count = 0
-    for(i <- 0 until N/w){
-      for(j <- 0 until w){
-        for(k <- 0 until w){
-          if(unorganized_memory_addr(i)(j)._2._2 == unorganized_memory_addr(i)(k)._2._2 && j != k){
-            count += 1
-            println(s"${(i,j)} with ${(i,k)}")
-          }
-        }
-      }
-    }
-    if(count >0){
-      println("cases found")
-    }else{
-      println("cases not found")
     }
     unorganized_memory_addr
   }

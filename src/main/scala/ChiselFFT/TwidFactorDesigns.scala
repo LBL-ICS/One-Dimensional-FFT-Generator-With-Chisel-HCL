@@ -498,7 +498,6 @@ object TwidFactorDesigns {
       T_latency = 0
     }
     val TwiddleFactorConstantsRe = VecInit(Permutations.T2_rs(N,s,r).map(x=>convert_string_to_IEEE_754(x.re.toString, bw).U))
-    Permutations.T2_rs(N,s,r).map(x=>x.print_complex)
     val TwiddleFactorConstantsIm = VecInit(Permutations.T2_rs(N,s,r).map(x=>convert_string_to_IEEE_754(x.im.toString, bw).U))
     val TotalCycles = N/w
     val offset = w
