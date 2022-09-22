@@ -235,7 +235,7 @@ object PaddingDesigns {
   class one_dimensional_padding_streaming(paddinglength: Int, streamingwidth: Int, segment_lengths: Array[Int], bw: Int) extends Module{
     val io = IO(new Bundle{
       val in = Input(Vec(streamingwidth, new ComplexNum(bw)))
-      val in_ready = Input(Bool())
+      val in_en = Input(Bool())
       val out = Output(Vec(streamingwidth, new ComplexNum(bw)))
       val out_ready = Output(Bool())
       val out_valid = Output(Bool())
@@ -278,7 +278,7 @@ object PaddingDesigns {
     val out_ready_reg = RegInit(true.B)
     io.out_valid := out_valid_reg
     io.out_ready := out_ready_reg
-    when(io.in_ready){
+    when(io.in_en){
       when(counter.value === (ccs - 1).U) { // controls switching buffer modes and tracking stage
         out_ready_reg := true.B
         when(switchModes){
@@ -402,7 +402,7 @@ object PaddingDesigns {
     val streaming_width = 2
     //need to clear out the srams after each use!!!!
     test(new one_dimensional_padding_streaming(96,2,Array(16,34,42,40,18,36,22),32)){c=>
-      c.io.in_ready.poke(true.B)
+      c.io.in_en.poke(true.B)
       for(i <- 0 until (entries_test/streaming_width) * 8){
         for(j <- 0 until streaming_width){
           c.io.in(j).Re.poke(((i*streaming_width + j)%(entries_test/streaming_width)+1).U)
